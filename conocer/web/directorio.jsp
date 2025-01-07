@@ -112,7 +112,6 @@
                 <!-- Botones de paginación se agregarán aquí -->
             </div>
         </div>
-    </div>
 
 
     <!-- Footer -->
