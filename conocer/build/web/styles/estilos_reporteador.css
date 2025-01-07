@@ -1,0 +1,614 @@
+nav{
+	box-shadow: none !important;
+}
+
+#tamanoIcono{
+	font-size: 45px;
+}
+
+.logo{
+	margin-top: 10px;
+}
+
+#search{
+	margin-top: 8px;
+    width: 65px !important; 
+    height: 65px !important;
+}
+
+.chip{
+	margin-top: 25px;
+	font-size: 15px;
+	height: 62px;
+	background-color:  #800020;
+	color: #ffffff;
+}
+
+.centrarLogin{
+	padding-top: 70px;
+	font-family: "tituloLogin";
+
+}
+
+#bordeLogin{
+width: 530px;
+  height: 620px;
+  border-color: #800020;
+  border-width: 5px;
+  border-style: solid;
+  border-radius: 30px;
+  background-color: #ffffff;
+  background-image: url('../img/fondoConocer2.png');
+}
+
+#fondoBody{
+    background-image: url('../img/fondopix.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+#fondoBodyReportes{
+    background-image: url('../img/logo_cono.png');
+    background-size: 50%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+}
+
+#fondoBodyReportes2{
+	background-image: url('../img/impresion3.png');
+    background-size: 25%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+}
+
+#guardar {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+
+
+.bienvenida{
+	font-size: 40px;
+	color: #800020;
+}
+
+.bienvenida2{
+	font-size: 40px;
+	color: #060080;
+}
+
+#labelColor{
+	color: #800020;
+
+}
+
+#botonEnviar{
+	background-color: #060080;
+}
+
+@font-face{
+	font-family: "tituloLogin";
+	src: url('../assets/fonts/mont/Mont-HeavyDEMO.otf');
+	
+}
+
+.tamanoIcono{
+	font-size: 15px !important;
+	color: #800020;
+}
+
+.btn-icon {
+	background-color: transparent !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	
+}
+.btn-icon:hover, .btn-icon:focus {
+	background-color: transparent !important;
+}
+
+/* Asegura que el dropdown se alinee justo debajo del botón "Productos" */
+.dropdown-content {
+    margin-top: 0 !important;
+    top: 21% !important;
+    min-width: 120px !important;
+		background-color: #800020;
+		font-size: 15px;
+    z-index: 1000; /* Asegura que el dropdown esté por encima de otros elementos */
+}
+
+/* Asegura que el menú no cubra el botón de "Productos" */
+.dropdown-trigger:hover + .dropdown-content,
+.dropdown-content:hover {
+    display: block;
+	background-color: white;
+}
+
+
+.dropdown-submenu {
+	position: absolute;
+	top: 0;
+	left: 100%;
+	margin-top: 0;
+  }
+  
+  .dropend:hover > .dropdown-menu {
+	display: block;
+  }
+  
+  .dropend > .dropdown-toggle::after {
+	float: right;
+	margin-top: 8px;
+  }
+
+
+.form-select{
+	width: 420px;
+}
+
+
+
+.logoFondo{
+	min-height: 75vh;
+}
+
+.tamanoLogo{
+  max-width: 10%;
+  margin-top: 30px;
+  margin-left: 0;
+  opacity: 0.8;
+  background-attachment: fixed;
+}
+
+.botonDescargar{
+	font-size: 13px;
+}
+
+.tamanoLogo2{
+  max-width: 10%; 
+  margin-right: 0;
+  opacity: 0.4;
+  background-attachment: fixed;
+}
+
+.colorLabel{
+	color: black;
+	font-size: 13.5px;
+  
+}
+
+#descargarSp{
+	font-size: 13px;
+}
+
+.table {
+    font-size: 12px; /* Tamaño de fuente más legible */
+    border-collapse: collapse;
+    width: 100%; /* Asegura que ocupe el espacio necesario */
+}
+
+.table th, .table td {
+    padding: 4px 6px; /* Reduce el relleno para compactar */
+    text-align: left; /* Alineación estándar */
+}
+
+.table th {
+    background-color: #dc3545 !important;
+    color: white;
+    font-weight: bold;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered th, .table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #dca5a5; /* Suave efecto al pasar el cursor */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9; /* Alterna filas */
+}
+
+.table-compact {
+    font-size: 10.5px; /* Fuente aún más compacta si es necesario */
+}
+
+
+.pagination {
+    margin-top: 10px; 
+}
+
+
+.pagination {
+    gap: 5px; 
+}
+
+.pagination .page-item {
+    margin: 0 2px;  
+}
+
+.pagination .page-link {
+    color: #0d6efd;  
+    background-color: #fff;  
+    border: 1px solid #dee2e6; 
+    padding: 0.375rem 0.75rem;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #0a58ca;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.pagination .page-link {
+    border-radius: 4px;
+}
+
+#nombreSp{
+	font-size: 8px !important;
+}
+
+
+
+/* El contenedor principal crecerá para empujar el footer */
+
+.table-container {
+    margin-bottom: 50px !important; 
+}
+
+.main-container {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px; /* Último valor para padding-bottom */
+    max-width: 900px;
+    min-height: 500px;
+    margin-top: 0;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-container {
+    margin-bottom: 200px; /* Ajusta si usas paginación cerca del footer */
+}
+
+
+/* Botones de acción */
+.btn-danger {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Estilo de los input-group */
+.input-group-text {
+    background-color: #e9ecef;
+    font-weight: 400;
+    font-size: 12px;
+    color: #495057;
+    border: 2px solid #007bff !important;
+}
+
+
+/* Tamaño de los input y selects */
+.form-control, .form-select {
+    height: 35px;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+/* Select con icono de flecha */
+.select-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23495057' viewBox='0 0 20 20'%3E%3Cpath d='M5.293 7.707a1 1 0 011.414 0L10 11.586l3.293-3.879a1 1 0 011.707.707V12a1 1 0 01-1.707.707L10 9.414l-3.293 3.879A1 1 0 015.293 12V8.414a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 1em;
+}
+
+/* Checkbox e indicadores */
+.form-check-input {
+    width: 20px;
+    height: 15px;
+}
+
+.form-check-label {
+    font-size: 16px;
+    font-weight: 100;
+    color: #495057;
+}
+
+.custom-container {
+    background-color: #f9f9f9;
+    max-width: 500px;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#fondoGrafica {
+    background-color: white;     
+    max-width: 600px;            
+    padding: 20px;               
+    border-radius: 10px;         
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    margin: 20px auto;           
+}
+
+.chart-container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    height: 900px;
+}
+#graficasContainer {
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 5px;
+    padding: 3px;
+    margin-bottom: 100px; /* Espacio para el footer */
+}
+
+/* Estilos generales */
+.chart-container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    height: 800px;
+}
+
+#graficasContainer {
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 5px;
+    padding: 3px;
+    margin-bottom: 100px; /* Espacio para el footer */
+}
+
+/* Estilos del header */
+.brand-logo img {
+    max-height: 60px;
+}
+
+/* Estilos del contenedor principal */
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos del contenido */
+.main-content {
+    flex: 1; /* Esto permite que el contenido ocupe el espacio disponible */
+}
+
+/* Estilos del footer */
+.footer {
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #dee2e6;
+    position: relative; /* Ajusta el posicionamiento para no ser fijo */
+}
+
+/* Asegurando que el footer quede al fondo si el contenido es pequeño */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+.footer-logo {
+    max-height: 50px;
+}
+
+.footer-text {
+    margin: 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.footer-link {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+/* Estilos para los botones */
+.btn-group {
+    margin: 10px;
+}
+
+#fondoGrafica {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+
+.btn i, 
+.btn .material-symbols-outlined {
+    font-size: 16px; 
+    vertical-align: middle; 
+}
+
+.btn i, 
+.btn .material-symbols-outlined {
+    margin-left: 5px;
+}
+
+.input-group-text i {
+    cursor: pointer; /* Cambiar cursor al pasar sobre el ícono */
+} 
+
+/* Ajustes para tablets y dispositivos medianos */
+@media (max-width: 768px) {
+    #bordeLogin {
+        width: 90%; /* Reduce el ancho del formulario */
+        height: auto; /* Ajusta la altura automáticamente */
+        padding: 20px; /* Espaciado interno */
+        margin: 0 auto; /* Centra en la pantalla */
+    }
+
+    #fondoBody {
+        background-attachment: scroll; /* Evita que el fondo fijo se corte en móviles */
+        background-size: cover; /* Asegura que se vea completo */
+    }
+
+    .bienvenida, .bienvenida2 {
+        font-size: 30px; /* Reduce el tamaño de la fuente */
+    }
+
+    .tamanoIcono {
+        font-size: 12px !important;
+    }
+
+    .form-select {
+        width: 100%; /* Ajusta el ancho del selector */
+    }
+
+    .btn-group {
+        flex-wrap: wrap; /* Permite que los botones se apilen */
+        gap: 5px; /* Espaciado entre botones */
+    }
+
+    #guardar {
+        font-size: 12px; /* Reduce tamaño del texto */
+        padding: 8px; /* Mejora el espaciado */
+    }
+
+    .table {
+        font-size: 10px; /* Reduce el tamaño de las tablas */
+    }
+}
+
+/* Ajustes para móviles */
+@media (max-width: 576px) {
+    .chip {
+        font-size: 13px; /* Texto más pequeño */
+        height: auto; /* Ajusta el alto dinámicamente */
+        padding: 10px;
+    }
+
+    .tamanoLogo, .tamanoLogo2 {
+        max-width: 30%; /* Imágenes más pequeñas */
+    }
+
+    .footer-logo {
+        max-width: 30px; /* Escala el logo en el footer */
+    }
+
+    .footer-container {
+        font-size: 12px; /* Texto más compacto */
+    }
+
+    .table {
+        font-size: 9px; /* Fuente pequeña para tablas */
+    }
+
+    .pagination .page-link {
+        padding: 0.25rem 0.5rem; /* Reduce botones de paginación */
+        font-size: 12px; /* Fuente compacta */
+    }
+}
+
+#pagination {
+    padding: 10px;
+}
+
+/* Contenedor de búsqueda */
+        #quickSearchContainer {
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        /* Estilo para resaltar resultados de búsqueda */
+        .search-highlight {
+            background-color: #ffff00;
+            font-weight: bold;
+        }
+        
+        /* Mejoras de responsividad */
+        @media (max-width: 768px) {
+            #quickSearchContainer {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            #quickSearchContainer > * {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Mejoras de tabla */
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        
+    #directory-title {
+    color: black ;
+    font-weight: 500 ;
+    text-transform: uppercase;
+    padding: 10px!important;
+    margin: 5px 0 !important;
+    border-bottom: 1px solid #004b8d;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 1px !important;
+}
+
+
+/* Estilo del spinner */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #D9304F;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+
+.loader-text {
+    margin-left: 10px;
+    font-size: 16px;
+    color: #D9304F;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

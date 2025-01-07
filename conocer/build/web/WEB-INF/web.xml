@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <!-- Servlet para validación de usuarios -->
+    <servlet>
+        <servlet-name>validacionUsers</servlet-name>
+        <servlet-class>validaciones.validacionUsers</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>validacionUsers</servlet-name>
+        <url-pattern>/ValidarUsuarios</url-pattern>
+    </servlet-mapping>
+    <!-- Servlet para reportes SII -->
+    <servlet>
+        <servlet-name>ReportesSII</servlet-name>
+        <servlet-class>reportes.ReportesSII</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReportesSII</servlet-name>
+        <url-pattern>/ReportesSII</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>Directorio</servlet-name>
+        <servlet-class>reportes.Directorio</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Directorio</servlet-name>
+        <url-pattern>/Directorio</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>DirectorioAdministrador</servlet-name>
+        <servlet-class>reportes.DirectorioAdministrador</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DirectorioAdministrador</servlet-name>
+        <url-pattern>/DirectorioAdministrador</url-pattern>
+    </servlet-mapping>
+    <!-- Servlet para descargar reportes -->
+    <servlet>
+        <servlet-name>descargarReporte</servlet-name>
+        <servlet-class>reportes.descargarReporte</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>descargarReporte</servlet-name>
+        <url-pattern>/descargarReporte</url-pattern>
+    </servlet-mapping>
+    <!-- Configuración de la sesión -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+</web-app>
