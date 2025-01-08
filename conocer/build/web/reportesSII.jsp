@@ -146,7 +146,7 @@
                 <!-- Botones de paginación se agregarán aquí -->
             </div>
         </div>
-    </div>
+    
 
 
     <!-- Footer -->
@@ -453,19 +453,20 @@ function descargarReporte() {
     botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Descargando...';
     botonDescargar.disabled = true;
 
+    // FormData para enviar la solicitud de descarga
     const formData = new FormData();
-    formData.append('procedimientos', selectedValue);
-    formData.append('formato', 'excel');
+    formData.append('procedimientos', selectedValue);  // Verifica que 'selectedValue' esté correctamente asignado
+    formData.append('formato', 'excel');  // Tipo de formato que queremos (en este caso Excel)
 
     fetch('ReportesSII', {
         method: 'POST',
         body: formData
     })
     .then(async response => {
+        // Verifica que la respuesta del servidor sea correcta y no JSON de error
         const contentType = response.headers.get('content-type');
         
         if (contentType && contentType.includes('application/json')) {
-            // Es una respuesta JSON, probablemente un error
             const jsonResponse = await response.json();
             if (jsonResponse.error) {
                 throw new Error(jsonResponse.error);
@@ -477,13 +478,14 @@ function descargarReporte() {
             throw new Error(`Error del servidor: ${response.status}`);
         }
         
-        return response.blob();
+        return response.blob();  // Esperamos recibir un archivo Excel
     })
     .then(blob => {
         const fechaActual = new Date().toLocaleDateString('es-MX').replace(/\//g, '-');
         const nombreReporte = selectElement.options[selectElement.selectedIndex].text;
         const fileName = `Reporte_${nombreReporte}_${fechaActual}.xlsx`;
 
+        // Crear el enlace para descargar el archivo
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -502,7 +504,10 @@ function descargarReporte() {
         botonDescargar.disabled = false;
     });
 }
+
 document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+
+
     </script>
     
     
