@@ -15,6 +15,7 @@
         <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
         <!-- Compiled and minified CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Bootstrap JS Bundle con Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -51,20 +52,9 @@
                             Datos Generales&nbsp;&nbsp;<i class="fa-brands fa-windows"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <c:if test="${sessionScope.tipoUsuario == '4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD' or sessionScope.tipoUsuario == 'reportes'}">
-                                <li><a class="dropdown-item" href="estadisticas.html">Estadísticas</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                </c:if>
 
                             <c:if test="${sessionScope.tipoUsuario == '4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD'}">
-                                <li class="dropend">
-                                    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">Reportes</a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="reportesECE.html">Reportes EC Marca</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
-                                    </ul>
-                                </li>
+                                <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
                             </c:if>
 
                             <c:if test="${sessionScope.tipoUsuario == '091FFD8E-1C76-4723-B581-C67A99F0EC87'}">
@@ -72,6 +62,7 @@
                                 </c:if>
                             <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
                                 <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
+                                <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
                                 </c:if>
                         </ul>
                     </div>
