@@ -75,7 +75,6 @@ public class validacionUsers extends HttpServlet {
 // Guardar la fecha en la misma sesión
                                 session.setAttribute("fecha", fechaFormateada);
 
-// Depuración
                                 System.out.println("Usuario: " + usuario);
                                 System.out.println("Fecha formateada: " + fechaFormateada);
 
@@ -86,34 +85,34 @@ public class validacionUsers extends HttpServlet {
                                             response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "DF06A990-84EF-4443-8185-77F68F6500BD":
-                                            response.sendRedirect("user2.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "2AE2D0AF-DD99-4B0B-A000-073FE17EDE79":
-                                            response.sendRedirect("user3.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "D3625435-5295-4349-976C-12787488AC5B":
-                                            response.sendRedirect("user4.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "0AD4C2A2-59A5-481C-A501-8E3F2BDEE1E6":
-                                            response.sendRedirect("user5.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD":
                                             response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "7B08059B-E39F-4007-9871-EA1EAB1045EF":
-                                            response.sendRedirect("user6.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "7459EE4B-B783-43CD-84EB-F8DFED5E56DC":
                                             response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "E6D10215-1531-482F-8AB7-D5497BD8E9DC":
-                                            response.sendRedirect("user8.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "CA9A6633-D971-4FEC-B379-0B8CDC859C0E":
-                                            response.sendRedirect("user9.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         case "FAA8565B-A5E5-4F16-A264-4335D5888B25":
-                                            response.sendRedirect("user10.jsp");
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         default:
                                             response.sendRedirect("default.jsp");

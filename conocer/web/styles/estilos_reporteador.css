@@ -184,9 +184,35 @@ width: 530px;
   
 }
 
-#descargarSp{
-	font-size: 13px;
+#descargarSp .button-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+#descargarSp i {
+    margin-right: 8px; /* Espacio entre el icono y el texto */
+}
+
+.btn-custom {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important; /* Espacio entre el icono y el texto */
+    line-height: 1 !important; /* Asegura que el texto no se extienda más allá del icono */
+}
+
+
+
+.btn i {
+    font-size: 1.2em !important; /* Asegura que el tamaño del icono sea proporcional */
+    display: flex !important;
+    align-items: center;
+}
+
+
+
+
 
 .table {
     font-size: 12px; /* Tamaño de fuente más legible */
@@ -451,17 +477,6 @@ body {
 }
 
 
-.btn i, 
-.btn .material-symbols-outlined {
-    font-size: 16px; 
-    vertical-align: middle; 
-}
-
-.btn i, 
-.btn .material-symbols-outlined {
-    margin-left: 5px;
-}
-
 .input-group-text i {
     cursor: pointer; /* Cambiar cursor al pasar sobre el ícono */
 } 
@@ -573,6 +588,7 @@ body {
         }
         
         
+  
     #directory-title {
     color: black ;
     font-weight: 500 ;
@@ -612,3 +628,7 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+
+

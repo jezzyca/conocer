@@ -1,7 +1,7 @@
 <%-- 
     Document   : directorio
     Created on : 23/12/2024, 11:17:53 AM
-    Author     : CONOCER
+    Author     : Conocer
 --%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -16,103 +16,96 @@
     <c:redirect url="login.jsp" />
 </c:if>
 
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>ReportesSII</title>
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Directorio</title>
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
 
-        <!-- CSS Libraries -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-        <!-- Custom CSS -->
-        <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
-    </head>
-    <body id="fondoBodyReportes2">
-        <br>
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <!-- Logo de la marca -->
-                <div class="col-3 d-flex justify-content-start align-items-center">
-                    <a href="informesMensuales.jsp" class="brand-logo">
-                        <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
-                    </a>
-                </div>
-                <!-- Sección de Selección de Reporte -->
-                <div class="col-6 d-flex justify-content-center align-items-center">
-                    <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
-                    <select name="procedimientos" id="seleccion" class="form-select w-50">
-                        <option selected disabled>Selecciona:</option>
-                        <!-- Opciones de reporte (mantenidas igual que en el código original) -->
-                        <option value="1">Acreditaciones EC/OCE</option>
-                        <option value="2">Directorio CE / EI</option>
-                    </select>
-
-                    <button id="descargarSp" type="submit" class="btn btn-outline-danger ms-2">Descargar Información</button>
-                    
-                </div>
-                <!-- Información del usuario -->
-                <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
-                    <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
-                    <div class="media-body">
-                        <!-- Mostrar "Usuario:" seguido del nombre -->
-                        <h6 class="mb-0 usuario-nombre small">
-                            Usuario: <c:out value="${sessionScope.usuario}" />
-                        </h6>
-                        <!-- Mostrar "Fecha:" seguido de la fecha y hora -->
-                        <small class="text-muted usuario-fecha">
-                            Fecha: <c:out value="${sessionScope.fecha}" />
-                        </small>
-                    </div>
-                </div>
+    <!-- CSS Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
+</head>
+<body id="fondoBodyReportes2">
+    <br>
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <!-- Logo de la marca -->
+            <div class="col-3 d-flex justify-content-start align-items-center">
+                <a href="informesMensuales.jsp" class="brand-logo">
+                    <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
+                </a>
             </div>
-
-            <!-- Contenedor de Búsqueda Rápida -->
-            <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
-                <div class="col-md-3 col-12">
-                    <input type="text" id="quickSearchInput" class="form-control" 
-                           placeholder="Buscar en la tabla...">
-                </div>
-                <div class="col-md-3 col-12">
-                    <select id="searchColumnSelect" class="form-select">
-                        <option value="">Buscar en todas las columnas</option>
-                    </select>
-                </div>
-                <div class="col-sm-1">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
-                        <label class="form-check-label" for="exactMatchCheckbox">
-                        </label>
-                    </div>
-                </div>
+            <!-- Sección de Selección de Reporte -->
+            <div class="col-6 d-flex justify-content-center align-items-center">
+                <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
+                <select name="procedimientos" id="seleccion" class="form-select w-50">
+                    <option selected disabled>Selecciona:</option>
+                    <!-- Opciones de reportes -->
+                    <option value="1">Acreditaciones EC/OCE</option>
+                    <option value="2">Directorio CE / EI</option>
+                </select>
+                <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
+    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
-
-            <!-- Contenedor de Tabla -->
-            <div class="table-responsive mt-3">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead class="table-dark sticky-top" id="tableHead">
-                        <!-- Encabezados se generarán dinámicamente -->
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="10" class="text-center">
-                                Selecciona un reporte para ver los datos.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginación -->
-            <div id="pagination" class="d-flex justify-content-center mt-3">
-                <!-- Botones de paginación se agregarán aquí -->
+            <!-- Información del usuario -->
+            <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
+                <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
+                <div class="media-body">
+                    <h6 class="mb-0 usuario-nombre small">
+                        Usuario: <c:out value="${sessionScope.usuario}" />
+                    </h6>
+                    <small class="text-muted usuario-fecha">
+                        Fecha: <c:out value="${sessionScope.fecha}" />
+                    </small>
+                </div>
             </div>
         </div>
 
+        <!-- Contenedor de Búsqueda Rápida -->
+        <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
+            <div class="col-md-3 col-12">
+                <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
+            </div>
+            <div class="col-md-3 col-12">
+                <select id="searchColumnSelect" class="form-select">
+                    <option value="">Buscar en todas las columnas</option>
+                </select>
+            </div>
+            <div class="col-sm-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor de Tabla -->
+        <div class="table-responsive mt-3">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="table-dark sticky-top" id="tableHead">
+                    <!-- Encabezados se generarán dinámicamente -->
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="10" class="text-center">
+                            Selecciona un reporte para ver los datos.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <div id="pagination" class="d-flex justify-content-center mt-3">
+            <!-- Botones de paginación se agregarán aquí -->
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="container-fluid mt-auto py-3 bg-light">
@@ -121,7 +114,7 @@
                 <img src="img/sep.png" alt="Logo SEP" class="img-fluid" style="max-height: 60px;">
             </div>
             <div class="col-12 col-md-6 text-center">
-                <p class="small mb-1">•2024•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
+                <p class="small mb-1">•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
                 <p class="small mb-1">•Barranca del Muerto 275, San José Insurgentes, Benito Juárez, 03900 Ciudad de México, D.F. 01 55 2282 0200</p>
                 <a href="#" target="_blank" class="small text-decoration-none">• CONOCER •</a>
             </div>
@@ -138,174 +131,173 @@
 
     <script>
 // Variables globales
-let globalTableData = []; // Almacena todos los datos del reporte
-let currentSelectedReport = null; // Almacena el tipo de reporte seleccionado
+let globalTableData = [];
+let currentSelectedReport = null;
 
 // Evento de cambio de reporte
-document.getElementById('seleccion').addEventListener('change', function () {
+document.getElementById('seleccion').addEventListener('change', function() {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
-    cargarDatos(selectedValue, 1, 30); // Carga inicial en la página 1
+    cargarDatos(selectedValue, 1, 30);
 });
 
-// Función principal de carga de datos
 function cargarDatos(selectedValue, pagina, registrosPorPagina) {
     if (!selectedValue || selectedValue === 'Selecciona:') {
         alert('Por favor, selecciona un tipo de reporte');
         return;
     }
 
-    // Referencias a elementos del DOM
     const tableHead = document.getElementById('tableHead');
     const tableBody = document.getElementById('tableBody');
     const paginationDiv = document.getElementById('pagination');
     const quickSearchContainer = document.getElementById('quickSearchContainer');
     const searchColumnSelect = document.getElementById('searchColumnSelect');
 
-    // Preparar la interfaz para la carga
-    tableHead.innerHTML = '<tr><th>Cargando...</th></tr>';
-    tableBody.innerHTML = '<tr><td colspan="10">Cargando datos...</td></tr>';
+    tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
+    tableBody.innerHTML = '<tr><td class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></td></tr>';
     paginationDiv.innerHTML = '';
     quickSearchContainer.style.display = 'none';
     searchColumnSelect.innerHTML = '<option value="">Buscar en todas las columnas</option>';
 
-    // Solicitud de datos al servidor en formato JSON
-    fetch('Directorio?procedimientos=' + selectedValue + '&page=' + pagina + '&pageSize=' + registrosPorPagina, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // Solicitar datos en formato JSON
-        },
-        body: JSON.stringify({
-            procedimientos: selectedValue,
-            page: pagina,
-            pageSize: registrosPorPagina
-        }) // Enviar datos en formato JSON
+    const params = new URLSearchParams({
+        procedimientos: selectedValue,
+        page: pagina,
+        pageSize: registrosPorPagina
+    });
+
+    fetch('Directorio?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
     })
-    .then(response => {
+    .then(async response => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
         if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor: ' + response.status);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        console.log('Datos recibidos:', data); // Verifica qué datos está recibiendo el cliente
-        // Limpiar indicadores de carga
         tableHead.innerHTML = '';
         tableBody.innerHTML = '';
         paginationDiv.innerHTML = '';
 
-        if (data.success && data.data[selectedValue]) {
-            // Almacenar datos globalmente
-            globalTableData = data.data[selectedValue];
+        if (!data || !data.success || !data.data || !data.data[selectedValue]) {
+            throw new Error('No se encontraron datos para el reporte seleccionado');
+        }
 
-            // Generar encabezados de tabla
-            const firstRow = globalTableData[0];
-            const headerRow = document.createElement('tr');
-            Object.keys(firstRow).forEach(key => {
-                const th = document.createElement('th');
-                th.textContent = key;
-                headerRow.appendChild(th);
+        globalTableData = data.data[selectedValue];
 
-                // Añadir opciones de búsqueda por columna
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = key;
-                searchColumnSelect.appendChild(option);
-            });
-            tableHead.appendChild(headerRow);
+        if (globalTableData.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="10" class="text-center">No hay datos disponibles para este reporte</td></tr>';
+            return;
+        }
 
-            // Renderizar filas de tabla
-            renderTableRows(globalTableData);
+        const firstRow = globalTableData[0];
+        const headerRow = document.createElement('tr');
 
-            // Mostrar contenedor de búsqueda
-            quickSearchContainer.style.display = 'flex';
+        Object.keys(firstRow).forEach(key => {
+            const th = document.createElement('th');
+            th.textContent = key;
+            th.className = 'text-nowrap';
+            headerRow.appendChild(th);
 
-            // Generar controles de paginación
-            generarPaginacion(data.totalPages || 1, pagina, selectedValue, registrosPorPagina);
-        } else {
-            tableBody.innerHTML = '<tr><td colspan="10">No se encontraron datos</td></tr>';
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = key;
+            searchColumnSelect.appendChild(option);
+        });
+
+        tableHead.appendChild(headerRow);
+        renderTableRows(globalTableData);
+        quickSearchContainer.style.display = 'flex';
+
+        if (data.totalPages && data.totalPages > 1) {
+            generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
         }
     })
     .catch(error => {
         console.error('Error al cargar datos:', error);
+
         tableHead.innerHTML = '';
-        tableBody.innerHTML = `<tr><td colspan="10">Error al cargar los datos: ${error.message}</td></tr>`;
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="10" class="text-center text-danger">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">Error al cargar los datos</h5>
+                        <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
+                        <hr>
+                        <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        quickSearchContainer.style.display = 'none';
+        paginationDiv.innerHTML = '';
     });
 }
 
-// Función de búsqueda rápida
-document.getElementById('quickSearchInput').addEventListener('input', function () {
+function renderTableRows(data) {
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    data.forEach(row => {
+        const tr = document.createElement('tr');
+        Object.values(row).forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = value !== null ? value.toString() : '';
+            tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+    });
+}
+
+document.getElementById('quickSearchInput').addEventListener('input', function() {
     const searchTerm = this.value.trim();
     const searchColumn = document.getElementById('searchColumnSelect').value;
     const exactMatch = document.getElementById('exactMatchCheckbox').checked;
 
-    // Validar término de búsqueda
     if (!searchTerm) {
         renderTableRows(globalTableData);
         return;
     }
 
-    // Filtrar datos
     const filteredData = globalTableData.filter(row => {
-        // Búsqueda en columna específica
         if (searchColumn) {
             const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
-            return exactMatch
-                ? columnValue === searchTerm
-                : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+            return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
         }
 
-        // Búsqueda en todas las columnas
-        return Object.values(row).some(value =>
-            value !== null &&
-            (exactMatch
-                ? value.toString() === searchTerm
-                : value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+        return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
     });
 
-    // Renderizar filas filtradas
     renderTableRows(filteredData);
 });
 
-// Función para renderizar las filas de la tabla
-function renderTableRows(data) {
-    const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = ''; // Limpiar filas anteriores
-
-    data.forEach(row => {
-        const rowElement = document.createElement('tr');
-        Object.values(row).forEach(value => {
-            const td = document.createElement('td');
-            td.textContent = value !== null ? value : '';
-            rowElement.appendChild(td);
-        });
-        tableBody.appendChild(rowElement);
-    });
-}
-
-// Función para generar controles de paginación
 function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
     const paginationDiv = document.getElementById('pagination');
-    paginationDiv.innerHTML = ''; // Limpiar paginación anterior
+    paginationDiv.innerHTML = '';
 
-    // Botón Anterior
+    // Botón "Anterior"
     if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
             cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
-        });
+        }, false, 'bg-danger', 'text-white');
         paginationDiv.appendChild(prevButton);
     }
 
-    // Calcular rango de páginas a mostrar
     const startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, currentPage + 2);
 
-    // Mostrar primera página si no está en rango
     if (startPage > 1) {
         const firstPageButton = crearBotonPaginacion('1', () => {
             cargarDatos(selectedValue, 1, registrosPorPagina);
-        });
+        }, false, 'bg-primary', 'text-white');
         paginationDiv.appendChild(firstPageButton);
 
         if (startPage > 2) {
@@ -315,15 +307,15 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-    // Botones de páginas
+    // Páginas intermedias
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
-        }, i === currentPage);
+        }, i === currentPage, 'bg-primary', 'text-white');
+
         paginationDiv.appendChild(pageButton);
     }
 
-    // Mostrar última página si no está en rango
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
             const ellipsis = document.createElement('span');
@@ -333,24 +325,24 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
 
         const lastPageButton = crearBotonPaginacion(totalPages.toString(), () => {
             cargarDatos(selectedValue, totalPages, registrosPorPagina);
-        });
+        }, false, 'bg-primary', 'text-white');
+
         paginationDiv.appendChild(lastPageButton);
     }
 
-    // Botón Siguiente
+    // Botón "Siguiente"
     if (currentPage < totalPages) {
         const nextButton = crearBotonPaginacion('Siguiente', () => {
             cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
-        });
+        }, false, 'bg-danger', 'text-white');
         paginationDiv.appendChild(nextButton);
     }
 }
 
-// Función auxiliar para crear botones de paginación
-function crearBotonPaginacion(texto, clickHandler, esActual = false) {
+function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
     const button = document.createElement('button');
     button.textContent = texto;
-    button.classList.add('btn', 'btn-outline-secondary', 'mx-1');
+    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
 
     if (esActual) {
         button.disabled = true;
@@ -361,6 +353,7 @@ function crearBotonPaginacion(texto, clickHandler, esActual = false) {
     return button;
 }
 
+
 function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
     const selectedValue = selectElement.value;
@@ -370,74 +363,105 @@ function descargarReporte() {
         return;
     }
 
-    // Cambiar el estado del botón a "Descargando..."
     const botonDescargar = document.getElementById('descargarSp');
-    const textoOriginal = botonDescargar.innerHTML;
-    botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Descargando...';
     botonDescargar.disabled = true;
+    botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
-    // Crear el cuerpo de la solicitud
-    const formData = new URLSearchParams();
-    formData.append('procedimientos', selectedValue);
-    formData.append('formato', 'excel'); // El servidor debe aceptar esto para generar el Excel
+    const reportNames = {
+        "1": "Acreditaciones_y_Renovaciones",
+        "2": "ReporteConSumaMarca",
+        "3": "CertificadosMarca_X_Entidad_EC_OC"
+    };
 
-    fetch('Directorio', {
-        method: 'POST',
+    const reportName = reportNames[selectedValue] || "Reporte_Desconocido";
+    const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+    const params = new URLSearchParams();
+    params.append('formato', 'excel');
+    params.append('procedimientos', selectedValue);
+    params.append('nombreReporte', reportName);
+
+    console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
+
+    fetch('Directorio?' + params.toString(), {
+        method: 'GET',
+        credentials: 'same-origin',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded', // Enviar en este formato para descarga
-        },
-        body: formData.toString() // Cuerpo con parámetros URL-encoded
+            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control': 'no-cache'
+        }
     })
     .then(response => {
-        const contentType = response.headers.get('content-type');
-
-        // Verificar el tipo de contenido (debe ser Excel)
+        console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
+        console.log('Status:', response.status);
+        
         if (!response.ok) {
-            const errorMessage = `Error del servidor: ${response.status}`;
-            console.error(errorMessage);
-            throw new Error(errorMessage);
+            return response.text().then(text => {
+                console.error('Error response:', text);
+                throw new Error(text || `Error del servidor: ${response.status}`);
+            });
         }
 
-        if (contentType && contentType.includes('application/json')) {
-            return response.json(); // Si es JSON, intentar leer el error
+        const contentType = response.headers.get('content-type');
+        console.log('Content-Type:', contentType);
+        
+        if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+            console.error('Content-Type incorrecto:', contentType);
+            return response.text().then(text => {
+                console.log('Contenido de respuesta:', text);
+                throw new Error('El servidor no devolvió un archivo Excel válido');
+            });
         }
-
-        if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            return response.blob(); // Si es un archivo Excel, leerlo como Blob
-        }
-
-        throw new Error('El servidor no devolvió un archivo Excel válido');
+        
+        return response.blob();
     })
     .then(blob => {
-        if (blob instanceof Blob) {
-            const fechaActual = new Date().toLocaleDateString('es-MX').replace(/\//g, '-');
-            const nombreReporte = selectElement.options[selectElement.selectedIndex].text;
-            const fileName = `Reporte_${nombreReporte}_${fechaActual}.xlsx`;
+        console.log('Tamaño del blob:', blob.size, 'bytes');
+        console.log('Tipo del blob:', blob.type);
 
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-        } else {
-            throw new Error('El servidor no devolvió un archivo Excel válido');
+        if (blob.size === 0) {
+            throw new Error('El archivo generado está vacío');
         }
+
+        const fileName = `${reportName}_${fechaActual}.xlsx`;
+        
+        // Para navegadores modernos
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, fileName);
+            return;
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
     })
     .catch(error => {
-        console.error('Error en la descarga:', error);
-        alert(error.message || 'Error al descargar el reporte');
+        console.error('Error detallado:', error);
+        alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
     })
     .finally(() => {
-        botonDescargar.innerHTML = textoOriginal;
         botonDescargar.disabled = false;
+        botonDescargar.innerHTML = 'Descargar Información';
     });
 }
-
-
+ 
+// Event listener for download button click
 document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+
+// Opcional: Cargar datos iniciales si hay un valor preseleccionado
+const initialSelectedValue = document.getElementById('seleccion').value;
+if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
+    currentSelectedReport = initialSelectedValue;
+    cargarDatos(initialSelectedValue, 1, 30);
+}
 
     </script>
 

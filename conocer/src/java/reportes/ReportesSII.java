@@ -1,418 +1,40 @@
-/*package reportes;
-
-import conexion.ConexionGeneral;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import com.opencsv.CSVWriter;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.Logger;
-
-
-@WebServlet(name = "ReportesSII", urlPatterns = {"/ReportesSII"})
-public class ReportesSII extends HttpServlet {
-
-    private static final int DEFAULT_PAGE_SIZE = 30;
-    private static final int DEFAULT_PAGE = 1;
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, Exception {
-        String formato = request.getParameter("formato");
-
-        if ("excel".equalsIgnoreCase(formato)) {
-            exportarExcel(request, response);
-        } else {
-            procesarJSON(request, response);
-        }
-    
-    }
-
-    private void procesarJSON(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        
-        try {
-            int page = parseIntOrDefault(request.getParameter("page"), DEFAULT_PAGE);
-            int pageSize = parseIntOrDefault(request.getParameter("pageSize"), DEFAULT_PAGE_SIZE);
-            List<String> procedimientos = obtenerProcedimientos(request);
-            Map<String, List<Map<String, Object>>> allData = new HashMap<>();
-            Map<String, Integer> totalRecords = new HashMap<>();
-
-            try (Connection conexion = new ConexionGeneral().getConnection()) {
-                for (String procedimiento : procedimientos) {
-                    String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-                    try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
-                         ResultSet rs = stmt.executeQuery()) {
-                        
-                        List<Map<String, Object>> resultados = new ArrayList<>();
-                        ResultSetMetaData metaData = rs.getMetaData();
-                        int columnCount = metaData.getColumnCount();
-                        
-                        while (rs.next()) {
-                            Map<String, Object> fila = new HashMap<>();
-                            for (int i = 1; i <= columnCount; i++) {
-                                String nombreColumna = metaData.getColumnLabel(i);
-                                Object valorColumna = rs.getObject(i);
-                                fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
-                            }
-                            resultados.add(fila);
-                        }
-                        
-                        totalRecords.put(procedimiento, resultados.size());
-                        int offset = (page - 1) * pageSize;
-                        List<Map<String, Object>> paginatedResults = paginarLista(resultados, offset, pageSize);
-                        allData.put(procedimiento, paginatedResults);
-                    }
-                }
-            }
-            
-            JSONObject resultado = new JSONObject();
-            resultado.put("success", true);
-            resultado.put("data", convertirResultadosAJson(allData));
-            resultado.put("currentPage", page);
-            resultado.put("pageSize", pageSize);
-
-            int maxTotalRecords = totalRecords.values().stream()
-                    .mapToInt(Integer::intValue)
-                    .max()
-                    .orElse(0);
-
-            resultado.put("totalPages", (int) Math.ceil((double) maxTotalRecords / pageSize));
-            resultado.put("totalRecords", maxTotalRecords);
-
-            try (PrintWriter out = response.getWriter()) {
-                out.print(resultado.toString());
-            }
-        } catch (Exception e) {
-            manejarError(response, e);
-        }
-    }
-
-
-    private void exportarExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        try {
-            List<String> procedimientos = obtenerProcedimientos(request);
-            Map<String, List<Map<String, Object>>> datos = obtenerDatosReporte(procedimientos, request);
-
-            String nombreReporte = request.getParameter("nombreReporte");
-            if (nombreReporte == null || nombreReporte.isEmpty()) {
-                nombreReporte = "Reporte";
-            }
-
-            String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
-
-            // Configuración de encabezados para la descarga
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Expires", "0");
-
-            try (OutputStream outputStream = response.getOutputStream();
-                 Workbook workbook = new XSSFWorkbook()) {
-
-                // Validación de datos vacíos
-                if (datos.isEmpty()) {
-                    throw new Exception("Los datos para el reporte están vacíos.");
-                }
-
-                // Generar hojas y datos del Excel
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font headerFont = workbook.createFont();
-                headerFont.setBold(true);
-                headerStyle.setFont(headerFont);
-                headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-                headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-                for (Map.Entry<String, List<Map<String, Object>>> entry : datos.entrySet()) {
-                    String sheetName = getNombreHoja(entry.getKey());
-                    sheetName = WorkbookUtil.createSafeSheetName(sheetName);
-
-                    Sheet sheet = workbook.createSheet(sheetName);
-                    List<Map<String, Object>> registros = entry.getValue();
-
-                    if (!registros.isEmpty()) {
-                        List<String> columnas = new ArrayList<>(registros.get(0).keySet());
-
-                        Row headerRow = sheet.createRow(0);
-                        for (int i = 0; i < columnas.size(); i++) {
-                            Cell cell = headerRow.createCell(i);
-                            cell.setCellValue(columnas.get(i));
-                            cell.setCellStyle(headerStyle);
-                        }
-
-                        for (int rowIndex = 0; rowIndex < registros.size(); rowIndex++) {
-                            Row dataRow = sheet.createRow(rowIndex + 1);
-                            Map<String, Object> registro = registros.get(rowIndex);
-
-                            for (int colIndex = 0; colIndex < columnas.size(); colIndex++) {
-                                Cell cell = dataRow.createCell(colIndex);
-                                Object valor = registro.get(columnas.get(colIndex));
-                                setCellValue(cell, valor);
-                            }
-                        }
-
-                        for (int i = 0; i < columnas.size(); i++) {
-                            sheet.autoSizeColumn(i);
-                        }
-                    }
-                }
-
-                // Escribir el archivo en el flujo de salida
-                workbook.write(outputStream);
-                outputStream.flush();
-
-            } catch (IOException | SQLException e) {
-                manejarErrorExcel(response, e, "Error al generar el reporte");
-            } catch (Exception e) {
-                manejarErrorExcel(response, e, "Error desconocido en la generación del reporte");
-            }
-        } catch (Exception e) {
-            manejarErrorExcel(response, e, "Error al procesar la solicitud");
-        }
-    }
-
-    private void manejarErrorExcel(HttpServletResponse response, Exception e, String mensaje) throws IOException {
-        e.printStackTrace(); // Para más detalles en la consola
-        response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        try (PrintWriter out = response.getWriter()) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("error", mensaje);
-            errorResponse.put("detalle", e.getMessage());
-            out.print(errorResponse.toString());
-        }
-    }
-
-
-    private void setCellValue(Cell cell, Object valor) {
-        if (valor == null) {
-            cell.setCellValue("");
-            return;
-        }
-
-        try {
-            if (valor instanceof String) {
-                cell.setCellValue((String) valor);
-            } else if (valor instanceof Number) {
-                if (valor instanceof Integer) {
-                    cell.setCellValue((Integer) valor);
-                } else if (valor instanceof Long) {
-                    cell.setCellValue((Long) valor);
-                } else if (valor instanceof Double) {
-                    cell.setCellValue((Double) valor);
-                } else if (valor instanceof Float) {
-                    cell.setCellValue((Float) valor);
-                } else {
-                    cell.setCellValue(valor.toString());
-                }
-            } else if (valor instanceof Date) {
-                CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-                CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
-                dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-                cell.setCellStyle(dateStyle);
-                cell.setCellValue((Date) valor);
-            } else if (valor instanceof Boolean) {
-                cell.setCellValue((Boolean) valor);
-            } else {
-                cell.setCellValue(valor.toString());
-            }
-        } catch (Exception e) {
-            cell.setCellValue(valor.toString());
-        }
-    } 
-
-    private List<String> obtenerProcedimientos(HttpServletRequest request) {
-        List<String> procedimientos = new ArrayList<>();
-        String[] procedimientosParam = request.getParameterValues("procedimientos");
-        if (procedimientosParam != null) {
-            Collections.addAll(procedimientos, procedimientosParam);
-        }
-        return procedimientos;
-    }
-
-    private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
-            throws Exception {
-        Map<String, List<Map<String, Object>>> datos = new HashMap<>();
-
-        try (Connection conexion = new ConexionGeneral().getConnection()) {
-            for (String procedimiento : procedimientos) {
-                String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
-                     ResultSet rs = stmt.executeQuery()) {
-
-                    List<Map<String, Object>> resultados = new ArrayList<>();
-                    ResultSetMetaData metaData = rs.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-
-                    while (rs.next()) {
-                        Map<String, Object> fila = new HashMap<>();
-                        for (int i = 1; i <= columnCount; i++) {
-                            String nombreColumna = metaData.getColumnLabel(i);
-                            Object valorColumna = rs.getObject(i);
-                            fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
-                        }
-                        resultados.add(fila);
-                    }
-
-                    datos.put(procedimiento, resultados);
-                }
-            }
-        }
-
-        return datos;
-    }
-    
-    
-    private String getNombreHoja(String procedimiento) {
-        return "Reporte_" + procedimiento;
-    }
-
-    private void manejarError(HttpServletResponse response, Exception e) throws IOException {
-        e.printStackTrace();
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        try (PrintWriter out = response.getWriter()) {
-            JSONObject error = new JSONObject();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            out.print(error.toString());
-        }
-    }
-
-    private List<Map<String, Object>> paginarLista(List<Map<String, Object>> lista, int offset, int pageSize) {
-        int totalRegistros = lista.size();
-        int toIndex = Math.min(offset + pageSize, totalRegistros);
-
-        if (offset >= totalRegistros) {
-            return Collections.emptyList();
-        }
-
-        return lista.subList(offset, toIndex);
-    }
-
-    private JSONObject convertirResultadosAJson(Map<String, List<Map<String, Object>>> data) {
-        JSONObject datosJson = new JSONObject();
-        for (Map.Entry<String, List<Map<String, Object>>> entry : data.entrySet()) {
-            JSONArray procedimientoArray = new JSONArray();
-            for (Map<String, Object> fila : entry.getValue()) {
-                procedimientoArray.put(new JSONObject(fila));
-            }
-            datosJson.put(entry.getKey(), procedimientoArray);
-        }
-        return datosJson;
-    }
-
-    private int parseIntOrDefault(String param, int defaultValue) {
-        try {
-            return Integer.parseInt(param);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
-
-        switch (procedimiento) {
-            case "1":
-                return "{CALL sp_Rep_AcreditacionesyRenovaciones()}";
-            case "2":
-                return "{CALL sp_REP_ReporteConSumaMarca()}";
-            
-            default:
-                throw new Exception("Procedimiento no válido: " + procedimiento);
-        }
-    }
-
-  @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        String procedimientos = request.getParameter("procedimientos");
-        if (procedimientos == null || procedimientos.trim().isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"El parámetro 'procedimientos' es requerido\"}");
-            return;
-        }
-
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(ReportesSII.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(ReportesSII.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-}*/
-
-
-
-
+/**
+ *
+ * @author Conocer
+ * @estadisticas
+ */
 
 package reportes;
 
 import conexion.ConexionGeneral;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.sql.Connection;
+import java.net.URLEncoder;
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
-import org.json.JSONArray;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @WebServlet(name = "ReportesSII", urlPatterns = {"/ReportesSII"})
 public class ReportesSII extends HttpServlet {
@@ -423,10 +45,13 @@ public class ReportesSII extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String formato = request.getParameter("formato");
-
         try {
+            String formato = request.getParameter("formato");
             List<String> procedimientos = obtenerProcedimientos(request);
+
+            LOGGER.log(Level.INFO, "Formato: {0}", formato);
+            LOGGER.log(Level.INFO, "Procedimientos: {0}", procedimientos);
+
             if (procedimientos.isEmpty()) {
                 throw new Exception("No se especificaron procedimientos para generar el reporte.");
             }
@@ -437,7 +62,7 @@ public class ReportesSII extends HttpServlet {
                 procesarJSON(request, response);
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error en processRequest", e);
+            LOGGER.log(Level.SEVERE, "Error: {0}", e.getMessage());
             manejarError(response, e);
         }
     }
@@ -445,11 +70,18 @@ public class ReportesSII extends HttpServlet {
     private void procesarJSON(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
-        
+        LOGGER.info("Procesando solicitud JSON...");
+
         try {
             int page = parseIntOrDefault(request.getParameter("page"), DEFAULT_PAGE);
             int pageSize = parseIntOrDefault(request.getParameter("pageSize"), DEFAULT_PAGE_SIZE);
             List<String> procedimientos = obtenerProcedimientos(request);
+            LOGGER.log(Level.INFO, "Procedimientos solicitados: {0}", procedimientos);
+
+            if (procedimientos.isEmpty()) {
+                throw new Exception("No se especificaron procedimientos para generar el reporte.");
+            }
+
             Map<String, List<Map<String, Object>>> allData = new HashMap<>();
             Map<String, Integer> totalRecords = new HashMap<>();
 
@@ -458,11 +90,11 @@ public class ReportesSII extends HttpServlet {
                     String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
                     try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
                          ResultSet rs = stmt.executeQuery()) {
-                        
+
                         List<Map<String, Object>> resultados = new ArrayList<>();
                         ResultSetMetaData metaData = rs.getMetaData();
                         int columnCount = metaData.getColumnCount();
-                        
+
                         while (rs.next()) {
                             Map<String, Object> fila = new HashMap<>();
                             for (int i = 1; i <= columnCount; i++) {
@@ -472,7 +104,7 @@ public class ReportesSII extends HttpServlet {
                             }
                             resultados.add(fila);
                         }
-                        
+
                         totalRecords.put(procedimiento, resultados.size());
                         int offset = (page - 1) * pageSize;
                         List<Map<String, Object>> paginatedResults = paginarLista(resultados, offset, pageSize);
@@ -480,7 +112,7 @@ public class ReportesSII extends HttpServlet {
                     }
                 }
             }
-            
+
             JSONObject resultado = new JSONObject();
             resultado.put("success", true);
             resultado.put("data", convertirResultadosAJson(allData));
@@ -504,185 +136,151 @@ public class ReportesSII extends HttpServlet {
     }
 
     private void exportarExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    LOGGER.info("Iniciando exportación a Excel...");
-    
-    try {
-        List<String> procedimientos = obtenerProcedimientos(request);
-        LOGGER.info("Procedimientos obtenidos: " + procedimientos);
-        
-        if (procedimientos.isEmpty()) {
-            throw new Exception("No se especificaron procedimientos para generar el reporte.");
-        }
+        LOGGER.info("Iniciando exportación a Excel...");
+        OutputStream outputStream = null;
+        Workbook workbook = null;
 
-        Map<String, List<Map<String, Object>>> datos = obtenerDatosReporte(procedimientos, request);
-        
-        if (datos.isEmpty()) {
-            throw new Exception("No hay datos para generar el reporte.");
-        }
+        try {
+            List<String> procedimientos = obtenerProcedimientos(request);
+            if (procedimientos.isEmpty()) {
+                throw new Exception("No se especificaron procedimientos para generar el reporte.");
+            }
 
-        // Limpiar cualquier contenido previo
-        response.reset();
-        
-        // Configurar headers
-        String nombreReporte = request.getParameter("nombreReporte");
-        if (nombreReporte == null || nombreReporte.isEmpty()) {
-            nombreReporte = "Reporte";
-        }
-        String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
-        
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8").replace("+", "%20") + "\"");
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setHeader("Expires", "0");
-
-        // Crear y escribir el workbook
-        try (Workbook workbook = new XSSFWorkbook();
-             OutputStream outputStream = response.getOutputStream()) {
+            Map<String, List<Map<String, Object>>> datos = obtenerDatosReporte(procedimientos, request);
+            LOGGER.info("Datos obtenidos para el reporte: " + (datos != null ? "OK" : "NULL"));
             
+            if (datos == null || datos.isEmpty()) {
+                throw new Exception("No hay datos para generar el reporte.");
+            }
+
+            String nombreReporte = request.getParameter("nombreReporte");
+            if (nombreReporte == null || nombreReporte.isEmpty()) {
+                nombreReporte = "Reporte";
+            }
+
+            String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
+
+            // Configuración de la respuesta HTTP
+            response.reset();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
+            
+            workbook = new XSSFWorkbook();
             CellStyle headerStyle = crearEstiloEncabezado(workbook);
+            CellStyle dateStyle = workbook.createCellStyle();
+            CreationHelper createHelper = workbook.getCreationHelper();
+            dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
 
             for (Map.Entry<String, List<Map<String, Object>>> entry : datos.entrySet()) {
-                String sheetName = WorkbookUtil.createSafeSheetName("Reporte_" + entry.getKey());
+                String sheetName = WorkbookUtil.createSafeSheetName(entry.getKey());
                 Sheet sheet = workbook.createSheet(sheetName);
                 List<Map<String, Object>> registros = entry.getValue();
 
                 if (!registros.isEmpty()) {
-                    crearHojaExcel(sheet, registros, headerStyle);
+                    Row headerRow = sheet.createRow(0);
+                    List<String> columnas = new ArrayList<>(registros.get(0).keySet());
+
+                    for (int i = 0; i < columnas.size(); i++) {
+                        Cell cell = headerRow.createCell(i);
+                        cell.setCellValue(columnas.get(i));
+                        cell.setCellStyle(headerStyle);
+                    }
+
+                    for (int rowNum = 0; rowNum < registros.size(); rowNum++) {
+                        Row row = sheet.createRow(rowNum + 1);
+                        Map<String, Object> registro = registros.get(rowNum);
+
+                        for (int colNum = 0; colNum < columnas.size(); colNum++) {
+                            Cell cell = row.createCell(colNum);
+                            Object value = registro.get(columnas.get(colNum));
+
+                            if (value != null) {
+                                if (value instanceof Date) {
+                                    cell.setCellValue((Date) value);
+                                    cell.setCellStyle(dateStyle);
+                                } else if (value instanceof Number) {
+                                    cell.setCellValue(((Number) value).doubleValue());
+                                } else if (value instanceof Boolean) {
+                                    cell.setCellValue((Boolean) value);
+                                } else {
+                                    cell.setCellValue(value.toString());
+                                }
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < columnas.size(); i++) {
+                        sheet.autoSizeColumn(i);
+                    }
+                } else {
+                    Row row = sheet.createRow(0);
+                    Cell cell = row.createCell(0);
+                    cell.setCellValue("No se encontraron registros para el procedimiento: " + entry.getKey());
                 }
             }
 
+            outputStream = response.getOutputStream();
             workbook.write(outputStream);
             outputStream.flush();
-            LOGGER.info("Excel generado exitosamente");
-            
+            LOGGER.log(Level.INFO, "Excel generado exitosamente: {0}", fileName);
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al generar el archivo Excel", e);
-            throw new Exception("Error al generar el archivo Excel: " + e.getMessage());
-        }
-        
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error en exportarExcel", e);
-        response.reset();
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        try (PrintWriter out = response.getWriter()) {
-            JSONObject error = new JSONObject();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            out.print(error.toString());
-        }
-    }
-}
-    private CellStyle crearEstiloEncabezado(Workbook workbook) {
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerStyle.setFont(headerFont);
-        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setAlignment(HorizontalAlignment.CENTER);
-        headerStyle.setBorderBottom(BorderStyle.THIN);
-        headerStyle.setBorderTop(BorderStyle.THIN);
-        headerStyle.setBorderLeft(BorderStyle.THIN);
-        headerStyle.setBorderRight(BorderStyle.THIN);
-        return headerStyle;
-    }
-
-    private void crearHojaExcel(Sheet sheet, List<Map<String, Object>> registros, CellStyle headerStyle) {
-        List<String> columnas = new ArrayList<>(registros.get(0).keySet());
-
-        // Crear encabezados
-        Row headerRow = sheet.createRow(0);
-        for (int i = 0; i < columnas.size(); i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columnas.get(i));
-            cell.setCellStyle(headerStyle);
-        }
-
-        // Crear filas de datos
-        for (int rowIndex = 0; rowIndex < registros.size(); rowIndex++) {
-            Row dataRow = sheet.createRow(rowIndex + 1);
-            Map<String, Object> registro = registros.get(rowIndex);
-
-            for (int colIndex = 0; colIndex < columnas.size(); colIndex++) {
-                Cell cell = dataRow.createCell(colIndex);
-                Object valor = registro.get(columnas.get(colIndex));
-                setCellValue(cell, valor);
-            }
-        }
-
-        // Autoajustar columnas
-        for (int i = 0; i < columnas.size(); i++) {
-            sheet.autoSizeColumn(i);
-        }
-    }
-
-    private void setCellValue(Cell cell, Object valor) {
-        if (valor == null) {
-            cell.setCellValue("");
-            return;
-        }
-
-        try {
-            if (valor instanceof String) {
-                cell.setCellValue((String) valor);
-            } else if (valor instanceof Number) {
-                if (valor instanceof Integer) {
-                    cell.setCellValue((Integer) valor);
-                } else if (valor instanceof Long) {
-                    cell.setCellValue((Long) valor);
-                } else if (valor instanceof Double) {
-                    cell.setCellValue((Double) valor);
-                } else if (valor instanceof Float) {
-                    cell.setCellValue((Float) valor);
-                } else {
-                    cell.setCellValue(valor.toString());
+            throw e;
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error al cerrar el workbook", e);
                 }
-            } else if (valor instanceof Date) {
-                CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
-                CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
-                dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-                cell.setCellStyle(dateStyle);
-                cell.setCellValue((Date) valor);
-            } else if (valor instanceof Boolean) {
-                cell.setCellValue((Boolean) valor);
-            } else {
-                cell.setCellValue(valor.toString());
             }
-        } catch (Exception e) {
-            cell.setCellValue(valor.toString());
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error al cerrar el outputStream", e);
+                }
+            }
         }
     }
-
-    private List<String> obtenerProcedimientos(HttpServletRequest request) {
-    List<String> procedimientos = new ArrayList<>();
-    String[] procedimientosParam = request.getParameterValues("procedimientos");
-    String procedimientoSingle = request.getParameter("procedimientos");
     
-    if (procedimientosParam != null) {
-        Collections.addAll(procedimientos, procedimientosParam);
-    } else if (procedimientoSingle != null && !procedimientoSingle.trim().isEmpty()) {
-        procedimientos.add(procedimientoSingle.trim());
+    private CellStyle crearEstiloEncabezado(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        return style;
     }
-    
-    return procedimientos;
-}
 
     private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
             throws Exception {
         Map<String, List<Map<String, Object>>> datos = new HashMap<>();
+        Connection conexion = null;
 
-        try (Connection conexion = new ConexionGeneral().getConnection()) {
+        try {
+            conexion = new ConexionGeneral().getConnection();
+            LOGGER.info("Conexión establecida correctamente");
+
             for (String procedimiento : procedimientos) {
                 String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
-                     ResultSet rs = stmt.executeQuery()) {
+                LOGGER.log(Level.INFO, "Ejecutando procedimiento: {0}", sqlProcedimiento);
+
+                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento)) {
+                    ResultSet rs = stmt.executeQuery();
+                    LOGGER.info("Query ejecutada correctamente");
 
                     List<Map<String, Object>> resultados = new ArrayList<>();
                     ResultSetMetaData metaData = rs.getMetaData();
                     int columnCount = metaData.getColumnCount();
+                    LOGGER.info("Número de columnas: " + columnCount);
 
                     while (rs.next()) {
                         Map<String, Object> fila = new HashMap<>();
@@ -694,7 +292,18 @@ public class ReportesSII extends HttpServlet {
                         resultados.add(fila);
                     }
 
+                    LOGGER.info("Registros obtenidos: " + resultados.size());
                     datos.put(procedimiento, resultados);
+                    rs.close();
+                }
+            }
+        } finally {
+            if (conexion != null) {
+                try {
+                    conexion.close();
+                    LOGGER.info("Conexión cerrada correctamente");
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error al cerrar la conexión", e);
                 }
             }
         }
@@ -702,20 +311,36 @@ public class ReportesSII extends HttpServlet {
         return datos;
     }
 
+    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
-    LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
-    response.reset();
-    response.setContentType("application/json;charset=UTF-8");
-    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    
-    try (PrintWriter out = response.getWriter()) {
+        LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
+        response.reset();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
         JSONObject error = new JSONObject();
         error.put("success", false);
-        error.put("error", e.getMessage());
-        error.put("type", "error");
-        out.print(error.toString());
+        error.put("message", e.getMessage());
+        error.put("details", e.toString());
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(error.toString());
+        }
     }
-}
+
+    private List<String> obtenerProcedimientos(HttpServletRequest request) {
+        List<String> procedimientos = new ArrayList<>();
+        String[] procedimientosParam = request.getParameterValues("procedimientos");
+        String procedimientoSingle = request.getParameter("procedimientos");
+
+        if (procedimientosParam != null) {
+            Collections.addAll(procedimientos, procedimientosParam);
+        } else if (procedimientoSingle != null && !procedimientoSingle.trim().isEmpty()) {
+            procedimientos.add(procedimientoSingle.trim());
+        }
+
+        return procedimientos;
+    }
 
     private List<Map<String, Object>> paginarLista(List<Map<String, Object>> lista, int offset, int pageSize) {
         int totalRegistros = lista.size();
@@ -730,17 +355,19 @@ public class ReportesSII extends HttpServlet {
 
     private JSONObject convertirResultadosAJson(Map<String, List<Map<String, Object>>> data) {
         JSONObject datosJson = new JSONObject();
-        for (Map.Entry<String, List<Map<String, Object>>> entry : data.entrySet()) {
+
+        data.entrySet().forEach((entry) -> {
             JSONArray procedimientoArray = new JSONArray();
-            for (Map<String, Object> fila : entry.getValue()) {
+
+            entry.getValue().forEach((fila) -> {
                 procedimientoArray.put(new JSONObject(fila));
-            }
+            });
             datosJson.put(entry.getKey(), procedimientoArray);
-        }
+        });
         return datosJson;
     }
-
-    private int parseIntOrDefault(String param, int defaultValue) {
+     
+            private int parseIntOrDefault(String param, int defaultValue) {
         try {
             return Integer.parseInt(param);
         } catch (NumberFormatException e) {
@@ -830,39 +457,25 @@ public class ReportesSII extends HttpServlet {
                 return "{CALL sp_REP_SECTOR_PRODUCTIVO()}";
             case "40":
                 return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
-            case "41":
+            case "41":  
                 return "{CALL sp_REP_VERFICADORES_EC_ECE_OC()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
     }
 
-@Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String procedimientos = request.getParameter("procedimientos");
-        if (procedimientos == null || procedimientos.trim().isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"El parámetro 'procedimientos' es requerido\"}");
-            return;
-        }
-
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(ReportesSII.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (Exception ex) {
-            Logger.getLogger(ReportesSII.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
-
 }
+
+
+

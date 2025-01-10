@@ -1,3 +1,8 @@
+<%-- 
+    Document   : informesMensuales
+    Created on : 9/01/2025, 06:10:33 PM
+    Author     : Conocer
+--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
