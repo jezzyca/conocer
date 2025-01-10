@@ -1,9 +1,3 @@
-/**
- *
- * @author Conocer
- * @estadisticas
- */
-
 package reportes;
 
 import conexion.ConexionGeneral;
@@ -35,6 +29,12 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+/**
+ *
+ * @author Conocer
+ * @estadisticas
+ */
 
 @WebServlet(name = "ReportesSII", urlPatterns = {"/ReportesSII"})
 public class ReportesSII extends HttpServlet {

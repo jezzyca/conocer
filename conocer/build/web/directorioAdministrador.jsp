@@ -1,5 +1,5 @@
 <%-- 
-    Document   : directorioAdministracion
+    Document   : directorioAdministrador
     Created on : 9/01/2025, 06:10:33 PM
     Author     : Conocer
 --%>

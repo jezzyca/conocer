@@ -1,3 +1,4 @@
+
 package reportes;
 
 import java.io.IOException;
@@ -11,10 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  *
  * @author Conocer
- * @rodulfo.lopez
+ * @juan.fernandez
  */
-@WebServlet(name = "HomeImpresion", urlPatterns = {"/HomeImpresion"})
-public class HomeImpresion extends HttpServlet {
+@WebServlet(name = "HomeProcesoEvaulacion", urlPatterns = {"/HomeProcesoEvaulacion"})
+public class procesoEvaulacion extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,10 +34,10 @@ public class HomeImpresion extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeImpresion</title>");            
+            out.println("<title>Servlet HomeProcesoEvaulacion</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeImpresion at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet HomeProcesoEvaulacion at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
