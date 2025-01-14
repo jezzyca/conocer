@@ -8,6 +8,7 @@
 <%@ page import="reportes.ReportesSII" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<jsp:useBean id="ReportesSII" class="reportes.ReportesSII" scope="page" />
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
@@ -24,11 +25,12 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-    <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
     <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
     
 </head>
 <body id="fondoBodyReportes2">
@@ -90,8 +92,8 @@
                     <option value="41">Verificadores EC/ECE/OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
-    <i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar Información</button>
-  </div>
+    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
+            </div>
             <!-- Información del usuario -->
             <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
@@ -106,24 +108,28 @@
             </div>
         </div>
 
-        <!-- Contenedor de Búsqueda Rápida -->
-        <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
-            <div class="col-md-3 col-12">
-                <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
-            </div>
-            <div class="col-md-3 col-12">
-                <select id="searchColumnSelect" class="form-select">
-                    <option value="">Buscar en todas las columnas</option>
-                </select>
-            </div>
-            <div class="col-sm-1">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
-                    <label class="form-check-label" for="exactMatchCheckbox">
-                    </label>
-                </div>
-            </div>
+ <!-- Contenedor de Búsqueda Rápida Actualizado -->
+<div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
+    <div class="col-md-3 col-12 mb-2">
+        <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
+    </div>
+    <div class="col-md-2 col-12 mb-2">
+        <select id="searchColumnSelect" class="form-select">
+            <option value="">Buscar en todas las columnas</option>
+        </select>
+    </div>
+    <div class="col-md-2 col-12 mb-2 d-flex align-items-center">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
+            <label class="form-check-label" for="exactMatchCheckbox"></label>
         </div>
+    </div>
+    <div class="col-md-2 col-12 mb-2">
+        <button id="searchButton" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+            <i class="bi bi-search me-2"></i> Buscar
+        </button>
+    </div>
+</div>
 
         <!-- Contenedor de Tabla -->
         <div class="table-responsive mt-3">
@@ -142,8 +148,9 @@
         </div>
 
         <!-- Paginación -->
-       <div id="pagination" class="d-flex justify-content-center mt-3 bg-yellow"></div>
-
+        <div id="pagination" class="d-flex justify-content-center mt-3">
+            <!-- Botones de paginación se agregarán aquí -->
+        </div>
     </div>
 
     <!-- Footer -->
@@ -163,6 +170,7 @@
         </div>
     </footer>
 
+
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
@@ -178,6 +186,76 @@ document.getElementById('seleccion').addEventListener('change', function() {
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
 });
+
+// Función de búsqueda actualizada para buscar en todo el SP
+function realizarBusqueda() {
+    const searchTerm = document.getElementById('quickSearchInput').value.trim();
+    const searchColumn = document.getElementById('searchColumnSelect').value;
+    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+
+    if (!currentSelectedReport) {
+        alert('Por favor, seleccione un reporte primero');
+        return;
+    }
+
+    // Si no hay término de búsqueda, recargar los datos originales
+    if (!searchTerm) {
+        cargarDatos(currentSelectedReport, 1, 30);
+        return;
+    }
+
+    const params = new URLSearchParams({
+        procedimientos: currentSelectedReport,
+        searchTerm: searchTerm,
+        searchColumn: searchColumn,
+        exactMatch: exactMatch,
+        fullSearch: 'true',  // Nuevo parámetro para indicar búsqueda completa
+        allRecords: 'true',  // Nuevo parámetro para obtener todos los registros
+        page: 1,
+        pageSize: 500000   // Número grande para obtener todos los registros
+    });
+    
+    // Mostrar indicador de carga
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="100%" class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Buscando...</span>
+                </div>
+            </td>
+        </tr>`;
+
+    fetch('ReportesSII?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.message || 'Error al realizar la búsqueda');
+        }
+        globalTableData = data.data[currentSelectedReport];
+        renderTableRows(globalTableData);
+
+        // Actualizar la paginación si es necesario
+        if (data.totalPages && data.totalPages > 1) {
+            generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
+        }
+    })
+    .catch(error => {
+        console.error('Error en la búsqueda:', error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center text-danger">
+                    <div class="alert alert-danger" role="alert">
+                        Error al realizar la búsqueda: ${error.message}
+                    </div>
+                </td>
+            </tr>`;
+    });
+}
 
 function cargarDatos(selectedValue, pagina, registrosPorPagina) {
     if (!selectedValue || selectedValue === 'Selecciona:') {
@@ -391,7 +469,6 @@ function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = '
     return button;
 }
 
-
 function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
     const selectedValue = selectElement.value;
@@ -490,9 +567,29 @@ function descargarReporte() {
         botonDescargar.innerHTML = 'Descargar Información';
     });
 }
- 
-// Event listener for download button click
-document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener para el botón de búsqueda
+    document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
+
+    // Event listener para búsqueda con Enter
+    document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            realizarBusqueda();
+        }
+    });
+
+    // Event listener para cambio de reporte
+    document.getElementById('seleccion').addEventListener('change', function() {
+        const selectedValue = this.value;
+        currentSelectedReport = selectedValue;
+        cargarDatos(selectedValue, 1, 30);
+    });
+
+    // Event listener para botón de descarga
+    document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+});
 
 // Opcional: Cargar datos iniciales si hay un valor preseleccionado
 const initialSelectedValue = document.getElementById('seleccion').value;
@@ -500,15 +597,7 @@ if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;
     cargarDatos(initialSelectedValue, 1, 30);
 }
-
     </script>
+
 </body>
 </html>
-
-
-
- 
- 
-
- 
- 

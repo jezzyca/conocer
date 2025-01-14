@@ -41,8 +41,8 @@
                 <div class="col-7 d-flex justify-content-center align-items-center">
                     <!-- Dropdown Cuenta -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Cuenta&nbsp;&nbsp;<i class="fa-solid fa-user"></i>
+                        <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                            Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="cambioContrasena.html">Cambiar Contraseña</a></li>
@@ -53,25 +53,27 @@
 
                     <!-- Menú dinámico -->
                     <div class="btn-group ms-3">
-                        <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown">
-                            Datos Generales&nbsp;&nbsp;<i class="fa-brands fa-windows"></i>
+                        <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                            Datos Generales <i class="fa-brands fa-windows ms-2 align-middle"></i>
                         </button>
                         <ul class="dropdown-menu">
-
                             <c:if test="${sessionScope.tipoUsuario == '4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD'}">
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
-                            </c:if>
-
-                            <c:if test="${sessionScope.tipoUsuario == '091FFD8E-1C76-4723-B581-C67A99F0EC87'}">
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == '091FFD8E-1C76-4723-B581-C67A99F0EC87'}">
                                 <li><a class="dropdown-item" href="directorio.jsp">Reportes</a></li>
                                 </c:if>
-                            <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
+                                <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
                                 <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == 'DF06A990-84EF-4443-8185-77F68F6500BD'}">
+                                <li><a class="dropdown-item" href="impresion.jsp">Reportes</a></li>
                                 </c:if>
                         </ul>
                     </div>
                 </div>
+
 
                 <!-- Perfil Usuario a la derecha -->
                 <div class="col-2 d-flex justify-content-center justify-content-md-end align-items-center">

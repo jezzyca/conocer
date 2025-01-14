@@ -35,6 +35,27 @@
         <servlet-name>DirectorioAdministrador</servlet-name>
         <url-pattern>/DirectorioAdministrador</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>Impresion_1</servlet-name>
+        <servlet-class>reportes.Impresion</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Impresion_1</servlet-name>
+        <url-pattern>/Impresion_1</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>HomeProcesoEvaulacion</servlet-name>
+        <servlet-class>ProcesoEvaluacion</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HomeProcesoEvaluacion</servlet-name>
+        <url-pattern>/HomeProcesoEvaulacion</url-pattern>
+    </servlet-mapping>
+    
+    
+    
     <!-- Servlet para descargar reportes -->
     <servlet>
         <servlet-name>descargarReporte</servlet-name>
