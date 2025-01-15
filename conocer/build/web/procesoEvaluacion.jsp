@@ -48,21 +48,31 @@
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
                     <!-- Opciones de reportes -->
-                    <option value="1">Certificados Emitidos Último Mes</option>
-                        <option value="2">Certificados Emitidos Ultimo Mes 2</option>
-                        <option value="3">Certificados Emitidos Ultimos 3 Meses</option>
-                        <option value="4">Certificados SII</option>
-                        <option value="5">Certificados SII Arturo</option>
-                        <option value="6">Certificados SII Enviado a CONOCER</option>
-                        <option value="7">Cintinillos EC</option>
-                        <option value="8">Instituciones Acreditadas</option>
-                        <option value="9">Instituciones Acreditadas Básico</option>
-                        <option value="10">Logos ECE / OC</option>
-                        <option value="11">Niveles de Est. Competencia</option>
-                        <option value="12">Reporte para Conciliacion Emision Certificados</option>
-                        <option value="13">Reporte_Solicitudes_SII_SAC</option>
-                        <option value="14">Solicitud de Certificados</option>
-                        <option value="15">Solicitud de Reimpresión de Certificados</option>
+                        <option value="1">Acreditación y Renovación</option>
+                        <option value="2">Cifras de Acreditación</option>
+                        <option value="3">Cifras de Mes / Año</option>
+                        <option value="4">Consolidado Acred. y Renovaciones</option>
+                        <option value="5">Datos Generales CE / EI</option>
+                        <option value="6">Directorio CE / EI</option>
+                        <option value="7">Directorio CE / EI con Acreditaciones</option>
+                        <option value="8">Evaluadores CE /EI por Estándar</option>
+                        <option value="9">Intituciones Acreditadas</option>
+                        <option value="10">Intituciones Acreditadas Básico</option>
+                        <option value="11">Logos ECE / OC</option>
+                        <option value="12">RENEC VS SII</option>
+                        <option value="13">REP_Solicitud de Acreditación / Renovación EC</option>
+                        <option value="14">REP_Solicitud de Acreditación Inicial</option>
+                        <option value="15">REP_Solicitud de Certificados</option>
+                        <option value="16">REP_Solicitud de Reimpresión de Certificados</option>
+                        <option value="17">REPORTE ACREDITACION EC</option>
+                        <option value="18">Reporte de Acreditaciones CE / EI</option>
+                        <option value="19">Reporte de Acreditaciones ECE / OC</option>
+                        <option value="20">Reporte de Instituciones Acreditadas Básico (Password)</option>
+                        <option value="21">Reporte de Renovaciones  CE / EI</option>
+                        <option value="22">Reporte de Renovaciones  ECE / OC</option>
+                        <option value="23">Reporte Integral</option>
+                        <option value="24">Soluciones de Evaluación y Certificaciones EC</option>
+                        <option value="25">Verificadores EC / ECE / OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -210,7 +220,7 @@ function realizarBusqueda() {
     .then(response => response.json())
     .then(data => {
         if (!data.success) {
-            throw new Error(data.message || 'Error al realizar la búsqueda');
+            throw new Error(data.message || 'No se encontraron registros');
         }
         globalTableData = data.data[currentSelectedReport];
         renderTableRows(globalTableData);
@@ -226,7 +236,7 @@ function realizarBusqueda() {
             <tr>
                 <td colspan="100%" class="text-center text-danger">
                     <div class="alert alert-danger" role="alert">
-                        Error al realizar la búsqueda: ${error.message}
+                        <b>No se encontraron registros</b> ${error.message}
                     </div>
                 </td>
             </tr>`;
@@ -336,72 +346,87 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
+    if (!tableBody) {
+        console.error('No se encontró el elemento tableBody');
+        return;
+    }
+
     tableBody.innerHTML = '';
 
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.entries(row).forEach(([key, value]) => {
-            const td = document.createElement('td');
+    try {
+        data.forEach(row => {
+            const tr = document.createElement('tr');
             
-            // Verificar si el valor es una cadena base64 de imagen
-            if (typeof value === 'string' && 
-                (value.startsWith('data:image') || 
-                 value.startsWith('/9j/') || // JPEG en base64
-                 value.startsWith('iVBOR') || // PNG en base64
-                 value.startsWith('R0lGO'))) { // GIF en base64
+            Object.entries(row).forEach(([key, value]) => {
+                const td = document.createElement('td');
                 
-                // Asegurarse de que la cadena tenga el prefijo correcto
-                const imgSrc = value.startsWith('data:image') ? 
-                    value : 
-                    `data:image/jpeg;base64,${value}`;
+                if (key.toLowerCase() === 'imagen') {
+                    if (value) {
+                        try {
+                            let imageSource;
+                            
+                            // Verificar si es un Array de bytes
+                            if (Array.isArray(value)) {
+                                // Convertir Array de bytes a Uint8Array
+                                const uint8Array = new Uint8Array(value);
+                                // Convertir Uint8Array a Blob
+                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+                                // Crear URL del blob
+                                imageSource = URL.createObjectURL(blob);
+                            } else if (typeof value === 'string') {
+                                // Si ya es string (URL o Base64), usarlo directamente
+                                imageSource = value;
+                            }
+                            
+                            if (imageSource) {
+                                const img = document.createElement('img');
+                                img.src = imageSource;
+                                img.alt = 'Imagen';
+                                img.style.maxWidth = '100px';
+                                img.style.maxHeight = '100px';
+                                img.style.objectFit = 'contain';
+                                img.className = 'img-fluid cursor-pointer';
+                                
+                                // Manejar errores de carga
+                                img.onerror = () => {
+                                    console.error('Error al cargar la imagen');
+                                    td.textContent = 'Error al cargar imagen';
+                                };
+
+                                // Limpiar el URL del blob cuando la imagen se carga
+                                img.onload = () => {
+                                    if (Array.isArray(value)) {
+                                        URL.revokeObjectURL(imageSource);
+                                    }
+                                };
+
+                                // Modal para previsualizar
+                                img.onclick = () => createImageModal(imageSource);
+                                
+                                td.appendChild(img);
+                            } else {
+                                td.textContent = 'Formato de imagen no válido';
+                            }
+                        } catch (error) {
+                            console.error('Error al procesar imagen:', error);
+                            td.textContent = 'Error al procesar imagen';
+                        }
+                    } else {
+                        td.textContent = 'Sin imagen';
+                    }
+                } else {
+                    td.textContent = value || '';
+                }
                 
-                // Crear elemento de imagen
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.style.maxWidth = '100px'; // Limitar el tamaño de la imagen
-                img.style.maxHeight = '100px';
-                img.style.objectFit = 'contain';
-                img.className = 'img-fluid'; // Clase Bootstrap para imágenes responsivas
-                
-                // Agregar funcionalidad de zoom al hacer clic
-                img.style.cursor = 'pointer';
-                img.onclick = function() {
-                    const modal = document.createElement('div');
-                    modal.style.position = 'fixed';
-                    modal.style.top = '0';
-                    modal.style.left = '0';
-                    modal.style.width = '100%';
-                    modal.style.height = '100%';
-                    modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-                    modal.style.display = 'flex';
-                    modal.style.alignItems = 'center';
-                    modal.style.justifyContent = 'center';
-                    modal.style.zIndex = '1000';
-                    
-                    const modalImg = document.createElement('img');
-                    modalImg.src = imgSrc;
-                    modalImg.style.maxWidth = '90%';
-                    modalImg.style.maxHeight = '90%';
-                    modalImg.style.objectFit = 'contain';
-                    
-                    modal.appendChild(modalImg);
-                    modal.onclick = function() {
-                        document.body.removeChild(modal);
-                    };
-                    
-                    document.body.appendChild(modal);
-                };
-                
-                td.appendChild(img);
-            } else {
-                // Para valores que no son imágenes
-                td.textContent = value !== null ? value.toString() : '';
-            }
+                tr.appendChild(td);
+            });
             
-            tr.appendChild(td);
+            tableBody.appendChild(tr);
         });
-        tableBody.appendChild(tr);
-    });
+    } catch (error) {
+        console.error('Error al renderizar tabla:', error);
+        tableBody.innerHTML = '<tr><td colspan="100%">Error al cargar los datos</td></tr>';
+    }
 }
 
 document.getElementById('quickSearchInput').addEventListener('input', function() {

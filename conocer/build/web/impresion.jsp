@@ -336,72 +336,87 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
+    if (!tableBody) {
+        console.error('No se encontró el elemento tableBody');
+        return;
+    }
+
     tableBody.innerHTML = '';
 
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.entries(row).forEach(([key, value]) => {
-            const td = document.createElement('td');
+    try {
+        data.forEach(row => {
+            const tr = document.createElement('tr');
             
-            // Verificar si el valor es una cadena base64 de imagen
-            if (typeof value === 'string' && 
-                (value.startsWith('data:image') || 
-                 value.startsWith('/9j/') || // JPEG en base64
-                 value.startsWith('iVBOR') || // PNG en base64
-                 value.startsWith('R0lGO'))) { // GIF en base64
+            Object.entries(row).forEach(([key, value]) => {
+                const td = document.createElement('td');
                 
-                // Asegurarse de que la cadena tenga el prefijo correcto
-                const imgSrc = value.startsWith('data:image') ? 
-                    value : 
-                    `data:image/jpeg;base64,${value}`;
+                if (key.toLowerCase() === 'imagen') {
+                    if (value) {
+                        try {
+                            let imageSource;
+                            
+                            // Verificar si es un Array de bytes
+                            if (Array.isArray(value)) {
+                                // Convertir Array de bytes a Uint8Array
+                                const uint8Array = new Uint8Array(value);
+                                // Convertir Uint8Array a Blob
+                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+                                // Crear URL del blob
+                                imageSource = URL.createObjectURL(blob);
+                            } else if (typeof value === 'string') {
+                                // Si ya es string (URL o Base64), usarlo directamente
+                                imageSource = value;
+                            }
+                            
+                            if (imageSource) {
+                                const img = document.createElement('img');
+                                img.src = imageSource;
+                                img.alt = 'Imagen';
+                                img.style.maxWidth = '100px';
+                                img.style.maxHeight = '100px';
+                                img.style.objectFit = 'contain';
+                                img.className = 'img-fluid cursor-pointer';
+                                
+                                // Manejar errores de carga
+                                img.onerror = () => {
+                                    console.error('Error al cargar la imagen');
+                                    td.textContent = 'Error al cargar imagen';
+                                };
+
+                                // Limpiar el URL del blob cuando la imagen se carga
+                                img.onload = () => {
+                                    if (Array.isArray(value)) {
+                                        URL.revokeObjectURL(imageSource);
+                                    }
+                                };
+
+                                // Modal para previsualizar
+                                img.onclick = () => createImageModal(imageSource);
+                                
+                                td.appendChild(img);
+                            } else {
+                                td.textContent = 'Formato de imagen no válido';
+                            }
+                        } catch (error) {
+                            console.error('Error al procesar imagen:', error);
+                            td.textContent = 'Error al procesar imagen';
+                        }
+                    } else {
+                        td.textContent = 'Sin imagen';
+                    }
+                } else {
+                    td.textContent = value || '';
+                }
                 
-                // Crear elemento de imagen
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.style.maxWidth = '100px'; // Limitar el tamaño de la imagen
-                img.style.maxHeight = '100px';
-                img.style.objectFit = 'contain';
-                img.className = 'img-fluid'; // Clase Bootstrap para imágenes responsivas
-                
-                // Agregar funcionalidad de zoom al hacer clic
-                img.style.cursor = 'pointer';
-                img.onclick = function() {
-                    const modal = document.createElement('div');
-                    modal.style.position = 'fixed';
-                    modal.style.top = '0';
-                    modal.style.left = '0';
-                    modal.style.width = '100%';
-                    modal.style.height = '100%';
-                    modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-                    modal.style.display = 'flex';
-                    modal.style.alignItems = 'center';
-                    modal.style.justifyContent = 'center';
-                    modal.style.zIndex = '1000';
-                    
-                    const modalImg = document.createElement('img');
-                    modalImg.src = imgSrc;
-                    modalImg.style.maxWidth = '90%';
-                    modalImg.style.maxHeight = '90%';
-                    modalImg.style.objectFit = 'contain';
-                    
-                    modal.appendChild(modalImg);
-                    modal.onclick = function() {
-                        document.body.removeChild(modal);
-                    };
-                    
-                    document.body.appendChild(modal);
-                };
-                
-                td.appendChild(img);
-            } else {
-                // Para valores que no son imágenes
-                td.textContent = value !== null ? value.toString() : '';
-            }
+                tr.appendChild(td);
+            });
             
-            tr.appendChild(td);
+            tableBody.appendChild(tr);
         });
-        tableBody.appendChild(tr);
-    });
+    } catch (error) {
+        console.error('Error al renderizar tabla:', error);
+        tableBody.innerHTML = '<tr><td colspan="100%">Error al cargar los datos</td></tr>';
+    }
 }
 
 document.getElementById('quickSearchInput').addEventListener('input', function() {

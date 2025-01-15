@@ -1,15 +1,22 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package reportes;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static com.sun.corba.se.spi.presentation.rmi.StubAdapter.request;
 import conexion.ConexionGeneral;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Blob;
+import java.util.Base64;
+import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,6 +24,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.management.Query.value;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -38,20 +52,16 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.Base64;
-
-
-
 
 
 /**
  *
- * @author Conocer
- * @juan.fernandez
+ * @conocer
+ * @juan fernandez
  */
-@WebServlet(name = "HomeProcesoEvaulacion", urlPatterns = {"/HomeProcesoEvaulacion"})
+@WebServlet(name = "ProcesoEvaluacion", urlPatterns = {"/ProcesoEvaluacion"})
 public class ProcesoEvaluacion extends HttpServlet {
-    
+
     private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
     private static final int DEFAULT_PAGE = 1;
@@ -458,25 +468,25 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
             case "5":
                 return "{CALL SP_REP_DATOS_GENERALES_CE_EI()}";
             case "6":
-                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
+                return "{CALL sp_Rep_Directorio_CEEI()}";
             case "7":
-                return "{CALL sp_Rep_Directorio_CEEI(?)}";
-            case "8":
                 return "{CALL sp_REP_Directorio()}";
-            case "9":
+            case "8":
                 return "{CALL sp_REP_ESTANDARES_EVALUADORES_CE_EI()}";
-            case "10":
+            case "9":
                 return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
-            case "11":
+            case "10":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
-            case "12":
+            case "11":
                 return "{CALL sp_REP_LOGO_ECE_OC()}";
-            case "13":
+            case "12":
                 return "{CALL SP_REP_RENEC_VS_SII()}";
-            case "14": 
+            case "13":
                 return "{CALL sp_Solicitud_Acreditacion_RenovascionEC()}";
-            case "15":
+            case "14": 
                 return "{CALL sp_Solicitud_Acreditacion_Inicial()}";
+            case "15":
+                return "{CALL sp_Solicitud_Certificados()}";
             case "16":
                 return "{CALL sp_Solicitud_ReimpresionCER()}";
             case "17":
@@ -501,8 +511,73 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
     }
-
     
+
+public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
+        try {
+            String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
+            ConexionGeneral conexion = new ConexionGeneral();
+            Connection conn = conexion.obtenerConexion();
+
+            try (CallableStatement stmt = conn.prepareCall(storedProcedure)) {
+                if (parametroEC != null) {
+                    stmt.setString(1, parametroEC);
+                }
+
+                ResultSet rs = stmt.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                JSONArray jsonArray = new JSONArray();
+
+                while (rs.next()) {
+                    JSONObject row = new JSONObject();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+
+                        if (value instanceof Blob) {
+                            Blob blob = (Blob) value;
+                            try (InputStream inputStream = blob.getBinaryStream();
+                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+
+                                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                    outputStream.write(buffer, 0, bytesRead);
+                                }
+
+                                byte[] bytes = outputStream.toByteArray();
+                                String base64Image = Base64.getEncoder().encodeToString(bytes);
+
+                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
+                                row.put(columnName, "data:image/jpeg;base64," + base64Image);
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                row.put(columnName, "");
+                            }
+                        } else {
+                            row.put(columnName, value != null ? value : "");
+                        }
+                    }
+                    jsonArray.put(row);
+                }
+
+                // Aquí puedes enviar o procesar jsonArray según sea necesario
+                System.out.println("JSON Array: " + jsonArray.toString());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+  
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

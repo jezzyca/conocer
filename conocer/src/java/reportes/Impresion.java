@@ -487,7 +487,100 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
         }
     }
 
+
+public String ejecutarProcedimientoConParametro(Connection conexion, String procedimiento, String parametro) throws Exception {
+    String resultado = "";
+
+        // Suponiendo que 'parametro' es el valor que se pasará al procedimiento
+String procedimientoSQL = "{CALL sp_REP_CINTILLOS_EC(?)}";
+try (CallableStatement stmt = conexion.prepareCall(procedimientoSQL)) {
+    // Establecer el valor para el parámetro '_EC'
+    stmt.setString(1, parametro); // 'parametro' debe ser el valor que quieres pasar a '_EC'
     
+    try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            // Procesar resultados
+            String imagen = rs.getString("Imagen");
+            String codigo = rs.getString("Código Estándar de Competencia");
+            String cintillo = rs.getString("Cintillo");
+            String tieneImagen = rs.getString("Tiene imagen");
+            String fechaPublicacion = rs.getString("Fecha Publ. D.O.F.");
+            
+            // Realizar lo que necesites con los resultados
+        }
+    }
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+
+    return resultado;
+    }
+    
+
+    public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
+        try {
+            String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
+            ConexionGeneral conexion = new ConexionGeneral();
+            Connection conn = conexion.obtenerConexion();
+
+            try (CallableStatement stmt = conn.prepareCall(storedProcedure)) {
+                if (parametroEC != null) {
+                    stmt.setString(1, parametroEC);
+                }
+
+                ResultSet rs = stmt.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                JSONArray jsonArray = new JSONArray();
+
+                while (rs.next()) {
+                    JSONObject row = new JSONObject();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+
+                        if (value instanceof Blob) {
+                            Blob blob = (Blob) value;
+                            try (InputStream inputStream = blob.getBinaryStream();
+                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+
+                                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                    outputStream.write(buffer, 0, bytesRead);
+                                }
+
+                                byte[] bytes = outputStream.toByteArray();
+                                String base64Image = Base64.getEncoder().encodeToString(bytes);
+
+                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
+                                row.put(columnName, "data:image/jpeg;base64," + base64Image);
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                row.put(columnName, "");
+                            }
+                        } else {
+                            row.put(columnName, value != null ? value : "");
+                        }
+                    }
+                    jsonArray.put(row);
+                }
+
+                // Aquí puedes enviar o procesar jsonArray según sea necesario
+                System.out.println("JSON Array: " + jsonArray.toString());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

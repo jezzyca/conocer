@@ -44,17 +44,15 @@
         <servlet-name>Impresion_1</servlet-name>
         <url-pattern>/Impresion_1</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
-        <servlet-name>HomeProcesoEvaulacion</servlet-name>
-        <servlet-class>ProcesoEvaluacion</servlet-class>
+        <servlet-name>ProcesoEvaluacion</servlet-name>
+        <servlet-class>reportes.ProcesoEvaluacion</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>HomeProcesoEvaluacion</servlet-name>
-        <url-pattern>/HomeProcesoEvaulacion</url-pattern>
+        <servlet-name>ProcesoEvaluacion</servlet-name>
+        <url-pattern>/ProcesoEvaluacion</url-pattern>
     </servlet-mapping>
-    
-    
     
     <!-- Servlet para descargar reportes -->
     <servlet>
