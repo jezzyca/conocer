@@ -1,10 +1,13 @@
 package reportes;
 
 import conexion.ConexionGeneral;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -12,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -414,7 +418,7 @@ public class ReportesSII extends HttpServlet {
             case "18":
                 return "{CALL sp_REP_Directorio_Ampliado_Enlaces()}";
             case "19":
-                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO()}";
+                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
             case "20":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
             case "21":
@@ -463,6 +467,73 @@ public class ReportesSII extends HttpServlet {
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
     }
+    
+   
+    public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
+        try {
+            String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
+            ConexionGeneral conexion = new ConexionGeneral();
+            Connection conn = conexion.obtenerConexion();
+
+            try (CallableStatement stmt = conn.prepareCall(storedProcedure)) {
+                if (parametroEC != null) {
+                    stmt.setString(1, parametroEC);
+                }
+
+                ResultSet rs = stmt.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                JSONArray jsonArray = new JSONArray();
+
+                while (rs.next()) {
+                    JSONObject row = new JSONObject();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+
+                        if (value instanceof Blob) {
+                            Blob blob = (Blob) value;
+                            try (InputStream inputStream = blob.getBinaryStream();
+                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+
+                                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                    outputStream.write(buffer, 0, bytesRead);
+                                }
+
+                                byte[] bytes = outputStream.toByteArray();
+                                String base64Image = Base64.getEncoder().encodeToString(bytes);
+
+                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
+                                row.put(columnName, "data:image/jpeg;base64," + base64Image);
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                row.put(columnName, "");
+                            }
+                        } else {
+                            row.put(columnName, value != null ? value : "");
+                        }
+                    }
+                    jsonArray.put(row);
+                }
+
+                // Aquí puedes enviar o procesar jsonArray según sea necesario
+                System.out.println("JSON Array: " + jsonArray.toString());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

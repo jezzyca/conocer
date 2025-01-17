@@ -630,5 +630,16 @@ body {
 }
 
 
+#custom-link {
+        color: white;
+        background-color: #e74c3c !important; /* Rojo personalizado */
+        padding: 5px 10px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    #custom-link:hover {
+        background-color: #c0392b; /* Color más oscuro al pasar el cursor */
+    }
+
 
 

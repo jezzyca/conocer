@@ -1,14 +1,14 @@
 <%-- 
-    Document   : informesEjecutivo
-    Created on : 9/01/2025, 06:39:13 PM
-    Author     : Conocer
+    Document   : repECMarca
+    Created on : 16/01/2025, 02:24:54 PM
+    Author     : carlo
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*, org.json.JSONObject, org.json.JSONArray" %>
-<%@ page import="reportes.InformesEjecutivo" %>
+<%@ page import="reportes.RepECMarca" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<jsp:useBean id="InformesEjecutivo" class="reportes.InformesEjecutivo" scope="page" />
+<jsp:useBean id="RepECMarca" class="reportes.RepECMarca" scope="page" />
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
@@ -48,21 +48,9 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                    <option value="1">Comités Operativos</option>
-                    <option value="2">Directorio CGC</option>
-                    <option value="3">Estándares de Competencia</option>
-                    <option value="4">Informe Ejecutivo CGC</option>
-                    <option value="5">Informe Ejecutivo COVAEC</option>
-                    <option value="6">Informe ejecutivo EC</option>
-                    <option value="7">Instrumentos de Evaluación</option>
-                    <option value="8">Reporte CONVACEC</option>
-                    <option value="9">Reportes de Comités por Trimestre</option>
-                    <option value="10">Reporte de Comités por Trimestre 2015</option>
-                    <option value="11">Reporte de E.C por Trimestre</option>
-                    <option value="12">Reporte de E.C por Trimestre 2015</option>
-                    <option value="13">Reporte de Instituciones Guburnamentales</option>
-                    <option value="14">Reporte de Instituciones Sindicales</option>
-                    <option value="15">Reporte de Instituciones Sociales</option>
+                    <option value="1">Certificados de Marca con Totales</option>
+                    <option value="2">Certificados de Marca por EC/OCE</option>
+                    <option value="3">Certificados de Marca por Estado</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -200,7 +188,7 @@ function realizarBusqueda() {
             </td>
         </tr>`;
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('RepECMarca?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
@@ -265,7 +253,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         pageSize: registrosPorPagina,
     });
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('RepECMarca?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
@@ -578,7 +566,7 @@ function descargarReporte() {
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('RepECMarca?' + params.toString(), {
         method: 'GET',
         credentials: 'same-origin',
         headers: {

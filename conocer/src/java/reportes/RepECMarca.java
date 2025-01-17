@@ -6,10 +6,13 @@
 package reportes;
 
 import conexion.ConexionGeneral;
-import java.io.IOException;/**/
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;/**/
+import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,6 +20,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;/**/
-import javax.servlet.annotation.WebServlet;/**/
-import javax.servlet.http.HttpServlet;/**/
-import javax.servlet.http.HttpServletRequest;/**/
-import javax.servlet.http.HttpServletResponse;/**/
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -43,19 +47,14 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.Base64;
-import java.sql.Blob;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 
 /**
  *
- * @Conocer
- * @rodulfo.lopez
+ * @author Conocer
+ * @estadisticas
  */
-@WebServlet(name = "Impresion_1", urlPatterns = {"/Impresion_1"})
-public class Impresion extends HttpServlet {
+@WebServlet(name = "RepECMarca", urlPatterns = {"/RepECMarca"})
+public class RepECMarca extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
@@ -177,7 +176,7 @@ public class Impresion extends HttpServlet {
             }
 
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String fileName = nombreReporte + "Reporte_" + fechaActual + ".xlsx";
+            String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
 
             // Configuración de la respuesta HTTP
             response.reset();
@@ -278,114 +277,57 @@ public class Impresion extends HttpServlet {
         return style;
     }
 
-    // En el método obtenerDatosReporte, modifica el procesamiento de las columnas así:
-private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
-        throws Exception {
-    Map<String, List<Map<String, Object>>> datos = new HashMap<>();
-    Connection conexion = null;
+    private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
+            throws Exception {
+        Map<String, List<Map<String, Object>>> datos = new HashMap<>();
+        Connection conexion = null;
 
-    try {
-        conexion = new ConexionGeneral().getConnection();
-        LOGGER.info("Conexión establecida correctamente");
+        try {
+            conexion = new ConexionGeneral().getConnection();
+            LOGGER.info("Conexión establecida correctamente");
 
-        String searchTerm = request.getParameter("searchTerm");
-        String searchColumn = request.getParameter("searchColumn");
-        boolean exactMatch = Boolean.parseBoolean(request.getParameter("exactMatch"));
+            for (String procedimiento : procedimientos) {
+                String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
+                LOGGER.log(Level.INFO, "Ejecutando procedimiento: {0}", sqlProcedimiento);
 
-        for (String procedimiento : procedimientos) {
-            String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-            LOGGER.log(Level.INFO, "Ejecutando procedimiento: {0}", sqlProcedimiento);
+                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento)) {
+                    ResultSet rs = stmt.executeQuery();
+                    LOGGER.info("Query ejecutada correctamente");
 
-            try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento)) {
-                ResultSet rs = stmt.executeQuery();
-                LOGGER.info("Query ejecutada correctamente");
+                    List<Map<String, Object>> resultados = new ArrayList<>();
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    LOGGER.info("Número de columnas: " + columnCount);
 
-                List<Map<String, Object>> resultados = new ArrayList<>();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                while (rs.next()) {
-                    Map<String, Object> fila = new HashMap<>();
-                    boolean cumpleCriterio = false;
-
-                    if (searchTerm == null || searchTerm.isEmpty()) {
-                        cumpleCriterio = true;
-                    }
-
-                    // Procesar cada columna
-                    for (int i = 1; i <= columnCount; i++) {
-                        String nombreColumna = metaData.getColumnLabel(i);
-                        Object valorColumna = rs.getObject(i);
-                        
-                        // Verificar si la columna es de tipo imagen
-                        if (valorColumna instanceof byte[] || 
-                            metaData.getColumnType(i) == java.sql.Types.BLOB || 
-                            metaData.getColumnType(i) == java.sql.Types.BINARY || 
-                            metaData.getColumnType(i) == java.sql.Types.VARBINARY || 
-                            metaData.getColumnType(i) == java.sql.Types.LONGVARBINARY) {
-                            
-                            // Convertir la imagen a Base64
-                            byte[] imageBytes = null;
-                            if (valorColumna instanceof byte[]) {
-                                imageBytes = (byte[]) valorColumna;
-                            } else if (valorColumna != null) {
-                                java.sql.Blob blob = rs.getBlob(i);
-                                imageBytes = blob.getBytes(1, (int) blob.length());
-                            }
-                            
-                            if (imageBytes != null && imageBytes.length > 0) {
-                                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                                // Agregar el prefijo data:image para que el navegador pueda mostrar la imagen
-                                valorColumna = "data:image/jpeg;base64," + base64Image;
-                            } else {
-                                valorColumna = null;
-                            }
+                    while (rs.next()) {
+                        Map<String, Object> fila = new HashMap<>();
+                        for (int i = 1; i <= columnCount; i++) {
+                            String nombreColumna = metaData.getColumnLabel(i);
+                            Object valorColumna = rs.getObject(i);
+                            fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
                         }
-
-                        // Procesar búsqueda
-                        if (!cumpleCriterio && searchTerm != null && !searchTerm.isEmpty()) {
-                            String valorString = valorColumna != null ? valorColumna.toString().toLowerCase() : "";
-                            
-                            if (searchColumn != null && !searchColumn.isEmpty()) {
-                                if (nombreColumna.equals(searchColumn)) {
-                                    cumpleCriterio = exactMatch ? 
-                                        valorString.equals(searchTerm.toLowerCase()) :
-                                        valorString.contains(searchTerm.toLowerCase());
-                                }
-                            } else {
-                                cumpleCriterio = exactMatch ? 
-                                    valorString.equals(searchTerm.toLowerCase()) :
-                                    valorString.contains(searchTerm.toLowerCase());
-                            }
-                        }
-
-                        fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
-                    }
-
-                    if (cumpleCriterio) {
                         resultados.add(fila);
                     }
-                }
 
-                LOGGER.info("Registros filtrados obtenidos: " + resultados.size());
-                datos.put(procedimiento, resultados);
-                rs.close();
+                    LOGGER.info("Registros obtenidos: " + resultados.size());
+                    datos.put(procedimiento, resultados);
+                    rs.close();
+                }
+            }
+        } finally {
+            if (conexion != null) {
+                try {
+                    conexion.close();
+                    LOGGER.info("Conexión cerrada correctamente");
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error al cerrar la conexión", e);
+                }
             }
         }
-    } finally {
-        if (conexion != null) {
-            try {
-                conexion.close();
-                LOGGER.info("Conexión cerrada correctamente");
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error al cerrar la conexión", e);
-            }
-        }
+
+        return datos;
     }
 
-    return datos;
-}
-    
     // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
@@ -453,40 +395,17 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
             case "1":
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes()}";
+                return "{CALL sp_REP_ReporteConSumaMarca()}";
             case "2":
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes_2()}";
-            case "3": 
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes_3()}";
-            case "4":
-                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
-            case "5":
-                return "{CALL sp_REP_Cert_SII_Todos()}";
-            case "6":
-                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
-            case "7":
-                return "{CALL sp_REP_CINTILLOS_EC()}";
-            case "8":
-                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
-            case "9":
-                return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
-            case "10":
-                return "{CALL sp_REP_LOGO_ECE_OC()}";
-            case "11":
-                return "{CALL sp_RepNivelesEC()}";
-            case "12":
-                return "{CALL sp_REP_Conciliacion_Emision_Certificados()}";
-            case "13":
-                return "{CALL sp_Rep_Solicitudes_SII_SAC()}";
-            case "14": 
-                return "{CALL sp_Rep_X_EstadoImpresion2()}";
-            case "15":
-                return "{CALL sp_REP_Solicitud_Reimp_Cert()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_EC_OC()}";
+            case "3":
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_FEDERATIVA()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
     }
-
+    
+   
     public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
         try {
             String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
@@ -552,6 +471,7 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
     }
 
 
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -564,3 +484,6 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
         processRequest(request, response);
     }
 }
+
+
+

@@ -113,13 +113,15 @@ public class validacionUsers extends HttpServlet {
                                             break;
                                         case "FAA8565B-A5E5-4F16-A264-4335D5888B25":
                                             response.sendRedirect("informesMensuales.jsp");
+                                            break;  
+                                        case "CAA8565B-A5E5-4H16-A264-4335D5888K35":
+                                            response.sendRedirect("informesMensuales.jsp");
                                             break;
                                         default:
                                             response.sendRedirect("default.jsp");
                                             break;
                                     }
                                 } else {
-                                    // Redirigir a una página por defecto si no se encuentra el rol
                                     response.sendRedirect("default.jsp");
                                 }
                             }

@@ -1,14 +1,15 @@
 <%-- 
-    Document   : informesEjecutivo
-    Created on : 9/01/2025, 06:39:13 PM
-    Author     : Conocer
+    Document   : estadisticas
+    Created on : 16/01/2025, 02:59:44 PM
+    Author     : carlo
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*, org.json.JSONObject, org.json.JSONArray" %>
-<%@ page import="reportes.InformesEjecutivo" %>
+<%@ page import="estadisticas.Comportamiento" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<jsp:useBean id="InformesEjecutivo" class="reportes.InformesEjecutivo" scope="page" />
+<jsp:useBean id="Comportamiento" class="estadisticas.Comportamiento" scope="page" />
+<script src="https://cdn.jsdelivr.net/npm/systemjs@6.0.0/dist/s.js"></script>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
@@ -31,6 +32,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
 </head>
 <body id="fondoBodyReportes2">
@@ -48,21 +50,10 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                    <option value="1">Comités Operativos</option>
-                    <option value="2">Directorio CGC</option>
-                    <option value="3">Estándares de Competencia</option>
-                    <option value="4">Informe Ejecutivo CGC</option>
-                    <option value="5">Informe Ejecutivo COVAEC</option>
-                    <option value="6">Informe ejecutivo EC</option>
-                    <option value="7">Instrumentos de Evaluación</option>
-                    <option value="8">Reporte CONVACEC</option>
-                    <option value="9">Reportes de Comités por Trimestre</option>
-                    <option value="10">Reporte de Comités por Trimestre 2015</option>
-                    <option value="11">Reporte de E.C por Trimestre</option>
-                    <option value="12">Reporte de E.C por Trimestre 2015</option>
-                    <option value="13">Reporte de Instituciones Guburnamentales</option>
-                    <option value="14">Reporte de Instituciones Sindicales</option>
-                    <option value="15">Reporte de Instituciones Sociales</option>
+                    <!-- Opciones de reportes -->
+                    <option value="1">Por Estado</option>
+                    <option value="2">Por ECE / OC </option>
+                    <option value="3">Por Exámen</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -80,8 +71,13 @@
                 </div>
             </div>
         </div>
+        
+       <!-- Asegúrate de que el contenedor exista -->
+<div id="chartContainer" style="height: 400px; width: 100%;">
+    <canvas id="myChart"></canvas>
+</div>
 
- <!-- Contenedor de Búsqueda Rápida Actualizado -->
+
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
@@ -104,11 +100,10 @@
     </div>
 </div>
 
-        <!-- Contenedor de Tabla -->
+       
         <div class="table-responsive mt-3">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="table-dark sticky-top" id="tableHead">
-                    <!-- Encabezados se generarán dinámicamente -->
                 </thead>
                 <tbody id="tableBody">
                     <tr>
@@ -120,9 +115,7 @@
             </table>
         </div>
 
-        <!-- Paginación -->
         <div id="pagination" class="d-flex justify-content-center mt-3">
-            <!-- Botones de paginación se agregarán aquí -->
         </div>
     </div>
 
@@ -200,7 +193,7 @@ function realizarBusqueda() {
             </td>
         </tr>`;
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('Comportamiento?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
@@ -236,28 +229,59 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         alert('Por favor, selecciona un tipo de reporte');
         return;
     }
-
+    
+    
     // Incrementar el identificador único de solicitud
     const requestId = ++currentRequestId;
 
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const paginationDiv = document.getElementById('pagination');
-    const quickSearchContainer = document.getElementById('quickSearchContainer');
-    const searchColumnSelect = document.getElementById('searchColumnSelect');
+    const chartContainer = document.getElementById('chartContainer');
+if (!chartContainer) {
+    console.error("El contenedor para el gráfico no se encuentra.");
+    return;
+}
 
-    tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-    tableBody.innerHTML = `
-        <tr>
-            <td class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </td>
-        </tr>`;
-    paginationDiv.innerHTML = '';
-    quickSearchContainer.style.display = 'none';
-    searchColumnSelect.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+const canvas = document.getElementById('myChart');
+if (!canvas) {
+    console.error("El elemento canvas no se encuentra.");
+    return;
+}
+
+const ctx = canvas.getContext('2d');
+if (!ctx) {
+    console.error("No se pudo obtener el contexto del canvas.");
+    return;
+}
+
+// Asegúrate de que los datos no estén vacíos
+if (globalTableData.length === 0) {
+    chartContainer.innerHTML = '<p class="text-center">No hay datos disponibles para este reporte</p>';
+    return;
+}
+
+// Datos del gráfico
+const chartData = {
+    labels: globalTableData.map(item => item.label),  // Asegúrate de que estos datos existan
+    datasets: [{
+        label: 'Datos del reporte',
+        data: globalTableData.map(item => item.value), // Asegúrate de que estos valores existan
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+    }]
+};
+
+// Crear el gráfico
+const myChart = new Chart(ctx, {
+    type: 'bar',  // Puedes cambiar el tipo de gráfico según sea necesario
+    data: chartData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
 
     const params = new URLSearchParams({
         procedimientos: selectedValue,
@@ -265,88 +289,91 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         pageSize: registrosPorPagina,
     });
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('Comportamiento?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
     })
-        .then(async (response) => {
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('La respuesta del servidor no es JSON válido');
+    .then(async (response) => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((data) => {
+        if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+
+        // Verifica que los datos sean válidos
+        if (!data || !data.success || !data.data || !data.data[selectedValue]) {
+            throw new Error('No se encontraron datos para el reporte seleccionado');
+        }
+
+        const globalData = data.data[selectedValue];
+
+        if (globalData.length === 0) {
+            chartContainer.innerHTML = '<p class="text-center">No hay datos disponibles para este reporte</p>';
+            return;
+        }
+
+        // Preparar los datos para el gráfico (ejemplo con un gráfico de barras)
+        const labels = globalData.map(item => item.nombre); // Ajusta según los datos
+        const dataset = globalData.map(item => item.valor); // Ajusta según el campo numérico que quieras graficar
+
+        // Configuración del gráfico
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: selectedValue,
+                data: dataset,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const chartOptions = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return `Valor: ${tooltipItem.raw}`;
+                        }
+                    }
+                }
             }
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+        };
 
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = '';
-            paginationDiv.innerHTML = '';
-
-            if (!data || !data.success || !data.data || !data.data[selectedValue]) {
-                throw new Error('No se encontraron datos para el reporte seleccionado');
-            }
-
-            globalTableData = data.data[selectedValue];
-
-            if (globalTableData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
-                    </tr>`;
-                return;
-            }
-
-            const firstRow = globalTableData[0];
-            const headerRow = document.createElement('tr');
-
-            Object.keys(firstRow).forEach((key) => {
-                const th = document.createElement('th');
-                th.textContent = key;
-                th.className = 'text-nowrap';
-                headerRow.appendChild(th);
-
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = key;
-                searchColumnSelect.appendChild(option);
-            });
-
-            tableHead.appendChild(headerRow);
-            renderTableRows(globalTableData);
-            quickSearchContainer.style.display = 'flex';
-
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-            }
-        })
-        .catch((error) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
-
-            console.error('Error al cargar datos:', error);
-
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center text-danger">
-                        <div class="alert alert-danger" role="alert">
-                            <h5 class="alert-heading">Error al cargar los datos</h5>
-                            <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                            <hr>
-                            <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-                        </div>
-                    </td>
-                </tr>`;
-
-            quickSearchContainer.style.display = 'none';
-            paginationDiv.innerHTML = '';
+        // Crear el gráfico
+        new Chart(chartContainer, {
+            type: 'bar',  // Cambia a 'line', 'pie', etc., dependiendo del tipo de gráfico que desees
+            data: chartData,
+            options: chartOptions
         });
+    })
+    .catch((error) => {
+        if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+
+        console.error('Error al cargar datos:', error);
+        chartContainer.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                <h5 class="alert-heading">Error al cargar los datos</h5>
+                <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
+            </div>`;
+    });
 }
+
+
+console.log("Datos para el gráfico: ", globalTableData);
+
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
@@ -578,7 +605,7 @@ function descargarReporte() {
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
-    fetch('InformesEjecutivo?' + params.toString(), {
+    fetch('Comportamiento?' + params.toString(), {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -680,4 +707,4 @@ if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     </script>
 
 </body>
-</html>
+</html> 

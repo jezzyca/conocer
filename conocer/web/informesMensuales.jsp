@@ -32,7 +32,7 @@
             <div class="row align-items-center d-flex"> <!-- Agregamos d-flex aquí -->
                 <!-- Logo a la izquierda -->
                 <div class="col-3 d-flex justify-content-start align-items-center">
-                    <a href="index.html" class="brand-logo">
+                    <a href="informesMensuales.jsp" class="brand-logo">
                         <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                     </a>
                 </div>
@@ -59,11 +59,13 @@
                         <ul class="dropdown-menu">
                             <c:if test="${sessionScope.tipoUsuario == '4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD'}">
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
+                                <li><a class="dropdown-item" href="repECMarca.jsp">Reportes EC Marca</a></li>
+                                <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '091FFD8E-1C76-4723-B581-C67A99F0EC87'}">
                                 <li><a class="dropdown-item" href="directorio.jsp">Reportes</a></li>
                                 </c:if>
-                                <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
+                                <c:if test="${sessionScope.tipoUsuario == '24acc47d-d42c-11ef-a4c6-000c296c6b68'}">
                                 <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
                                 </c:if>
@@ -73,6 +75,29 @@
                                 <c:if test="${sessionScope.tipoUsuario == '2AE2D0AF-DD99-4B0B-A000-073FE17EDE79'}">
                                 <li><a class="dropdown-item" href="procesoEvaluacion.jsp">Reportes</a></li>
                                 </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == 'D3625435-5295-4349-976C-12787488AC5B'}">
+                                <li><a class="dropdown-item" href="institucionesAcred.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == '0AD4C2A2-59A5-481C-A501-8E3F2BDEE1E6'}">
+                                <li><a class="dropdown-item" href="certificadosMarca.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == '7B08059B-E39F-4007-9871-EA1EAB1045EF'}">
+                                <li><a class="dropdown-item" href="reportesSector.jsp">Reportes</a></li>
+                                </c:if>
+                                
+                                
+                                <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
+                                <li><a class="dropdown-item" href="informesEjecutivo.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == 'E6D10215-1531-482F-8AB7-D5497BD8E9DC'}">
+                                <li><a class="dropdown-item" href="reporteSolicitud.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
+                                <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reportes</a></li>
+                                </c:if>
+                                <c:if test="${sessionScope.tipoUsuario == 'FAA8565B-A5E5-4F16-A264-4335D5888B25'}">
+                                <li><a class="dropdown-item" href="reportesCertificados.jsp">Reportes</a></li>
+                             </c:if>
                         </ul>
                     </div>
                 </div>

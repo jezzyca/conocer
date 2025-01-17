@@ -136,9 +136,9 @@
                 <img src="img/sep.png" alt="Logo SEP" class="img-fluid" style="max-height: 60px;">
             </div>
             <div class="col-12 col-md-6 text-center">
-                <p class="small mb-1">•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
+                <p class="small mb-1"><b>•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</b></p>
                 <p class="small mb-1">•Barranca del Muerto 275, San José Insurgentes, Benito Juárez, 03900 Ciudad de México, D.F. 01 55 2282 0200</p>
-                <a href="#" target="_blank" class="small text-decoration-none">• CONOCER •</a>
+                <a href="#" target="_blank" class="small text-decoration-none" id="custom-link">• CONOCER •</a>
             </div>
             <div class="col-12 col-md-3 text-center text-md-end">
                 <img src="img/conocerLogo.png" alt="Logo CONOCER" class="img-fluid" style="max-height: 60px;">
@@ -155,9 +155,10 @@
 // Variables globales
 let globalTableData = [];
 let currentSelectedReport = null;
+let currentRequestId = 0; // Identificador único para solicitudes
 
 // Evento de cambio de reporte
-document.getElementById('seleccion').addEventListener('change', function() {
+document.getElementById('seleccion').addEventListener('change', function () {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
@@ -185,12 +186,12 @@ function realizarBusqueda() {
         searchTerm: searchTerm,
         searchColumn: searchColumn,
         exactMatch: exactMatch,
-        fullSearch: 'true',  // Nuevo parámetro para indicar búsqueda completa
-        allRecords: 'true',  // Nuevo parámetro para obtener todos los registros
+        fullSearch: 'true', // Nuevo parámetro para indicar búsqueda completa
+        allRecords: 'true', // Nuevo parámetro para obtener todos los registros
         page: 1,
-        pageSize: 1000000   // Número grande para obtener todos los registros
+        pageSize: 1000000, // Número grande para obtener todos los registros
     });
-    
+
     // Mostrar indicador de carga
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
@@ -202,35 +203,35 @@ function realizarBusqueda() {
             </td>
         </tr>`;
 
-    fetch('Impresion_1?' + params.toString(), {
+    fetch('Impresion?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
-        credentials: 'same-origin'
+        credentials: 'same-origin',
     })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            throw new Error(data.message || 'Error al realizar la búsqueda');
-        }
-        globalTableData = data.data[currentSelectedReport];
-        renderTableRows(globalTableData);
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.success) {
+                throw new Error(data.message || 'Error al realizar la búsqueda');
+            }
+            globalTableData = data.data[currentSelectedReport];
+            renderTableRows(globalTableData);
 
-        // Actualizar la paginación si es necesario
-        if (data.totalPages && data.totalPages > 1) {
-            generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
-        }
-    })
-    .catch(error => {
-        console.error('Error en la búsqueda:', error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="100%" class="text-center text-danger">
-                    <div class="alert alert-danger" role="alert">
-                        Error al realizar la búsqueda: ${error.message}
-                    </div>
-                </td>
-            </tr>`;
-    });
+            // Actualizar la paginación si es necesario
+            if (data.totalPages && data.totalPages > 1) {
+                generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
+            }
+        })
+        .catch((error) => {
+            console.error('Error en la búsqueda:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="100%" class="text-center text-danger">
+                        <div class="alert alert-danger" role="alert">
+                            Error al realizar la búsqueda: ${error.message}
+                        </div>
+                    </td>
+                </tr>`;
+        });
 }
 
 function cargarDatos(selectedValue, pagina, registrosPorPagina) {
@@ -239,6 +240,9 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         return;
     }
 
+    // Incrementar el identificador único de solicitud
+    const requestId = ++currentRequestId;
+
     const tableHead = document.getElementById('tableHead');
     const tableBody = document.getElementById('tableBody');
     const paginationDiv = document.getElementById('pagination');
@@ -246,7 +250,14 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
     const searchColumnSelect = document.getElementById('searchColumnSelect');
 
     tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-    tableBody.innerHTML = '<tr><td class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></td></tr>';
+    tableBody.innerHTML = `
+        <tr>
+            <td class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </td>
+        </tr>`;
     paginationDiv.innerHTML = '';
     quickSearchContainer.style.display = 'none';
     searchColumnSelect.innerHTML = '<option value="">Buscar en todas las columnas</option>';
@@ -254,84 +265,90 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
     const params = new URLSearchParams({
         procedimientos: selectedValue,
         page: pagina,
-        pageSize: registrosPorPagina
+        pageSize: registrosPorPagina,
     });
 
-    fetch('Impresion_1?' + params.toString(), {
+    fetch('Impresion?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
-        credentials: 'same-origin'
+        credentials: 'same-origin',
     })
-    .then(async response => {
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('La respuesta del servidor no es JSON válido');
-        }
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        tableHead.innerHTML = '';
-        tableBody.innerHTML = '';
-        paginationDiv.innerHTML = '';
+        .then(async (response) => {
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('La respuesta del servidor no es JSON válido');
+            }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
 
-        if (!data || !data.success || !data.data || !data.data[selectedValue]) {
-            throw new Error('No se encontraron datos para el reporte seleccionado');
-        }
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            paginationDiv.innerHTML = '';
 
-        globalTableData = data.data[selectedValue];
+            if (!data || !data.success || !data.data || !data.data[selectedValue]) {
+                throw new Error('No se encontraron datos para el reporte seleccionado');
+            }
 
-        if (globalTableData.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="10" class="text-center">No hay datos disponibles para este reporte</td></tr>';
-            return;
-        }
+            globalTableData = data.data[selectedValue];
 
-        const firstRow = globalTableData[0];
-        const headerRow = document.createElement('tr');
+            if (globalTableData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
+                    </tr>`;
+                return;
+            }
 
-        Object.keys(firstRow).forEach(key => {
-            const th = document.createElement('th');
-            th.textContent = key;
-            th.className = 'text-nowrap';
-            headerRow.appendChild(th);
+            const firstRow = globalTableData[0];
+            const headerRow = document.createElement('tr');
 
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = key;
-            searchColumnSelect.appendChild(option);
+            Object.keys(firstRow).forEach((key) => {
+                const th = document.createElement('th');
+                th.textContent = key;
+                th.className = 'text-nowrap';
+                headerRow.appendChild(th);
+
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key;
+                searchColumnSelect.appendChild(option);
+            });
+
+            tableHead.appendChild(headerRow);
+            renderTableRows(globalTableData);
+            quickSearchContainer.style.display = 'flex';
+
+            if (data.totalPages && data.totalPages > 1) {
+                generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
+            }
+        })
+        .catch((error) => {
+            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+
+            console.error('Error al cargar datos:', error);
+
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="text-center text-danger">
+                        <div class="alert alert-danger" role="alert">
+                            <h5 class="alert-heading">Error al cargar los datos</h5>
+                            <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
+                            <hr>
+                            <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
+                        </div>
+                    </td>
+                </tr>`;
+
+            quickSearchContainer.style.display = 'none';
+            paginationDiv.innerHTML = '';
         });
-
-        tableHead.appendChild(headerRow);
-        renderTableRows(globalTableData);
-        quickSearchContainer.style.display = 'flex';
-
-        if (data.totalPages && data.totalPages > 1) {
-            generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-        }
-    })
-    .catch(error => {
-        console.error('Error al cargar datos:', error);
-
-        tableHead.innerHTML = '';
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="10" class="text-center text-danger">
-                    <div class="alert alert-danger" role="alert">
-                        <h5 class="alert-heading">Error al cargar los datos</h5>
-                        <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                        <hr>
-                        <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-
-        quickSearchContainer.style.display = 'none';
-        paginationDiv.innerHTML = '';
-    });
 }
 
 function renderTableRows(data) {
@@ -341,8 +358,22 @@ function renderTableRows(data) {
         return;
     }
 
-    tableBody.innerHTML = '';
+    // Verificar si data es null, undefined o vacío
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No se encontraron resultados para la búsqueda realizada
+                    </div>
+                </td>
+            </tr>`;
+        return;
+    }
 
+    tableBody.innerHTML = '';
+    
     try {
         data.forEach(row => {
             const tr = document.createElement('tr');
@@ -372,24 +403,22 @@ function renderTableRows(data) {
                                 const img = document.createElement('img');
                                 img.src = imageSource;
                                 img.alt = 'Imagen';
-                                img.style.maxWidth = '100px';
-                                img.style.maxHeight = '100px';
+                                img.style.maxWidth = '400px';
+                                img.style.maxHeight = '400px';
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
                                 
                                 // Manejar errores de carga
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
-                                    td.textContent = 'Error al cargar imagen';
+                                    td.textContent = 'No tiene imagen';
                                 };
-
                                 // Limpiar el URL del blob cuando la imagen se carga
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);
                                     }
                                 };
-
                                 // Modal para previsualizar
                                 img.onclick = () => createImageModal(imageSource);
                                 
@@ -405,7 +434,7 @@ function renderTableRows(data) {
                         td.textContent = 'Sin imagen';
                     }
                 } else {
-                    td.textContent = value || '';
+                    td.textContent = value ?? ''; // Usar el operador de coalescencia nula
                 }
                 
                 tr.appendChild(td);
@@ -415,7 +444,15 @@ function renderTableRows(data) {
         });
     } catch (error) {
         console.error('Error al renderizar tabla:', error);
-        tableBody.innerHTML = '<tr><td colspan="100%">Error al cargar los datos</td></tr>';
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error al cargar los datos: ${error.message}
+                    </div>
+                </td>
+            </tr>`;
     }
 }
 

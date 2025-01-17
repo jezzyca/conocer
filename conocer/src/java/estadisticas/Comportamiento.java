@@ -1,34 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package reportes;
+package estadisticas;
 
-import conexion.ConexionGeneral;
-import java.io.IOException;/**/
-import java.io.OutputStream;
-import java.io.PrintWriter;/**/
-import java.net.URLEncoder;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
+import conexion.ConexionGeneral;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;/**/
-import javax.servlet.annotation.WebServlet;/**/
-import javax.servlet.http.HttpServlet;/**/
-import javax.servlet.http.HttpServletRequest;/**/
-import javax.servlet.http.HttpServletResponse;/**/
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -43,21 +37,17 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.Base64;
-import java.sql.Blob;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
+import reportes.ReportesSII;
 
 /**
  *
- * @Conocer
- * @rodulfo.lopez
+ * @author Conocer
+ * @estadisticas
  */
-@WebServlet(name = "Impresion_1", urlPatterns = {"/Impresion_1"})
-public class Impresion extends HttpServlet {
+@WebServlet(name = "Comportamiento", urlPatterns = {"/Comportamiento"})
+public class Comportamiento extends HttpServlet {
 
-    private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
     private static final int DEFAULT_PAGE = 1;
 
@@ -176,7 +166,7 @@ public class Impresion extends HttpServlet {
                 nombreReporte = "Reporte";
             }
 
-            String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
             String fileName = nombreReporte + "Reporte_" + fechaActual + ".xlsx";
 
             // Configuración de la respuesta HTTP
@@ -214,8 +204,8 @@ public class Impresion extends HttpServlet {
                             Object value = registro.get(columnas.get(colNum));
 
                             if (value != null) {
-                                if (value instanceof Date) {
-                                    cell.setCellValue((Date) value);
+                                if (value instanceof java.util.Date) {
+                                    cell.setCellValue((java.util.Date) value);
                                     cell.setCellStyle(dateStyle);
                                 } else if (value instanceof Number) {
                                     cell.setCellValue(((Number) value).doubleValue());
@@ -453,35 +443,11 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
             case "1":
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_FEDERATIVA()}";
             case "2":
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes_2()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_EXAMEN_GRID()}";
             case "3": 
-                return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes_3()}";
-            case "4":
-                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
-            case "5":
-                return "{CALL sp_REP_Cert_SII_Todos()}";
-            case "6":
-                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
-            case "7":
-                return "{CALL sp_REP_CINTILLOS_EC()}";
-            case "8":
-                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
-            case "9":
-                return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
-            case "10":
-                return "{CALL sp_REP_LOGO_ECE_OC()}";
-            case "11":
-                return "{CALL sp_RepNivelesEC()}";
-            case "12":
-                return "{CALL sp_REP_Conciliacion_Emision_Certificados()}";
-            case "13":
-                return "{CALL sp_Rep_Solicitudes_SII_SAC()}";
-            case "14": 
-                return "{CALL sp_Rep_X_EstadoImpresion2()}";
-            case "15":
-                return "{CALL sp_REP_Solicitud_Reimp_Cert()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_EC_OC()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }

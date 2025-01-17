@@ -54,6 +54,42 @@
         <url-pattern>/ProcesoEvaluacion</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+        <servlet-name>InstitucionesAcred</servlet-name>
+        <servlet-class>reportes.InstitucionesAcred</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>InstitucionesAcred</servlet-name>
+        <url-pattern>/InstitucionesAcred</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CertificadosMarca</servlet-name>
+        <servlet-class>reportes.CertificadosMarca</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CertificadosMarca</servlet-name>
+        <url-pattern>/CertificadosMarca</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>RepECMarca</servlet-name>
+        <servlet-class>reportes.RepECMarca</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RepECMarca</servlet-name>
+        <url-pattern>/RepECMarca</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ReportesSector</servlet-name>
+        <servlet-class>reportes.ReportesSector</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReportesSector</servlet-name>
+        <url-pattern>/ReportesSector</url-pattern>
+    </servlet-mapping>
+    
     <!-- Servlet para descargar reportes -->
     <servlet>
         <servlet-name>descargarReporte</servlet-name>
