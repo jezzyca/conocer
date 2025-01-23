@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package validaciones;
 
 import java.io.IOException;
@@ -16,7 +11,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author carlo
+ * @author Conocer
  */
 @WebServlet(name = "Logout", urlPatterns = {"/Logout"})
 public class Logout extends HttpServlet {
@@ -25,9 +20,9 @@ public class Logout extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.invalidate(); // Invalida la sesión
+            session.invalidate(); 
         }
-        response.sendRedirect("login.jsp"); // Redirige al login
+        response.sendRedirect("login.jsp"); 
     }
 }
 

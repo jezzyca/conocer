@@ -160,7 +160,6 @@ public class Directorio extends HttpServlet {
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
 
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
@@ -290,22 +289,18 @@ public class Directorio extends HttpServlet {
                     Map<String, Object> fila = new HashMap<>();
                     boolean cumpleCriterio = false;
 
-                    // Si no hay término de búsqueda, incluir todas las filas
                     if (searchTerm == null || searchTerm.isEmpty()) {
                         cumpleCriterio = true;
                     } else {
-                        // Buscar en la columna específica o en todas las columnas
                         for (int i = 1; i <= columnCount; i++) {
                             String nombreColumna = metaData.getColumnLabel(i);
                             Object valorColumna = rs.getObject(i);
                             String valorString = valorColumna != null ? valorColumna.toString().toLowerCase() : "";
-                            
-                            // Si se especificó una columna, buscar solo en esa columna
+
                             if (searchColumn != null && !searchColumn.isEmpty() && !nombreColumna.equals(searchColumn)) {
                                 continue;
                             }
 
-                            // Realizar la búsqueda según el tipo de coincidencia
                             if (exactMatch) {
                                 if (valorString.equals(searchTerm.toLowerCase())) {
                                     cumpleCriterio = true;
@@ -320,7 +315,6 @@ public class Directorio extends HttpServlet {
                         }
                     }
 
-                    // Si cumple el criterio de búsqueda, agregar la fila
                     if (cumpleCriterio) {
                         for (int i = 1; i <= columnCount; i++) {
                             String nombreColumna = metaData.getColumnLabel(i);
@@ -349,8 +343,7 @@ public class Directorio extends HttpServlet {
 
     return datos;
 }
-    
-    // [Resto de métodos auxiliares sin cambios...]
+
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();

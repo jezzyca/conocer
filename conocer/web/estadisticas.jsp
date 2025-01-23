@@ -14,21 +14,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ReportesSII</title>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
-
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body id="fondoBodyReportes2">
     <br>
-    <!-- Loading Spinner -->
     <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="display: none; z-index: 1000;">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Cargando...</span>
@@ -79,8 +72,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- Botones de Control -->
+
     <div class="container-fluid d-flex flex-column align-items-center mt-4">
         <div class="d-flex align-items-center gap-3">
             <div class="row" id="fondoGrafica">
@@ -124,11 +116,8 @@
         </div>
     </footer>
 
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-    <!-- Custom JavaScript -->
     <script>
         
  document.addEventListener('DOMContentLoaded', function() {
@@ -209,7 +198,6 @@ function cargarDatos(tipo) {
         return;
     }
 
-    // Determinar qué campos usar según el tipo
     let labels, values;
     switch(tipo) {
     case 'ece':
@@ -272,7 +260,7 @@ function cargarDatos(tipo) {
                         maxRotation: 45,
                         minRotation: 45,
                         autoSkip: true,
-                        maxTicksLimit: 20 // Limita el número de etiquetas mostradas
+                        maxTicksLimit: 30 
                     }
                 }
             }

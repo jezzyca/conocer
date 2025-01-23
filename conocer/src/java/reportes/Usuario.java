@@ -5,7 +5,6 @@ public class Usuario {
     private String access;
     private String status;
 
-    // Getters y Setters
     public String getId() {
         return id;
     }

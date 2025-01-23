@@ -55,7 +55,6 @@ public class Comportamiento extends HttpServlet {
 
         tipo = tipo.trim().toLowerCase();
 
-        // Determinar el stored procedure a ejecutar
         String spName;
         switch (tipo) {
             case "estado":

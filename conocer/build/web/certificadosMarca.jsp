@@ -12,7 +12,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
-<!-- Validación de sesión -->
 <c:if test="${sessionScope.usuario == null}">
     <c:redirect url="login.jsp" />
 </c:if>
@@ -23,13 +22,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>ReportesSII</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
     
 </head>
@@ -43,7 +39,6 @@
                     <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                 </a>
             </div>
-            <!-- Sección de Selección de Reporte -->
             <div class="col-6 d-flex justify-content-center align-items-center">
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
@@ -70,7 +65,6 @@
             </div>
         </div>
 
- <!-- Contenedor de Búsqueda Rápida Actualizado -->
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
@@ -93,11 +87,9 @@
     </div>
 </div>
 
-        <!-- Contenedor de Tabla -->
         <div class="table-responsive mt-3">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="table-dark sticky-top" id="tableHead">
-                    <!-- Encabezados se generarán dinámicamente -->
                 </thead>
                 <tbody id="tableBody">
                     <tr>
@@ -109,13 +101,9 @@
             </table>
         </div>
 
-        <!-- Paginación -->
-        <div id="pagination" class="d-flex justify-content-center mt-3">
-            <!-- Botones de paginación se agregarán aquí -->
-        </div>
+        <div id="pagination" class="d-flex justify-content-center mt-3"></div>
     </div>
 
-    <!-- Footer -->
     <footer class="container-fluid mt-auto py-3 bg-light">
         <div class="row align-items-center g-3">
             <div class="col-12 col-md-3 text-center text-md-start">
@@ -132,25 +120,20 @@
         </div>
     </footer>
 
-
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <script>
-// Variables globales
 let globalTableData = [];
 let currentSelectedReport = null;
-let currentRequestId = 0; // Identificador único para solicitudes
+let currentRequestId = 0; 
 
-// Evento de cambio de reporte
 document.getElementById('seleccion').addEventListener('change', function () {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
 });
 
-// Función de búsqueda actualizada para buscar en todo el SP
 function realizarBusqueda() {
     const searchTerm = document.getElementById('quickSearchInput').value.trim();
     const searchColumn = document.getElementById('searchColumnSelect').value;
@@ -161,7 +144,6 @@ function realizarBusqueda() {
         return;
     }
 
-    // Si no hay término de búsqueda, recargar los datos originales
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -172,13 +154,12 @@ function realizarBusqueda() {
         searchTerm: searchTerm,
         searchColumn: searchColumn,
         exactMatch: exactMatch,
-        fullSearch: 'true', // Nuevo parámetro para indicar búsqueda completa
-        allRecords: 'true', // Nuevo parámetro para obtener todos los registros
+        fullSearch: 'true',
+        allRecords: 'true', 
         page: 1,
-        pageSize: 1000000, // Número grande para obtener todos los registros
+        pageSize: 1000000, 
     });
 
-    // Mostrar indicador de carga
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -202,7 +183,6 @@ function realizarBusqueda() {
             globalTableData = data.data[currentSelectedReport];
             renderTableRows(globalTableData);
 
-            // Actualizar la paginación si es necesario
             if (data.totalPages && data.totalPages > 1) {
                 generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
             }
@@ -226,7 +206,6 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         return;
     }
 
-    // Incrementar el identificador único de solicitud
     const requestId = ++currentRequestId;
 
     const tableHead = document.getElementById('tableHead');
@@ -271,7 +250,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             return response.json();
         })
         .then((data) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
@@ -315,7 +294,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             }
         })
         .catch((error) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             console.error('Error al cargar datos:', error);
 
@@ -344,7 +323,6 @@ function renderTableRows(data) {
         return;
     }
 
-    // Verificar si data es null, undefined o vacío
     if (!data || !Array.isArray(data) || data.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -371,17 +349,12 @@ function renderTableRows(data) {
                     if (value) {
                         try {
                             let imageSource;
-                            
-                            // Verificar si es un Array de bytes
+
                             if (Array.isArray(value)) {
-                                // Convertir Array de bytes a Uint8Array
                                 const uint8Array = new Uint8Array(value);
-                                // Convertir Uint8Array a Blob
                                 const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                                // Crear URL del blob
                                 imageSource = URL.createObjectURL(blob);
                             } else if (typeof value === 'string') {
-                                // Si ya es string (URL o Base64), usarlo directamente
                                 imageSource = value;
                             }
                             
@@ -393,19 +366,16 @@ function renderTableRows(data) {
                                 img.style.maxHeight = '400px';
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
-                                
-                                // Manejar errores de carga
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
                                 };
-                                // Limpiar el URL del blob cuando la imagen se carga
+
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);
                                     }
                                 };
-                                // Modal para previsualizar
                                 img.onclick = () => createImageModal(imageSource);
                                 
                                 td.appendChild(img);
@@ -420,7 +390,7 @@ function renderTableRows(data) {
                         td.textContent = 'Sin imagen';
                     }
                 } else {
-                    td.textContent = value ?? ''; // Usar el operador de coalescencia nula
+                    td.textContent = value ?? ''; 
                 }
                 
                 tr.appendChild(td);
@@ -467,7 +437,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
     const paginationDiv = document.getElementById('pagination');
     paginationDiv.innerHTML = '';
 
-    // Botón "Anterior"
     if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
             cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
@@ -491,7 +460,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-    // Páginas intermedias
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
@@ -514,7 +482,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         paginationDiv.appendChild(lastPageButton);
     }
 
-    // Botón "Siguiente"
     if (currentPage < totalPages) {
         const nextButton = crearBotonPaginacion('Siguiente', () => {
             cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
@@ -607,8 +574,7 @@ function descargarReporte() {
         }
 
         const fileName = `${reportName}_${fechaActual}.xlsx`;
-        
-        // Para navegadores modernos
+
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, fileName);
             return;
@@ -636,30 +602,24 @@ function descargarReporte() {
     });
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el botón de búsqueda
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
 
-    // Event listener para búsqueda con Enter
     document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             realizarBusqueda();
         }
     });
 
-    // Event listener para cambio de reporte
     document.getElementById('seleccion').addEventListener('change', function() {
         const selectedValue = this.value;
         currentSelectedReport = selectedValue;
         cargarDatos(selectedValue, 1, 30);
     });
 
-    // Event listener para botón de descarga
     document.getElementById('descargarSp').addEventListener('click', descargarReporte);
 });
 
-// Opcional: Cargar datos iniciales si hay un valor preseleccionado
 const initialSelectedValue = document.getElementById('seleccion').value;
 if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;

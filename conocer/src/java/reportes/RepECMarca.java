@@ -173,7 +173,6 @@ public class RepECMarca extends HttpServlet {
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
 
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");

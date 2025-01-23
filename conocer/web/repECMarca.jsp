@@ -463,7 +463,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-    // Páginas intermedias
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);

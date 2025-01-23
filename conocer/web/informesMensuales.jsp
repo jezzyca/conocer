@@ -84,8 +84,6 @@
                                 <c:if test="${sessionScope.tipoUsuario == 'E6D10215-1531-482F-8AB7-D5497BD8E9DC'}">
                                 <li><a class="dropdown-item" href="reporteSolicitud.jsp">Reportes</a></li>
                                 </c:if>
-                                
-                                
                                 <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
                                 <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reportes</a></li>
                                 </c:if>

@@ -589,8 +589,7 @@ function descargarReporte() {
         }
 
         const fileName = `${reportName}_${fechaActual}.xlsx`;
-        
-        // Para navegadores modernos
+
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, fileName);
             return;

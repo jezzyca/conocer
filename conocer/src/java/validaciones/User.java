@@ -8,7 +8,6 @@ public class User {
     private String username;
     private List<Integer> roles;
 
-    // Getters y Setters
     public int getId() {
         return id;
     }

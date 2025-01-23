@@ -322,7 +322,6 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
         return datos;
     }
 
-    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();
@@ -447,7 +446,6 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
                                 byte[] bytes = outputStream.toByteArray();
                                 String base64Image = Base64.getEncoder().encodeToString(bytes);
 
-                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
                                 row.put(columnName, "data:image/jpeg;base64," + base64Image);
 
                             } catch (IOException e) {

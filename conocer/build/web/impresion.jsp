@@ -16,33 +16,26 @@
     <c:redirect url="login.jsp" />
 </c:if>
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>ReportesSII</title>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
 </head>
 <body id="fondoBodyReportes2">
     <br>
     <div class="container-fluid">
         <div class="row align-items-center">
-            <!-- Logo de la marca -->
             <div class="col-3 d-flex justify-content-start align-items-center">
                 <a href="informesMensuales.jsp" class="brand-logo">
                     <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                 </a>
-            </div>
-            <!-- Sección de Selección de Reporte -->
+            </div>>
             <div class="col-6 d-flex justify-content-center align-items-center">
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
@@ -128,8 +121,6 @@
         </div>
     </footer>
 
-
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
@@ -333,7 +324,6 @@ function renderTableRows(data) {
         return;
     }
 
-    // Verificar si data es null, undefined o vacío
     if (!data || !Array.isArray(data) || data.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -591,8 +581,7 @@ function descargarReporte() {
         }
 
         const fileName = `${reportName}_${fechaActual}.xlsx`;
-        
-        // Para navegadores modernos
+
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, fileName);
             return;
@@ -620,7 +609,6 @@ function descargarReporte() {
     });
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
 

@@ -142,9 +142,9 @@ function togglePassword(inputId, buttonId) {
     }
 }
 
-// Luego añadimos los event listeners
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el formulario
+ 
     document.getElementById("updatePasswordForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
@@ -152,32 +152,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const newPassword = document.getElementById("newPassword").value.trim();
         const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-        // Validación de campos vacíos
+
         if (!username || !newPassword || !confirmPassword) {
             showMessage("error", "Todos los campos son obligatorios.");
             return;
         }
-
-        // Validación de contraseña fuerte
+        
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$/;
         if (!passwordRegex.test(newPassword)) {
             showMessage("error", "La contraseña debe cumplir con todos los requisitos de seguridad");
             return;
         }
 
-        // Validar que las contraseñas coincidan
         if (newPassword !== confirmPassword) {
             showMessage("error", "Las contraseñas no coinciden");
             return;
         }
 
-        // Crear objeto con los datos
         const data = new URLSearchParams();
         data.append("username", username);
         data.append("newPassword", newPassword);
         data.append("confirmPassword", confirmPassword);
 
-        // Realizar la petición
         fetch("${pageContext.request.contextPath}/UpdatePassword", {
             method: "POST",
             headers: {
@@ -207,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Event listeners para los botones de mostrar/ocultar contraseña
     document.getElementById("togglePassword").addEventListener("click", function() {
         togglePassword("newPassword", "togglePassword");
     });

@@ -37,7 +37,6 @@ public class validacionUsers extends HttpServlet {
                 return;
             }
 
-            // Validar credenciales
             String queryValidation = "{ CALL validaResetUsuario(?, ?) }";
             try (CallableStatement stmt = conexion.prepareCall(queryValidation)) {
                 stmt.setString(1, usuario);
@@ -47,8 +46,7 @@ public class validacionUsers extends HttpServlet {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         System.out.println("Usuario autenticado correctamente.");
-                        
-                        // Validar el rol del usuario
+
                         String queryRole = "SELECT ROL_ID FROM K_REP_SIGNEDUSERS WHERE SUS_ACCESS = ?";
                         try (CallableStatement roleStmt = conexion.prepareCall(queryRole)) {
                             roleStmt.setString(1, usuario);
@@ -62,17 +60,13 @@ public class validacionUsers extends HttpServlet {
 
                                 HttpSession session = request.getSession();
 
-                                
-// Guardar el nombre del usuario en la sesión
                                 session.setAttribute("usuario", usuario); 
                                 session.setAttribute("tipoUsuario", rolId);
 
-// Obtener la fecha y hora actuales
                                 Date fechaActual = new Date();
                                 SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                 String fechaFormateada = formatoFecha.format(fechaActual);
 
-// Guardar la fecha en la misma sesión
                                 session.setAttribute("fecha", fechaFormateada);
 
                                 System.out.println("Usuario: " + usuario);

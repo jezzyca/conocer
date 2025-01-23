@@ -33,12 +33,10 @@ public class UpdatePassword extends HttpServlet {
         PreparedStatement stmt = null;
 
         try {
-            // Obtener los parámetros
             String username = request.getParameter("username");
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
 
-            // Validaciones
             if (username == null || newPassword == null || confirmPassword == null || 
                 username.trim().isEmpty() || newPassword.trim().isEmpty() || 
                 confirmPassword.trim().isEmpty()) {
@@ -48,7 +46,6 @@ public class UpdatePassword extends HttpServlet {
                 return;
             }
 
-            // Validar coincidencia de contraseñas
             if (!newPassword.equals(confirmPassword)) {
                 jsonResponse.put("success", false);
                 jsonResponse.put("message", "Las contraseñas no coinciden.");
@@ -56,7 +53,6 @@ public class UpdatePassword extends HttpServlet {
                 return;
             }
 
-            // Validar la seguridad de la contraseña
             if (!isPasswordStrong(newPassword)) {
                 jsonResponse.put("success", false);
                 jsonResponse.put("message", "La contraseña debe cumplir con los requisitos de seguridad.");
@@ -64,13 +60,11 @@ public class UpdatePassword extends HttpServlet {
                 return;
             }
 
-            // Obtener conexión y actualizar contraseña
             conexion = ConexionGeneral.getConexion();
             if (conexion != null) {
-                // Ahora guardamos la contraseña directamente sin hash
                 String sql = "UPDATE K_REP_SIGNEDUSERS SET SUS_FIELD1 = ? WHERE SUS_ACCESS = ?";
                 stmt = conexion.prepareStatement(sql);
-                stmt.setString(1, newPassword);  // Guardamos la contraseña sin hash
+                stmt.setString(1, newPassword);  
                 stmt.setString(2, username);
 
                 int rowsUpdated = stmt.executeUpdate();

@@ -19,7 +19,6 @@ public class ConexionGeneral {
         }
     }
 
-    // Cambiar este método para que use la implementación correcta
     public static Connection getConexion() throws SQLException {
         ConexionGeneral conn = new ConexionGeneral();
         return conn.getConnection();

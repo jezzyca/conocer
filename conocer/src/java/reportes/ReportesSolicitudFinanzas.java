@@ -174,7 +174,6 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
 
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
@@ -324,7 +323,6 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
         return datos;
     }
 
-    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();
@@ -437,7 +435,6 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
                                 byte[] bytes = outputStream.toByteArray();
                                 String base64Image = Base64.getEncoder().encodeToString(bytes);
 
-                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
                                 row.put(columnName, "data:image/jpeg;base64," + base64Image);
 
                             } catch (IOException e) {
@@ -451,7 +448,6 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
                     jsonArray.put(row);
                 }
 
-                // Aquí puedes enviar o procesar jsonArray según sea necesario
                 System.out.println("JSON Array: " + jsonArray.toString());
 
             } catch (SQLException e) {
