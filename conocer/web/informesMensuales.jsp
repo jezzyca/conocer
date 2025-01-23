@@ -19,7 +19,6 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
         <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Bootstrap JS Bundle con Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -45,7 +44,7 @@
                             Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="cambioContrasena.html">Cambiar Contraseña</a></li>
+                            <li><a class="dropdown-item" href="cambioContrasena.jsp">Cambiar Contraseña</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
                         </ul>
@@ -74,30 +73,32 @@
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '2AE2D0AF-DD99-4B0B-A000-073FE17EDE79'}">
                                 <li><a class="dropdown-item" href="procesoEvaluacion.jsp">Reportes</a></li>
+                                 <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'D3625435-5295-4349-976C-12787488AC5B'}">
                                 <li><a class="dropdown-item" href="institucionesAcred.jsp">Reportes</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '0AD4C2A2-59A5-481C-A501-8E3F2BDEE1E6'}">
                                 <li><a class="dropdown-item" href="certificadosMarca.jsp">Reportes</a></li>
+                                <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '7B08059B-E39F-4007-9871-EA1EAB1045EF'}">
                                 <li><a class="dropdown-item" href="reportesSector.jsp">Reportes</a></li>
                                 </c:if>
-                                
-                                
                                 <c:if test="${sessionScope.tipoUsuario == '7459EE4B-B783-43CD-84EB-F8DFED5E56DC'}">
                                 <li><a class="dropdown-item" href="informesEjecutivo.jsp">Reportes</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'E6D10215-1531-482F-8AB7-D5497BD8E9DC'}">
                                 <li><a class="dropdown-item" href="reporteSolicitud.jsp">Reportes</a></li>
                                 </c:if>
+                                
+                                
                                 <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
                                 <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reportes</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'FAA8565B-A5E5-4F16-A264-4335D5888B25'}">
                                 <li><a class="dropdown-item" href="reportesCertificados.jsp">Reportes</a></li>
-                             </c:if>
+                                </c:if>
                         </ul>
                     </div>
                 </div>

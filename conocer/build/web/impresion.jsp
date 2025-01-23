@@ -47,22 +47,13 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                    <!-- Opciones de reportes -->
                     <option value="1">Certificados Emitidos Último Mes</option>
-                        <option value="2">Certificados Emitidos Ultimo Mes 2</option>
-                        <option value="3">Certificados Emitidos Ultimos 3 Meses</option>
-                        <option value="4">Certificados SII</option>
-                        <option value="5">Certificados SII Arturo</option>
-                        <option value="6">Certificados SII Enviado a CONOCER</option>
-                        <option value="7">Cintinillos EC</option>
-                        <option value="8">Instituciones Acreditadas</option>
-                        <option value="9">Instituciones Acreditadas Básico</option>
-                        <option value="10">Logos ECE / OC</option>
-                        <option value="11">Niveles de Est. Competencia</option>
-                        <option value="12">Reporte para Conciliacion Emision Certificados</option>
-                        <option value="13">Reporte_Solicitudes_SII_SAC</option>
-                        <option value="14">Solicitud de Certificados</option>
-                        <option value="15">Solicitud de Reimpresión de Certificados</option>
+                    <option value="2">Cintinillos EC</option>
+                    <option value="3">Instituciones Acreditadas</option>
+                    <option value="4">Instituciones Acreditadas Básico</option>
+                    <option value="5">Logos ECE / OC</option>
+                    <option value="6">Solicitud de Certificados</option>
+                    <option value="7">Solicitud de Reimpresión de Certificados</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -203,7 +194,7 @@ function realizarBusqueda() {
             </td>
         </tr>`;
 
-    fetch('Impresion?' + params.toString(), {
+    fetch('Impresion_1?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
@@ -268,7 +259,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         pageSize: registrosPorPagina,
     });
 
-    fetch('Impresion?' + params.toString(), {
+    fetch('Impresion_1?' + params.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
@@ -511,8 +502,7 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
         }, i === currentPage, 'bg-primary', 'text-white');
-
-        paginationDiv.appendChild(pageButton);
+       paginationDiv.appendChild(pageButton);
     }
 
     if (endPage < totalPages) {

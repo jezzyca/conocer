@@ -50,21 +50,14 @@
                     <option selected disabled>Selecciona:</option>
                     <option value="1">Acreditación y Renovación</option>
                     <option value="2">Cifras de Acreditación</option>
-                    <option value="3">Cifras de Mes / Año</option>
-                    <option value="4">Datos Generales CE / EI</option>
-                    <option value="5">Evaluadores / CE / EI por Estándar</option>
-                    <option value="6">REP_Solicitud De Acreditación / Renovación EC</option>
-                    <option value="7">REP_Solicitud de Acreditación Inicial</option>
-                    <option value="8">REP_Solicitud de Certificados</option>
-                    <option value="9">REP_Solicitud de Reimpresión de Certificados</option>
-                    <option value="10">Reporte de Acreditaciones CE / EI</option>
-                    <option value="11">Reporte de Acreditaciones ECE / OC</option>
-                    <option value="12">Reporte de Instituciones Acreditadas Básico (Password)</option>
-                    <option value="13">Reporte de Renovaciones CE/ EI</option>
-                    <option value="14">Reporte de Renovaciones ECE / OC</option>
-                    <option value="15">Reporte Integral</option>
-                    <option value="16">Soluciones de Evaluación y Certificaciones EC</option>
-                    <option value="17">Verificadores EC / ECE / OC</option>
+                    <option value="3">Reporte de Acreditaciones CE / EI</option>
+                    <option value="4">Reporte de Acreditaciones ECE / OC</option>
+                    <option value="5">Reporte de Instituciones Acreditadas Básico (Password)</option>
+                    <option value="6">Reporte de Renovaciones CE/ EI</option>
+                    <option value="7">Reporte de Renovaciones ECE / OC</option>
+                    <option value="8">Reporte Integral</option>
+                    <option value="9">Soluciones de Evaluación y Certificaciones EC</option>
+                    <option value="10">Verificadores EC / ECE / OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>

@@ -390,34 +390,14 @@ public class InformesEjecutivo extends HttpServlet {
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
             case "1":
-                return "{CALL sp_REP_CGC_OPERATIVOS()}";/*No existe en la BD*/
-            case "2":
-                return "{CALL sp_REP_Directorio_Ampliado_CGC()}";/*No existe en la BD*/
-            case "3":
                 return "{CALL sp_REP_ESTANDARES_COMPETENCIA()}";
-            case "4":
+            case "2":
                 return "{CALL sp_REP_Informe_Ejecutivo_CGC()}";
-            case "5":
-                return "{CALL sp_REP_Informe_Ejecutivo_COVACEC()}";/*No existe en la BD*/
-            case "6":
-                return "{CALL sp_REP_Informe_Ejecutivo_EC ()}";/*No existe en la BD*/
-            case "7":
+            case "3":
                 return "{CALL sp_REP_INSTRUMENTOS_DE_EVALUACION()}";
-            case "8":
-                return "{CALL sp_REP_COVACEC()}";/*No existe en la BD*/
-            case "9":
-                return "{CALL xspComitesPorTrimestre()}";/*No existe en la BD*/
-            case "10":
-                return "{CALL xspComitesPorTrimestre2015()}";/*No existe en la BD*/
-            case "11":
-                return "{CALL xspECPorTrimestre()}";/*No existe en la BD*/
-            case "12":
-                return "{CALL xspECPorTrimestre2015()}";/*No existe en la BD*/
-            case "13":
-                return "{CALL sp_REP_Inst_Gubernamental()}";/*No existe en la BD*/
-            case "14":
+            case "4":
                 return "{CALL sp_REP_Inst_Sindical()}";
-            case "15":
+            case "5":
                 return "{CALL sp_REP_Inst_Social()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);

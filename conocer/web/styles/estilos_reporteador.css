@@ -375,15 +375,7 @@ width: 530px;
     margin: 20px auto;           
 }
 
-.chart-container {
-    width: 100%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    height: 900px;
-}
+
 #graficasContainer {
     margin-top: 5px;
     background-color: white;
@@ -401,14 +393,6 @@ width: 530px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     height: 800px;
-}
-
-#graficasContainer {
-    margin-top: 5px;
-    background-color: white;
-    border-radius: 5px;
-    padding: 3px;
-    margin-bottom: 100px; /* Espacio para el footer */
 }
 
 /* Estilos del header */
@@ -643,3 +627,19 @@ body {
 
 
 
+         
+
+.chart-container {
+    position: relative;
+    height: 100vh; /* Altura ajustada al 90% del viewport */
+    width: 90vw;  /* Ancho ajustado al 90% del viewport */
+    margin: 20px auto; /* Centrado automático */
+}
+
+#mainChart {
+    width: 100%;  /* Ocupa todo el ancho del contenedor */
+    height: 100%; /* Ocupa toda la altura del contenedor */
+}
+
+
+            

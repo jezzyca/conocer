@@ -455,52 +455,30 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
             case "1":
                 return "{CALL sp_Rep_AcreditacionesyRenovaciones()}";
             case "2":
-                return "{CALL sp=xspCifrasAnuales_SI()}";
-            case "3": 
-                return "{CALL sp=xspCifrasAnuales_SII()}";
+                return "{CALL sp_REP_CIFRAS_ACREDITACION()}";
+            case "3":
+                return "{CALL sp_Rep_Directorio_CEEI()}";  
             case "4":
-                return "{CALL sp=CONSOLIDADOACREDRENOV()}";
-            case "5":
-                return "{CALL SP_REP_DATOS_GENERALES_CE_EI()}";
-            case "6":
-                return "{CALL sp_Rep_Directorio_CEEI()}";
-            case "7":
-                return "{CALL sp_REP_Directorio()}";
-            case "8":
-                return "{CALL sp_REP_ESTANDARES_EVALUADORES_CE_EI()}";
-            case "9":
                 return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
-            case "10":
+            case "5":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
-            case "11":
+            case "6":
                 return "{CALL sp_REP_LOGO_ECE_OC()}";
-            case "12":
-                return "{CALL SP_REP_RENEC_VS_SII()}";
-            case "13":
-                return "{CALL sp_Solicitud_Acreditacion_RenovascionEC()}";
-            case "14": 
-                return "{CALL sp_Solicitud_Acreditacion_Inicial()}";
-            case "15":
-                return "{CALL sp_Solicitud_Certificados()}";
-            case "16":
-                return "{CALL sp_Solicitud_ReimpresionCER()}";
-            case "17":
-                return "{CALL sp_REP_ACREDTIACION_EC_AreaAcreditacion()}";
-            case "18":
+            case "7":
                 return "{CALL sp_REP_ACREDITACIONES_CE_EI()}";
-            case "19":
+            case "8":
                 return "{CALL sp_REP_ACREDITACIONES_ECE_OC()}";
-            case "20":
+            case "9":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO_PASSWORD()}";
-            case "21":
+            case "10":
                 return "{CALL sp_REP_RENOVACIONES_CE_EI()}";
-            case "22":
+            case "11":
                 return "{CALL sp_REP_RENOVACIONES_ECE_OC()}";
-            case "23":
+            case "12":
                 return "{CALL sp_REP_INTEGRAL()}";
-            case "24":
+            case "13":
                 return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
-            case "25":
+            case "14":
                 return "{CALL sp_REP_VERFICADORES_EC_ECE_OC()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);

@@ -1,19 +1,9 @@
-<%-- 
-    Document   : estadisticas
-    Created on : 16/01/2025, 02:59:44 PM
-    Author     : carlo
---%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, org.json.JSONObject, org.json.JSONArray" %>
-<%@ page import="estadisticas.Comportamiento" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<jsp:useBean id="Comportamiento" class="estadisticas.Comportamiento" scope="page" />
-<script src="https://cdn.jsdelivr.net/npm/systemjs@6.0.0/dist/s.js"></script>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
-<!-- Validación de sesión -->
 <c:if test="${sessionScope.usuario == null}">
     <c:redirect url="login.jsp" />
 </c:if>
@@ -22,44 +12,61 @@
 <html lang="es">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ReportesSII</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
+
     <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
+
+    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
 </head>
 <body id="fondoBodyReportes2">
     <br>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="display: none; z-index: 1000;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
     <div class="container-fluid">
-        <div class="row align-items-center">
-            <!-- Logo de la marca -->
+        <div class="row align-items-center d-flex">
             <div class="col-3 d-flex justify-content-start align-items-center">
                 <a href="informesMensuales.jsp" class="brand-logo">
                     <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                 </a>
             </div>
-            <!-- Sección de Selección de Reporte -->
+
             <div class="col-6 d-flex justify-content-center align-items-center">
-                <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
-                <select name="procedimientos" id="seleccion" class="form-select w-50">
-                    <option selected disabled>Selecciona:</option>
-                    <!-- Opciones de reportes -->
-                    <option value="1">Por Estado</option>
-                    <option value="2">Por ECE / OC </option>
-                    <option value="3">Por Exámen</option>
-                </select>
-                <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
-    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="cambioContrasena.html">Cambiar Contraseña</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+
+                <div class="btn-group ms-3">
+                    <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        Datos Generales<i class="fa-brands fa-windows ms-2 align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
+                        <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
+                    </ul>
+                </div>
             </div>
-            <!-- Información del usuario -->
-            <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
+
+            <div class="col-3 d-flex justify-content-center justify-content-md-end align-items-center">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
                 <div class="media-body">
                     <h6 class="mb-0 usuario-nombre small">
@@ -71,640 +78,215 @@
                 </div>
             </div>
         </div>
-        
-       <!-- Asegúrate de que el contenedor exista -->
-<div id="chartContainer" style="height: 400px; width: 100%;">
-    <canvas id="myChart"></canvas>
-</div>
-
-
-<div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
-    <div class="col-md-3 col-12 mb-2">
-        <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
     </div>
-    <div class="col-md-2 col-12 mb-2">
-        <select id="searchColumnSelect" class="form-select">
-            <option value="">Buscar en todas las columnas</option>
-        </select>
-    </div>
-    <div class="col-md-2 col-12 mb-2 d-flex align-items-center">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
-            <label class="form-check-label" for="exactMatchCheckbox"></label>
-        </div>
-    </div>
-    <div class="col-md-2 col-12 mb-2">
-        <button id="searchButton" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-            <i class="bi bi-search me-2"></i> Buscar
-        </button>
-    </div>
-</div>
-
-       
-        <div class="table-responsive mt-3">
-            <table class="table table-striped table-bordered table-hover">
-                <thead class="table-dark sticky-top" id="tableHead">
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="10" class="text-center">
-                            Selecciona un reporte para ver los datos.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="pagination" class="d-flex justify-content-center mt-3">
+    
+    <!-- Botones de Control -->
+    <div class="container-fluid d-flex flex-column align-items-center mt-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="row" id="fondoGrafica">
+                <div class="col text-center align-items-center">
+                    <button type="button" class="btn btn-success" id="btnEstado">
+                        Por Estado<i class="bi bi-map"></i>
+                    </button>
+                    &nbsp;
+                    <button type="button" class="btn btn-danger" id="btnEce">
+                        Por ECE/OC<i class="bi bi-wifi"></i>
+                    </button>
+                    &nbsp;
+                    <button type="button" class="btn btn-warning" id="btnExamen">
+                        Por Exámen<i class="bi bi-card-checklist"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="container-fluid mt-auto py-3 bg-light">
-        <div class="row align-items-center g-3">
-            <div class="col-12 col-md-3 text-center text-md-start">
+
+    <div id="graficasContainer" class="container-fluid">
+        <div class="chart-container">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    <footer class="container-fluid py-3 bg-light mt-4">
+        <div class="row align-items-center text-center">
+            <div class="col-md-3">
                 <img src="img/sep.png" alt="Logo SEP" class="img-fluid" style="max-height: 60px;">
             </div>
-            <div class="col-12 col-md-6 text-center">
+            <div class="col-md-6">
                 <p class="small mb-1">•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
                 <p class="small mb-1">•Barranca del Muerto 275, San José Insurgentes, Benito Juárez, 03900 Ciudad de México, D.F. 01 55 2282 0200</p>
-                <a href="#" target="_blank" class="small text-decoration-none">• CONOCER •</a>
+                <a href="#" class="small text-decoration-none">• CONOCER •</a>
             </div>
-            <div class="col-12 col-md-3 text-center text-md-end">
+            <div class="col-md-3">
                 <img src="img/conocerLogo.png" alt="Logo CONOCER" class="img-fluid" style="max-height: 60px;">
             </div>
         </div>
     </footer>
 
-
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
+    <!-- Custom JavaScript -->
     <script>
-// Variables globales
-let globalTableData = [];
-let currentSelectedReport = null;
-let currentRequestId = 0; // Identificador único para solicitudes
-
-// Evento de cambio de reporte
-document.getElementById('seleccion').addEventListener('change', function () {
-    const selectedValue = this.value;
-    currentSelectedReport = selectedValue;
-    cargarDatos(selectedValue, 1, 30);
+        
+ document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('btnEstado').addEventListener('click', () => cargarDatos('estado'));
+    document.getElementById('btnEce').addEventListener('click', () => cargarDatos('ece'));
+    document.getElementById('btnExamen').addEventListener('click', () => cargarDatos('examen'));
 });
 
-// Función de búsqueda actualizada para buscar en todo el SP
-function realizarBusqueda() {
-    const searchTerm = document.getElementById('quickSearchInput').value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
-
-    if (!currentSelectedReport) {
-        alert('Por favor, seleccione un reporte primero');
-        return;
-    }
-
-    // Si no hay término de búsqueda, recargar los datos originales
-    if (!searchTerm) {
-        cargarDatos(currentSelectedReport, 1, 30);
-        return;
-    }
-
-    const params = new URLSearchParams({
-        procedimientos: currentSelectedReport,
-        searchTerm: searchTerm,
-        searchColumn: searchColumn,
-        exactMatch: exactMatch,
-        fullSearch: 'true', // Nuevo parámetro para indicar búsqueda completa
-        allRecords: 'true', // Nuevo parámetro para obtener todos los registros
-        page: 1,
-        pageSize: 1000000, // Número grande para obtener todos los registros
-    });
-
-    // Mostrar indicador de carga
-    const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = `
-        <tr>
-            <td colspan="100%" class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Buscando...</span>
-                </div>
-            </td>
-        </tr>`;
-
-    fetch('Comportamiento?' + params.toString(), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'same-origin',
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (!data.success) {
-                throw new Error(data.message || 'Error al realizar la búsqueda');
-            }
-            globalTableData = data.data[currentSelectedReport];
-            renderTableRows(globalTableData);
-
-            // Actualizar la paginación si es necesario
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
-            }
-        })
-        .catch((error) => {
-            console.error('Error en la búsqueda:', error);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="100%" class="text-center text-danger">
-                        <div class="alert alert-danger" role="alert">
-                            Error al realizar la búsqueda: ${error.message}
-                        </div>
-                    </td>
-                </tr>`;
-        });
-}
-
-function cargarDatos(selectedValue, pagina, registrosPorPagina) {
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, selecciona un tipo de reporte');
-        return;
-    }
+function cargarDatos(tipo) {
+    console.log("Iniciando carga de datos para tipo:", tipo);
     
+    if (!tipo || tipo.trim() === '') {
+        console.error('Tipo no válido:', tipo);
+        alert('Error: Tipo de datos no especificado');
+        return;
+    }
+
+    showSpinner();
     
-    // Incrementar el identificador único de solicitud
-    const requestId = ++currentRequestId;
-
-    const chartContainer = document.getElementById('chartContainer');
-if (!chartContainer) {
-    console.error("El contenedor para el gráfico no se encuentra.");
-    return;
-}
-
-const canvas = document.getElementById('myChart');
-if (!canvas) {
-    console.error("El elemento canvas no se encuentra.");
-    return;
-}
-
-const ctx = canvas.getContext('2d');
-if (!ctx) {
-    console.error("No se pudo obtener el contexto del canvas.");
-    return;
-}
-
-// Asegúrate de que los datos no estén vacíos
-if (globalTableData.length === 0) {
-    chartContainer.innerHTML = '<p class="text-center">No hay datos disponibles para este reporte</p>';
-    return;
-}
-
-// Datos del gráfico
-const chartData = {
-    labels: globalTableData.map(item => item.label),  // Asegúrate de que estos datos existan
-    datasets: [{
-        label: 'Datos del reporte',
-        data: globalTableData.map(item => item.value), // Asegúrate de que estos valores existan
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-    }]
-};
-
-// Crear el gráfico
-const myChart = new Chart(ctx, {
-    type: 'bar',  // Puedes cambiar el tipo de gráfico según sea necesario
-    data: chartData,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
-
-    const params = new URLSearchParams({
-        procedimientos: selectedValue,
-        page: pagina,
-        pageSize: registrosPorPagina,
-    });
-
-    fetch('Comportamiento?' + params.toString(), {
+    fetch('Comportamiento?tipo=' + tipo, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'same-origin',
-    })
-    .then(async (response) => {
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('La respuesta del servidor no es JSON válido');
-        }
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then((data) => {
-        if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
-
-        // Verifica que los datos sean válidos
-        if (!data || !data.success || !data.data || !data.data[selectedValue]) {
-            throw new Error('No se encontraron datos para el reporte seleccionado');
-        }
-
-        const globalData = data.data[selectedValue];
-
-        if (globalData.length === 0) {
-            chartContainer.innerHTML = '<p class="text-center">No hay datos disponibles para este reporte</p>';
-            return;
-        }
-
-        // Preparar los datos para el gráfico (ejemplo con un gráfico de barras)
-        const labels = globalData.map(item => item.nombre); // Ajusta según los datos
-        const dataset = globalData.map(item => item.valor); // Ajusta según el campo numérico que quieras graficar
-
-        // Configuración del gráfico
-        const chartData = {
-            labels: labels,
-            datasets: [{
-                label: selectedValue,
-                data: dataset,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const chartOptions = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return `Valor: ${tooltipItem.raw}`;
-                        }
-                    }
-                }
-            }
-        };
-
-        // Crear el gráfico
-        new Chart(chartContainer, {
-            type: 'bar',  // Cambia a 'line', 'pie', etc., dependiendo del tipo de gráfico que desees
-            data: chartData,
-            options: chartOptions
-        });
-    })
-    .catch((error) => {
-        if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
-
-        console.error('Error al cargar datos:', error);
-        chartContainer.innerHTML = `
-            <div class="alert alert-danger" role="alert">
-                <h5 class="alert-heading">Error al cargar los datos</h5>
-                <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-            </div>`;
-    });
-}
-
-
-console.log("Datos para el gráfico: ", globalTableData);
-
-
-function renderTableRows(data) {
-    const tableBody = document.getElementById('tableBody');
-    if (!tableBody) {
-        console.error('No se encontró el elemento tableBody');
-        return;
-    }
-
-    // Verificar si data es null, undefined o vacío
-    if (!data || !Array.isArray(data) || data.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="100%" class="text-center">
-                    <div class="alert alert-warning" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
-                        No se encontraron resultados para la búsqueda realizada
-                    </div>
-                </td>
-            </tr>`;
-        return;
-    }
-
-    tableBody.innerHTML = '';
-    
-    try {
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            
-            Object.entries(row).forEach(([key, value]) => {
-                const td = document.createElement('td');
-                
-                if (key.toLowerCase() === 'imagen') {
-                    if (value) {
-                        try {
-                            let imageSource;
-                            
-                            // Verificar si es un Array de bytes
-                            if (Array.isArray(value)) {
-                                // Convertir Array de bytes a Uint8Array
-                                const uint8Array = new Uint8Array(value);
-                                // Convertir Uint8Array a Blob
-                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                                // Crear URL del blob
-                                imageSource = URL.createObjectURL(blob);
-                            } else if (typeof value === 'string') {
-                                // Si ya es string (URL o Base64), usarlo directamente
-                                imageSource = value;
-                            }
-                            
-                            if (imageSource) {
-                                const img = document.createElement('img');
-                                img.src = imageSource;
-                                img.alt = 'Imagen';
-                                img.style.maxWidth = '400px';
-                                img.style.maxHeight = '400px';
-                                img.style.objectFit = 'contain';
-                                img.className = 'img-fluid cursor-pointer';
-                                
-                                // Manejar errores de carga
-                                img.onerror = () => {
-                                    console.error('Error al cargar la imagen');
-                                    td.textContent = 'No tiene imagen';
-                                };
-                                // Limpiar el URL del blob cuando la imagen se carga
-                                img.onload = () => {
-                                    if (Array.isArray(value)) {
-                                        URL.revokeObjectURL(imageSource);
-                                    }
-                                };
-                                // Modal para previsualizar
-                                img.onclick = () => createImageModal(imageSource);
-                                
-                                td.appendChild(img);
-                            } else {
-                                td.textContent = 'Formato de imagen no válido';
-                            }
-                        } catch (error) {
-                            console.error('Error al procesar imagen:', error);
-                            td.textContent = 'Error al procesar imagen';
-                        }
-                    } else {
-                        td.textContent = 'Sin imagen';
-                    }
-                } else {
-                    td.textContent = value ?? ''; // Usar el operador de coalescencia nula
-                }
-                
-                tr.appendChild(td);
-            });
-            
-            tableBody.appendChild(tr);
-        });
-    } catch (error) {
-        console.error('Error al renderizar tabla:', error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="100%" class="text-center">
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        Error al cargar los datos: ${error.message}
-                    </div>
-                </td>
-            </tr>`;
-    }
-}
-
-document.getElementById('quickSearchInput').addEventListener('input', function() {
-    const searchTerm = this.value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
-
-    if (!searchTerm) {
-        renderTableRows(globalTableData);
-        return;
-    }
-
-    const filteredData = globalTableData.filter(row => {
-        if (searchColumn) {
-            const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
-            return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
-        }
-
-        return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
-    });
-
-    renderTableRows(filteredData);
-});
-
-function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
-    const paginationDiv = document.getElementById('pagination');
-    paginationDiv.innerHTML = '';
-
-    // Botón "Anterior"
-    if (currentPage > 1) {
-        const prevButton = crearBotonPaginacion('Anterior', () => {
-            cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
-        }, false, 'bg-danger', 'text-white');
-        paginationDiv.appendChild(prevButton);
-    }
-
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    if (startPage > 1) {
-        const firstPageButton = crearBotonPaginacion('1', () => {
-            cargarDatos(selectedValue, 1, registrosPorPagina);
-        }, false, 'bg-primary', 'text-white');
-        paginationDiv.appendChild(firstPageButton);
-
-        if (startPage > 2) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
-        }
-    }
-
-    // Páginas intermedias
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = crearBotonPaginacion(i.toString(), () => {
-            cargarDatos(selectedValue, i, registrosPorPagina);
-        }, i === currentPage, 'bg-primary', 'text-white');
-
-        paginationDiv.appendChild(pageButton);
-    }
-
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
-        }
-
-        const lastPageButton = crearBotonPaginacion(totalPages.toString(), () => {
-            cargarDatos(selectedValue, totalPages, registrosPorPagina);
-        }, false, 'bg-primary', 'text-white');
-
-        paginationDiv.appendChild(lastPageButton);
-    }
-
-    // Botón "Siguiente"
-    if (currentPage < totalPages) {
-        const nextButton = crearBotonPaginacion('Siguiente', () => {
-            cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
-        }, false, 'bg-danger', 'text-white');
-        paginationDiv.appendChild(nextButton);
-    }
-}
-
-function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
-    const button = document.createElement('button');
-    button.textContent = texto;
-    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
-
-    if (esActual) {
-        button.disabled = true;
-        button.classList.add('active');
-    }
-
-    button.addEventListener('click', clickHandler);
-    return button;
-}
-
-function descargarReporte() {
-    const selectElement = document.getElementById('seleccion');
-    const selectedValue = selectElement.value;
-
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, seleccione un tipo de reporte antes de descargar');
-        return;
-    }
-
-    const botonDescargar = document.getElementById('descargarSp');
-    botonDescargar.disabled = true;
-    botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
-
-    const reportNames = {
-        "1": "Acreditaciones_y_Renovaciones",
-        "2": "ReporteConSumaMarca",
-        "3": "CertificadosMarca_X_Entidad_EC_OC"
-    };
-
-    const reportName = reportNames[selectedValue] || "Reporte_Desconocido";
-    const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
-
-    const params = new URLSearchParams();
-    params.append('formato', 'excel');
-    params.append('procedimientos', selectedValue);
-    params.append('nombreReporte', reportName);
-
-    console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
-
-    fetch('Comportamiento?' + params.toString(), {
-        method: 'GET',
-        credentials: 'same-origin',
         headers: {
-            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Accept': 'application/json',
             'Cache-Control': 'no-cache'
         }
     })
     .then(response => {
-        console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
-        console.log('Status:', response.status);
-        
+        console.log("Status de la respuesta:", response.status);
         if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error(text || `Error del servidor: ${response.status}`);
-            });
+            throw new Error(`Error del servidor: ${response.status}`);
         }
-
-        const contentType = response.headers.get('content-type');
-        console.log('Content-Type:', contentType);
-        
-        if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            console.error('Content-Type incorrecto:', contentType);
-            return response.text().then(text => {
-                console.log('Contenido de respuesta:', text);
-                throw new Error('El servidor no devolvió un archivo Excel válido');
-            });
-        }
-        
-        return response.blob();
+        return response.json();
     })
-    .then(blob => {
-        console.log('Tamaño del blob:', blob.size, 'bytes');
-        console.log('Tipo del blob:', blob.type);
-
-        if (blob.size === 0) {
-            throw new Error('El archivo generado está vacío');
+    .then(data => {
+        console.log("Datos recibidos:", data);
+        if (data.error) {
+            throw new Error(data.message || 'Error en el servidor');
         }
-
-        const fileName = `${reportName}_${fechaActual}.xlsx`;
-        
-        // Para navegadores modernos
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, fileName);
-            return;
-        }
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
+        createChart(tipo, data.data || data);
     })
     .catch(error => {
-        console.error('Error detallado:', error);
-        alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
+        console.error('Error en la petición:', error);
+        alert('Error al cargar los datos: ' + error.message);
     })
     .finally(() => {
-        botonDescargar.disabled = false;
-        botonDescargar.innerHTML = 'Descargar Información';
+        hideSpinner();
     });
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el botón de búsqueda
-    document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
+    cargarDatos('estado');
+    
+            let currentChart = null;
+            
+    const chartConfigs = {
+    estado: {
+        titulo: 'Certificados por Entidad Federativa',
+        color: 'rgba(40, 167, 69, 0.8)',
+        borderColor: 'rgba(40, 167, 69, 1)'
+    },
+    ece: {
+        titulo: 'Certificados por ECE/OC',
+        color: 'rgba(220, 53, 69, 0.8)',
+        borderColor: 'rgba(220, 53, 69, 1)'
+    },
+    examen: {
+        titulo: 'Certificados por Examen',
+        color: 'rgba(255, 193, 7, 0.8)',
+        borderColor: 'rgba(255, 193, 7, 1)'
+    }
+};
+    
+        function createChart(tipo, datos) {
+    console.log("Datos recibidos en createChart:", datos);
 
-    // Event listener para búsqueda con Enter
-    document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            realizarBusqueda();
+    if (!datos || !Array.isArray(datos)) {
+        console.error('Datos inválidos:', datos);
+        alert('Error: Datos inválidos recibidos del servidor');
+        return;
+    }
+
+    // Determinar qué campos usar según el tipo
+    let labels, values;
+    switch(tipo) {
+    case 'ece':
+        labels = datos.map(item => item.NB_ENTIDAD_EC_OC);
+        values = datos.map(item => item.REGISTROS);
+        break;
+    case 'estado':
+        labels = datos.map(item => item.ELEMENTO || item.NB_ENTIDAD_FEDERATIVA);
+        values = datos.map(item => item.REGISTROS);
+        break;
+    case 'examen':
+        labels = datos.map(item => item.ELEMENTO || item.NB_EXAMEN);
+        values = datos.map(item => item.REGISTROS);
+        break;
+}
+    const config = chartConfigs[tipo];
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    
+    if (currentChart) {
+        currentChart.destroy();
+    }
+
+    currentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Número de Certificados',
+                data: values,
+                backgroundColor: config.color,
+                borderColor: config.borderColor,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: config.titulo,
+                    font: {
+                        size: 18
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Número de Certificados'
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: true,
+                        maxTicksLimit: 20 // Limita el número de etiquetas mostradas
+                    }
+                }
+            }
         }
     });
-
-    // Event listener para cambio de reporte
-    document.getElementById('seleccion').addEventListener('change', function() {
-        const selectedValue = this.value;
-        currentSelectedReport = selectedValue;
-        cargarDatos(selectedValue, 1, 30);
-    });
-
-    // Event listener para botón de descarga
-    document.getElementById('descargarSp').addEventListener('click', descargarReporte);
-});
-
-// Opcional: Cargar datos iniciales si hay un valor preseleccionado
-const initialSelectedValue = document.getElementById('seleccion').value;
-if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
-    currentSelectedReport = initialSelectedValue;
-    cargarDatos(initialSelectedValue, 1, 30);
 }
-    </script>
 
+        function showSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+    </script>
 </body>
-</html> 
+</html>

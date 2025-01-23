@@ -52,10 +52,6 @@
                     <option value="2">Certificados de Marca por ECE / OC</option>
                     <option value="3">Certificados de Marca por Estado</option>
                     <option value="4">Certificados de Marca por Nombre de Certificado</option>
-                    <option value="5">REP_Solicitud de Acreditación / Renovación EC</option>
-                    <option value="6">REP_Solicitud de Acreditación Inicial</option>
-                    <option value="7">REP_Solicitud de Certificados</option>
-                    <option value="8">REP_Solicitud de Reimpresión De Certificados</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>

@@ -397,14 +397,6 @@ public class CertificadosMarca extends HttpServlet {
                 return "{CALL SP_CERTIFICADOSMARCA_X_EXAMEN_GRID()}";
             case "4":
                 return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_FEDERATIVA()}";
-            case "5":
-                return "{CALL ()}";
-            case "6":
-                return "{CALL ()}";
-            case "7":
-                return "{CALL ()}";
-            case "8":
-                return "{CALL ()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }

@@ -48,21 +48,11 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                    <option value="1">Comités Operativos</option>
-                    <option value="2">Directorio CGC</option>
-                    <option value="3">Estándares de Competencia</option>
-                    <option value="4">Informe Ejecutivo CGC</option>
-                    <option value="5">Informe Ejecutivo COVAEC</option>
-                    <option value="6">Informe ejecutivo EC</option>
-                    <option value="7">Instrumentos de Evaluación</option>
-                    <option value="8">Reporte CONVACEC</option>
-                    <option value="9">Reportes de Comités por Trimestre</option>
-                    <option value="10">Reporte de Comités por Trimestre 2015</option>
-                    <option value="11">Reporte de E.C por Trimestre</option>
-                    <option value="12">Reporte de E.C por Trimestre 2015</option>
-                    <option value="13">Reporte de Instituciones Guburnamentales</option>
-                    <option value="14">Reporte de Instituciones Sindicales</option>
-                    <option value="15">Reporte de Instituciones Sociales</option>
+                    <option value="1">Estándares de Competencia</option>
+                    <option value="2">Informe Ejecutivo CGC</option>
+                    <option value="3">Instrumentos de Evaluación</option>
+                    <option value="4">Reporte de Instituciones Sindicales</option>
+                    <option value="5">Reporte de Instituciones Sociales</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>

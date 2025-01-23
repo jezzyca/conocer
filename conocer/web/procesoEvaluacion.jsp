@@ -50,29 +50,18 @@
                     <!-- Opciones de reportes -->
                         <option value="1">Acreditación y Renovación</option>
                         <option value="2">Cifras de Acreditación</option>
-                        <option value="3">Cifras de Mes / Año</option>
-                        <option value="4">Consolidado Acred. y Renovaciones</option>
-                        <option value="5">Datos Generales CE / EI</option>
-                        <option value="6">Directorio CE / EI</option>
-                        <option value="7">Directorio CE / EI con Acreditaciones</option>
-                        <option value="8">Evaluadores CE /EI por Estándar</option>
-                        <option value="9">Intituciones Acreditadas</option>
-                        <option value="10">Intituciones Acreditadas Básico</option>
-                        <option value="11">Logos ECE / OC</option>
-                        <option value="12">RENEC VS SII</option>
-                        <option value="13">REP_Solicitud de Acreditación / Renovación EC</option>
-                        <option value="14">REP_Solicitud de Acreditación Inicial</option>
-                        <option value="15">REP_Solicitud de Certificados</option>
-                        <option value="16">REP_Solicitud de Reimpresión de Certificados</option>
-                        <option value="17">REPORTE ACREDITACION EC</option>
-                        <option value="18">Reporte de Acreditaciones CE / EI</option>
-                        <option value="19">Reporte de Acreditaciones ECE / OC</option>
-                        <option value="20">Reporte de Instituciones Acreditadas Básico (Password)</option>
-                        <option value="21">Reporte de Renovaciones  CE / EI</option>
-                        <option value="22">Reporte de Renovaciones  ECE / OC</option>
-                        <option value="23">Reporte Integral</option>
-                        <option value="24">Soluciones de Evaluación y Certificaciones EC</option>
-                        <option value="25">Verificadores EC / ECE / OC</option>
+                        <option value="3">Directorio CE / EI</option>
+                        <option value="4">Intituciones Acreditadas</option>
+                        <option value="5">Intituciones Acreditadas Básico</option>
+                        <option value="6">Logos ECE / OC</option>  
+                        <option value="7">Reporte de Acreditaciones CE / EI</option>
+                        <option value="8">Reporte de Acreditaciones ECE / OC</option>
+                        <option value="9">Reporte de Instituciones Acreditadas Básico (Password)</option>
+                        <option value="10">Reporte de Renovaciones  CE / EI</option>
+                        <option value="11">Reporte de Renovaciones  ECE / OC</option>
+                        <option value="12">Reporte Integral</option>
+                        <option value="13">Soluciones de Evaluación y Certificaciones EC</option>
+                        <option value="14">Verificadores EC / ECE / OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>

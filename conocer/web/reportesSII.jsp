@@ -22,14 +22,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>ReportesSII</title>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
     
 </head>
@@ -37,59 +33,40 @@
     <br>
     <div class="container-fluid">
         <div class="row align-items-center">
-            <!-- Logo de la marca -->
             <div class="col-3 d-flex justify-content-start align-items-center">
                 <a href="informesMensuales.jsp" class="brand-logo">
                     <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                 </a>
             </div>
-            <!-- Sección de Selección de Reporte -->
             <div class="col-6 d-flex justify-content-center align-items-center">
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                    <!-- Opciones de reportes -->
                     <option value="1">Acreditación y renovación</option>
                     <option value="2">Certificados de Marca con Totales</option>
                     <option value="3">Certificados de Marca por EC/OCE</option>
                     <option value="4">Certificados de Marca por Estado</option>
                     <option value="5">Certificados de Marca por Nombre de Certificado</option>
                     <option value="6">Certificados Emitidos</option>
-                    <option value="7">Certificados Emitidos por CE/EI</option>
-                    <option value="8">Certificados de Marca por CE/EI SAC - SOCIE</option>
-                    <option value="9">Cifras de Acreditación</option>
-                    <option value="10">Cifras de Més / Año</option>
-                    <option value="11">Cintillos EC</option>
-                    <option value="12">Datos Generales CE/EI</option>
-                    <option value="13">Descarga de Instrumento de Evaluación</option>
-                    <option value="14">Descarga del Estándar de Competencia</option>
-                    <option value="15">Directorio CE/EI con Acreditaciónes</option>
-                    <option value="16">Directorio ENLACES</option>
-                    <option value="17">Evaluadores CE/EI por Estándar</option>
-                    <option value="18">Inscripción al RENEC</option>
-                    <option value="19">Instituciones Acreditadas</option>
-                    <option value="20">Instituciones Acreditadas Básico</option>
-                    <option value="21">Instituciones Educativas</option>
-                    <option value="22">Logos ECE/OC</option>
-                    <option value="23">Lotes de Certificados</option>
-                    <option value="24">Personas Certificadas</option>
-                    <option value="25">Procesos activos SII/SAC</option>
-                    <option value="26">RENEC VS SII</option>
-                    <option value="27">REP_Solicitud De Acreditación/Renovación EC</option>
-                    <option value="28">REP_Solicitud De Acreditación Inicial</option>
-                    <option value="29">REP_Solicitud De Certificados</option>
-                    <option value="30">REP_Solicitud De Reimpresión De Certificados</option>
-                    <option value="31">Reporte de Acreditaciones CE/EI</option>
-                    <option value="32">Reporte de Acreditaciones ECE/OC</option>
-                    <option value="33">Reporte de Empresas</option>
-                    <option value="34">Reporte de RENAC</option>
-                    <option value="35">Reporte de Renovaciones CE/EI</option>
-                    <option value="36">Reporte de Renovaciones ECE/OC</option>
-                    <option value="37">Reporte de Integral</option>
-                    <option value="38">Reporte Mensual por Región</option>
-                    <option value="39">Sector Productivo</option>
-                    <option value="40">Soluciones de Evaluación y Certificaciones EC</option>
-                    <option value="41">Verificadores EC/ECE/OC</option>
+                    <option value="7">Cifras de Acreditación</option>
+                    <option value="8">Cintillos EC</option>
+                    <option value="9">Descarga de Instrumento de Evaluación</option>
+                    <option value="10">Directorio ENLACES</option>
+                    <option value="11">Instituciones Acreditadas</option>
+                    <option value="12">Instituciones Acreditadas Básico</option>
+                    <option value="13">Instituciones Educativas</option>
+                    <option value="14">Logos ECE/OC</option>  
+                    <option value="15">Lotes de Certificados</option>
+                    <option value="16">Personas Certificadas</option>
+                    <option value="17">Reporte de Acreditaciones CE/EI</option>
+                    <option value="18">Reporte de Acreditaciones ECE/OC</option>
+                    <option value="19">Reporte de Empresas</option> 
+                    <option value="20">Reporte de Renovaciones CE/EI</option>
+                    <option value="21">Reporte de Renovaciones ECE/OC</option>
+                    <option value="22">Reporte de Integral</option>
+                    <option value="23">Sector Productivo</option>
+                    <option value="24">Soluciones de Evaluación y Certificaciones EC</option>
+                    <option value="25">Verificadores EC/ECE/OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -108,7 +85,7 @@
             </div>
         </div>
 
- <!-- Contenedor de Búsqueda Rápida Actualizado -->
+
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
@@ -131,11 +108,11 @@
     </div>
 </div>
 
-        <!-- Contenedor de Tabla -->
+        
         <div class="table-responsive mt-3">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="table-dark sticky-top" id="tableHead">
-                    <!-- Encabezados se generarán dinámicamente -->
+                    
                 </thead>
                 <tbody id="tableBody">
                     <tr>
@@ -147,9 +124,8 @@
             </table>
         </div>
 
-        <!-- Paginación -->
+       
         <div id="pagination" class="d-flex justify-content-center mt-3">
-            <!-- Botones de paginación se agregarán aquí -->
         </div>
     </div>
 
@@ -176,19 +152,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <script>
-// Variables globales
+
 let globalTableData = [];
 let currentSelectedReport = null;
-let currentRequestId = 0; // Identificador único para solicitudes
+let currentRequestId = 0; 
 
-// Evento de cambio de reporte
+
 document.getElementById('seleccion').addEventListener('change', function () {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
 });
 
-// Función de búsqueda actualizada para buscar en todo el SP
+
 function realizarBusqueda() {
     const searchTerm = document.getElementById('quickSearchInput').value.trim();
     const searchColumn = document.getElementById('searchColumnSelect').value;
@@ -199,7 +175,7 @@ function realizarBusqueda() {
         return;
     }
 
-    // Si no hay término de búsqueda, recargar los datos originales
+  
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -210,13 +186,13 @@ function realizarBusqueda() {
         searchTerm: searchTerm,
         searchColumn: searchColumn,
         exactMatch: exactMatch,
-        fullSearch: 'true', // Nuevo parámetro para indicar búsqueda completa
-        allRecords: 'true', // Nuevo parámetro para obtener todos los registros
+        fullSearch: 'true', 
+        allRecords: 'true', 
         page: 1,
-        pageSize: 1000000, // Número grande para obtener todos los registros
+        pageSize: 1000000, 
     });
 
-    // Mostrar indicador de carga
+    
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -240,7 +216,7 @@ function realizarBusqueda() {
             globalTableData = data.data[currentSelectedReport];
             renderTableRows(globalTableData);
 
-            // Actualizar la paginación si es necesario
+           
             if (data.totalPages && data.totalPages > 1) {
                 generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
             }
@@ -264,7 +240,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         return;
     }
 
-    // Incrementar el identificador único de solicitud
+   
     const requestId = ++currentRequestId;
 
     const tableHead = document.getElementById('tableHead');
@@ -309,7 +285,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             return response.json();
         })
         .then((data) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
@@ -353,7 +329,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             }
         })
         .catch((error) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             console.error('Error al cargar datos:', error);
 
@@ -382,7 +358,6 @@ function renderTableRows(data) {
         return;
     }
 
-    // Verificar si data es null, undefined o vacío
     if (!data || !Array.isArray(data) || data.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -410,16 +385,16 @@ function renderTableRows(data) {
                         try {
                             let imageSource;
                             
-                            // Verificar si es un Array de bytes
+                            
                             if (Array.isArray(value)) {
-                                // Convertir Array de bytes a Uint8Array
+                                
                                 const uint8Array = new Uint8Array(value);
-                                // Convertir Uint8Array a Blob
+                             
                                 const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                                // Crear URL del blob
+                               
                                 imageSource = URL.createObjectURL(blob);
                             } else if (typeof value === 'string') {
-                                // Si ya es string (URL o Base64), usarlo directamente
+                                
                                 imageSource = value;
                             }
                             
@@ -432,18 +407,18 @@ function renderTableRows(data) {
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
                                 
-                                // Manejar errores de carga
+                               
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
                                 };
-                                // Limpiar el URL del blob cuando la imagen se carga
+                               
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);
                                     }
                                 };
-                                // Modal para previsualizar
+                                
                                 img.onclick = () => createImageModal(imageSource);
                                 
                                 td.appendChild(img);
@@ -458,7 +433,7 @@ function renderTableRows(data) {
                         td.textContent = 'Sin imagen';
                     }
                 } else {
-                    td.textContent = value ?? ''; // Usar el operador de coalescencia nula
+                    td.textContent = value ?? ''; 
                 }
                 
                 tr.appendChild(td);
@@ -506,7 +481,7 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
     const paginationDiv = document.getElementById('pagination');
     paginationDiv.innerHTML = '';
 
-    // Botón "Anterior"
+    
     if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
             cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
@@ -530,7 +505,7 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-    // Páginas intermedias
+  
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
@@ -553,7 +528,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         paginationDiv.appendChild(lastPageButton);
     }
 
-    // Botón "Siguiente"
     if (currentPage < totalPages) {
         const nextButton = crearBotonPaginacion('Siguiente', () => {
             cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
@@ -675,30 +649,23 @@ function descargarReporte() {
     });
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el botón de búsqueda
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
-
-    // Event listener para búsqueda con Enter
     document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             realizarBusqueda();
         }
     });
 
-    // Event listener para cambio de reporte
     document.getElementById('seleccion').addEventListener('change', function() {
         const selectedValue = this.value;
         currentSelectedReport = selectedValue;
         cargarDatos(selectedValue, 1, 30);
     });
 
-    // Event listener para botón de descarga
     document.getElementById('descargarSp').addEventListener('click', descargarReporte);
 });
 
-// Opcional: Cargar datos iniciales si hay un valor preseleccionado
 const initialSelectedValue = document.getElementById('seleccion').value;
 if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;

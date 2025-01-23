@@ -90,6 +90,43 @@
         <url-pattern>/ReportesSector</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+        <servlet-name>UpdatePassword</servlet-name>
+        <servlet-class>validaciones.UpdatePassword</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdatePassword</servlet-name>
+        <url-pattern>/UpdatePassword</url-pattern>
+    </servlet-mapping>
+    
+    
+<servlet>
+    <servlet-name>Comportamiento</servlet-name>
+    <servlet-class>estadisticas.Comportamiento</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>Comportamiento</servlet-name>
+    <url-pattern>/Comportamiento</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>ReportesSolicitudFinanzas</servlet-name>
+    <servlet-class>reportes.ReportesSolicitudFinanzas</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>ReportesSolicitudFinanzas</servlet-name>
+    <url-pattern>/ReportesSolicitudFinanzas</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>ReportesCertificados</servlet-name>
+    <servlet-class>reportes.ReportesCertificados</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>ReportesCertificados</servlet-name>
+    <url-pattern>/ReportesCertificados</url-pattern>
+</servlet-mapping>
+    
     <!-- Servlet para descargar reportes -->
     <servlet>
         <servlet-name>descargarReporte</servlet-name>
@@ -103,4 +140,24 @@
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>
+    
+    
+    <filter>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>CharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+
 </web-app>

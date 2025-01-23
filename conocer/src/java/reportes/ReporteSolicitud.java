@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package reportes;
 
 import conexion.ConexionGeneral;
@@ -399,34 +394,20 @@ public class ReporteSolicitud extends HttpServlet {
             case "2":
                 return "{CALL sp_REP_CIFRAS_ACREDITACION()}";
             case "3":
-                return "{CALL xspCifrasAnuales_SII()}";/*No existe en la base de datos*/
-            case "4":
-                return "{CALL SP_REP_DATOS_GENERALES_CE_EI()}";/*No existe en la base de datos*/
-            case "5":
-                return "{CALL sp_REP_ESTANDARES_EVALUADORES_CE_EI()}";/*No se logra ejecutar en la base*/
-            case "6":
-                return "{CALL sp_Solicitud_Acreditacion_Inicial()}";/*No existe en la base de datos*/
-            case "7":
-                return "{CALL sp_Solicitud_Certificados()}";/*No existe en la base de datos*/
-            case "8":
-                return "{CALL sp_Solicitud_ReimpresionCER()}";/*No existe en la base de datos*/
-            case "9":
                 return "{CALL sp_REP_ACREDITACIONES_CE_EI()}";
-            case "10":
+            case "4":
                 return "{CALL sp_REP_ACREDITACIONES_ECE_OC()}";
-            case "11":
+            case "5":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO_PASSWORD()}";
-            case "12":
+            case "6":
                 return "{CALL sp_REP_RENOVACIONES_CE_EI()}";
-            case "13":
+            case "7":
                 return "{CALL sp_REP_RENOVACIONES_ECE_OC()}";
-            case "14":
-                return "{CALL spRepDescargaEstandarCompetencia()}";
-            case "15":
+            case "8":
                 return "{CALL sp_REP_INTEGRAL()}";
-            case "16":
+            case "9":
                 return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
-            case "17":
+            case "10":
                 return "{CALL sp_REP_VERFICADORES_EC_ECE_OC()}";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
