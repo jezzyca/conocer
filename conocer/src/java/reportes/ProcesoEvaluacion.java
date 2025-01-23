@@ -179,7 +179,6 @@ private void procesarJSON(HttpServletRequest request, HttpServletResponse respon
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "Reporte_" + fechaActual + ".xlsx";
 
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
@@ -278,7 +277,6 @@ private void procesarJSON(HttpServletRequest request, HttpServletResponse respon
         return style;
     }
 
-    // En el método obtenerDatosReporte, modifica el procesamiento de las columnas así:
 private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
         throws Exception {
     Map<String, List<Map<String, Object>>> datos = new HashMap<>();
@@ -312,19 +310,19 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
                         cumpleCriterio = true;
                     }
 
-                    // Procesar cada columna
+               
                     for (int i = 1; i <= columnCount; i++) {
                         String nombreColumna = metaData.getColumnLabel(i);
                         Object valorColumna = rs.getObject(i);
                         
-                        // Verificar si la columna es de tipo imagen
+                        
                         if (valorColumna instanceof byte[] || 
                             metaData.getColumnType(i) == java.sql.Types.BLOB || 
                             metaData.getColumnType(i) == java.sql.Types.BINARY || 
                             metaData.getColumnType(i) == java.sql.Types.VARBINARY || 
                             metaData.getColumnType(i) == java.sql.Types.LONGVARBINARY) {
                             
-                            // Convertir la imagen a Base64
+                      
                             byte[] imageBytes = null;
                             if (valorColumna instanceof byte[]) {
                                 imageBytes = (byte[]) valorColumna;
@@ -335,14 +333,13 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
                             
                             if (imageBytes != null && imageBytes.length > 0) {
                                 String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                                // Agregar el prefijo data:image para que el navegador pueda mostrar la imagen
+
                                 valorColumna = "data:image/jpeg;base64," + base64Image;
                             } else {
                                 valorColumna = null;
                             }
                         }
 
-                        // Procesar búsqueda
                         if (!cumpleCriterio && searchTerm != null && !searchTerm.isEmpty()) {
                             String valorString = valorColumna != null ? valorColumna.toString().toLowerCase() : "";
                             
@@ -385,8 +382,7 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
 
     return datos;
 }
-    
-    // [Resto de métodos auxiliares sin cambios...]
+   
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();
@@ -525,7 +521,6 @@ public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
                                 byte[] bytes = outputStream.toByteArray();
                                 String base64Image = Base64.getEncoder().encodeToString(bytes);
 
-                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
                                 row.put(columnName, "data:image/jpeg;base64," + base64Image);
 
                             } catch (IOException e) {
@@ -539,7 +534,6 @@ public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
                     jsonArray.put(row);
                 }
 
-                // Aquí puedes enviar o procesar jsonArray según sea necesario
                 System.out.println("JSON Array: " + jsonArray.toString());
 
             } catch (SQLException e) {

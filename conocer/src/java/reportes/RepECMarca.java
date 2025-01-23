@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package reportes;
 
 import conexion.ConexionGeneral;
@@ -328,7 +323,6 @@ public class RepECMarca extends HttpServlet {
         return datos;
     }
 
-    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();
@@ -445,7 +439,6 @@ public class RepECMarca extends HttpServlet {
                                 byte[] bytes = outputStream.toByteArray();
                                 String base64Image = Base64.getEncoder().encodeToString(bytes);
 
-                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
                                 row.put(columnName, "data:image/jpeg;base64," + base64Image);
 
                             } catch (IOException e) {
@@ -459,7 +452,6 @@ public class RepECMarca extends HttpServlet {
                     jsonArray.put(row);
                 }
 
-                // Aquí puedes enviar o procesar jsonArray según sea necesario
                 System.out.println("JSON Array: " + jsonArray.toString());
 
             } catch (SQLException e) {

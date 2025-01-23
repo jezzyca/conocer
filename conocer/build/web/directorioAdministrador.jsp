@@ -34,7 +34,6 @@
 <body id="fondoBodyReportes2">
     <br>
     <div class="container-fluid">
-        <!-- Header con logo y usuario -->
         <div class="row align-items-center mb-4">
             <div class="col-md-3">
                 <a href="informesMensuales.jsp" class="brand-logo">
@@ -55,7 +54,6 @@
             </div>
         </div>
 
-        <!-- Mensajes de error o éxito -->
         <c:if test="${not empty errorMessage}">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error:</strong> ${errorMessage}
@@ -69,7 +67,6 @@
             </div>
         </c:if>
 
-        <!-- Formulario de alta -->
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">Agregar Nuevo Usuario</h5>
@@ -92,7 +89,6 @@
             </div>
         </div>
 
-        <!-- Tabla de usuarios -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Usuarios Registrados</h5>
@@ -187,8 +183,6 @@
     </div>
 </div>
 
-
-    <!-- Footer -->
     <footer class="container-fluid mt-auto py-3 bg-light">
         <div class="row align-items-center g-3">
             <div class="col-12 col-md-3 text-center text-md-start">
@@ -205,26 +199,20 @@
         </div>
     </footer>
 
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    
-    <!-- Custom JavaScript -->
+
     <script>
 function handleButtonVisibility() {
     const buttons = document.querySelectorAll('a.btn-secondary.btn-sm');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const promptMessage = document.getElementById('promptMessage'); // Texto que se oculta
 
-    // Verificar si estamos en la página correcta
     const isDirectorioPage = window.location.href.includes('DirectorioAdministrador');
 
     buttons.forEach(button => {
         if (button.textContent.trim().includes('Ver Lista de Usuarios')) {
-            // Verificar el estado almacenado
             const buttonState = localStorage.getItem('listButtonState');
-
-            // Si el botón fue clickeado o estamos en la página después de hacer clic
             if (buttonState === 'hidden' && isDirectorioPage) {
                 button.style.display = 'none';
             }
@@ -232,41 +220,35 @@ function handleButtonVisibility() {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
 
-                // Ocultar el mensaje de "Da click en ver lista de usuarios"
                 if (promptMessage) {
                     promptMessage.style.display = 'none';
                 }
 
-                // Mostrar el indicador de carga
                 loadingIndicator.style.display = 'table-row';
 
-                // Guardar el estado en localStorage
                 localStorage.setItem('listButtonState', 'hidden');
                 this.style.display = 'none';
 
-                // Redirigir a la URL del botón
                 setTimeout(() => {
                     window.location.href = this.getAttribute('href');
-                }, 500); // Simula un breve retraso antes de redirigir
+                }, 500); 
             });
         }
     });
 }
 
-// Ejecutar cuando el DOM esté completamente cargado
+
 document.addEventListener('DOMContentLoaded', handleButtonVisibility);
 
-// Ejecutar cuando se complete la carga de la página
 window.addEventListener('load', handleButtonVisibility);
 
-// Manejar la navegación hacia atrás/adelante
 window.addEventListener('popstate', function() {
     if (!window.location.href.includes('DirectorioAdministrador')) {
         localStorage.removeItem('listButtonState');
     }
 });
 
-// Evento para borrar el valor de sessionStorage si no estamos en la página 'DirectorioAdministrador'
+
 window.addEventListener('beforeunload', function() {
     if (!window.location.href.includes('DirectorioAdministrador')) {
         sessionStorage.removeItem('buttonClicked');
@@ -278,7 +260,6 @@ window.addEventListener('beforeunload', function() {
         var username = document.getElementsByName('username')[0].value;
         var password = document.getElementsByName('password')[0].value;
         
-        // Validar usuario
         if (username.length < 3) {
             alert('El nombre de usuario debe tener al menos 3 caracteres');
             return false;
@@ -289,7 +270,6 @@ window.addEventListener('beforeunload', function() {
             return false;
         }
         
-        // Validar contraseña
         if (password.length < 6) {
             alert('La contraseña debe tener al menos 6 caracteres');
             return false;
@@ -297,13 +277,12 @@ window.addEventListener('beforeunload', function() {
         
         return true;
     }
-    
-    // Inicializar componentes de Materialize
+ 
     document.addEventListener('DOMContentLoaded', function() {
         var elems = document.querySelectorAll('.modal');
         M.Modal.init(elems);
         
-        // Auto-cerrar alertas después de 5 segundos
+     
         setTimeout(function() {
             var alertas = document.querySelectorAll('.alert');
             alertas.forEach(function(alerta) {
@@ -312,8 +291,7 @@ window.addEventListener('beforeunload', function() {
             });
         }, 5000);
     });
-   
-    // Script para llenar el modal con la información del usuario a editar
+
     var editarModal = document.getElementById('editarModal')
     editarModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget

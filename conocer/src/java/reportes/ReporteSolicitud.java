@@ -173,7 +173,6 @@ public class ReporteSolicitud extends HttpServlet {
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
 
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
@@ -323,7 +322,6 @@ public class ReporteSolicitud extends HttpServlet {
         return datos;
     }
 
-    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();

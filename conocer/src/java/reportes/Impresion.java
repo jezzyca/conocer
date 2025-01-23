@@ -173,8 +173,6 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
 
             String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
-
-            // Configuración de la respuesta HTTP
             response.reset();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
@@ -463,7 +461,6 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
                     jsonArray.put(row);
                 }
 
-                // Aquí puedes enviar o procesar jsonArray según sea necesario
                 System.out.println("JSON Array: " + jsonArray.toString());
 
             } catch (SQLException e) {

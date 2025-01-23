@@ -58,7 +58,6 @@
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
-            <!-- Información del usuario -->
             <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
                 <div class="media-body">
@@ -72,7 +71,6 @@
             </div>
         </div>
 
- <!-- Contenedor de Búsqueda Rápida Actualizado -->
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
@@ -95,14 +93,10 @@
     </div>
 </div>
 
-
-
-
-        <!-- Contenedor de Tabla -->
         <div class="table-responsive mt-3">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="table-dark sticky-top" id="tableHead">
-                    <!-- Encabezados se generarán dinámicamente -->
+                   
                 </thead>
                 <tbody id="tableBody">
                     <tr>
@@ -114,13 +108,10 @@
             </table>
         </div>
 
-        <!-- Paginación -->
         <div id="pagination" class="d-flex justify-content-center mt-3">
-            <!-- Botones de paginación se agregarán aquí -->
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="container-fluid mt-auto py-3 bg-light">
         <div class="row align-items-center g-3">
             <div class="col-12 col-md-3 text-center text-md-start">
@@ -143,19 +134,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <script>
-// Variables globales
 let globalTableData = [];
 let currentSelectedReport = null;
-let currentRequestId = 0; // Identificador único para solicitudes
+let currentRequestId = 0; 
 
-// Evento de cambio de reporte
 document.getElementById('seleccion').addEventListener('change', function () {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
 });
 
-// Función de búsqueda actualizada para buscar en todo el SP
 function realizarBusqueda() {
     const searchTerm = document.getElementById('quickSearchInput').value.trim();
     const searchColumn = document.getElementById('searchColumnSelect').value;
@@ -166,7 +154,6 @@ function realizarBusqueda() {
         return;
     }
 
-    // Si no hay término de búsqueda, recargar los datos originales
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -177,13 +164,12 @@ function realizarBusqueda() {
         searchTerm: searchTerm,
         searchColumn: searchColumn,
         exactMatch: exactMatch,
-        fullSearch: 'true', // Nuevo parámetro para indicar búsqueda completa
-        allRecords: 'true', // Nuevo parámetro para obtener todos los registros
+        fullSearch: 'true', 
+        allRecords: 'true', 
         page: 1,
-        pageSize: 1000000, // Número grande para obtener todos los registros
+        pageSize: 1000000, 
     });
 
-    // Mostrar indicador de carga
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -207,7 +193,6 @@ function realizarBusqueda() {
             globalTableData = data.data[currentSelectedReport];
             renderTableRows(globalTableData);
 
-            // Actualizar la paginación si es necesario
             if (data.totalPages && data.totalPages > 1) {
                 generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
             }
@@ -231,7 +216,6 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         return;
     }
 
-    // Incrementar el identificador único de solicitud
     const requestId = ++currentRequestId;
 
     const tableHead = document.getElementById('tableHead');
@@ -276,7 +260,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             return response.json();
         })
         .then((data) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
@@ -320,7 +304,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
             }
         })
         .catch((error) => {
-            if (requestId !== currentRequestId) return; // Ignorar si no es la solicitud más reciente
+            if (requestId !== currentRequestId) return; 
 
             console.error('Error al cargar datos:', error);
 
@@ -377,16 +361,14 @@ function renderTableRows(data) {
                         try {
                             let imageSource;
                             
-                            // Verificar si es un Array de bytes
                             if (Array.isArray(value)) {
-                                // Convertir Array de bytes a Uint8Array
                                 const uint8Array = new Uint8Array(value);
-                                // Convertir Uint8Array a Blob
+
                                 const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                                // Crear URL del blob
+                                
                                 imageSource = URL.createObjectURL(blob);
                             } else if (typeof value === 'string') {
-                                // Si ya es string (URL o Base64), usarlo directamente
+                                
                                 imageSource = value;
                             }
                             
@@ -399,18 +381,18 @@ function renderTableRows(data) {
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
                                 
-                                // Manejar errores de carga
+                               
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
                                 };
-                                // Limpiar el URL del blob cuando la imagen se carga
+                                
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);
                                     }
                                 };
-                                // Modal para previsualizar
+                              
                                 img.onclick = () => createImageModal(imageSource);
                                 
                                 td.appendChild(img);
@@ -425,7 +407,7 @@ function renderTableRows(data) {
                         td.textContent = 'Sin imagen';
                     }
                 } else {
-                    td.textContent = value ?? ''; // Usar el operador de coalescencia nula
+                    td.textContent = value ?? '';
                 }
                 
                 tr.appendChild(td);
@@ -473,7 +455,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
     const paginationDiv = document.getElementById('pagination');
     paginationDiv.innerHTML = '';
 
-    // Botón "Anterior"
     if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
             cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
@@ -497,7 +478,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-    // Páginas intermedias
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
@@ -519,7 +499,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         paginationDiv.appendChild(lastPageButton);
     }
 
-    // Botón "Siguiente"
     if (currentPage < totalPages) {
         const nextButton = crearBotonPaginacion('Siguiente', () => {
             cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
@@ -643,28 +622,23 @@ function descargarReporte() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listener para el botón de búsqueda
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
 
-    // Event listener para búsqueda con Enter
     document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             realizarBusqueda();
         }
     });
 
-    // Event listener para cambio de reporte
     document.getElementById('seleccion').addEventListener('change', function() {
         const selectedValue = this.value;
         currentSelectedReport = selectedValue;
         cargarDatos(selectedValue, 1, 30);
     });
 
-    // Event listener para botón de descarga
     document.getElementById('descargarSp').addEventListener('click', descargarReporte);
 });
 
-// Opcional: Cargar datos iniciales si hay un valor preseleccionado
 const initialSelectedValue = document.getElementById('seleccion').value;
 if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;

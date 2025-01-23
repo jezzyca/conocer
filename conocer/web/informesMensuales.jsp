@@ -15,30 +15,23 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Informes</title>
         <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
-        <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
-        <!-- Compiled and minified CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Bootstrap JS Bundle con Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     </head>
     <body id="fondoBodyReportes">
         <br>
-        <!-- Encabezado principal -->
         <div class="container-fluid">
-            <div class="row align-items-center d-flex"> <!-- Agregamos d-flex aquí -->
-                <!-- Logo a la izquierda -->
+            <div class="row align-items-center d-flex"> 
                 <div class="col-3 d-flex justify-content-start align-items-center">
                     <a href="informesMensuales.jsp" class="brand-logo">
                         <img src="img/Logo-Conocer.png" class="responsive-img" alt="Logo Conocer">
                     </a>
                 </div>
 
-                <!-- Menú central con dropdowns -->
                 <div class="col-7 d-flex justify-content-center align-items-center">
-                    <!-- Dropdown Cuenta -->
+                    
                     <div class="btn-group">
                         <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                             Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
@@ -50,7 +43,7 @@
                         </ul>
                     </div>
 
-                    <!-- Menú dinámico -->
+                    
                     <div class="btn-group ms-3">
                         <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                             Datos Generales <i class="fa-brands fa-windows ms-2 align-middle"></i>
@@ -104,15 +97,14 @@
                 </div>
 
 
-                <!-- Perfil Usuario a la derecha -->
+              
                 <div class="col-2 d-flex justify-content-center justify-content-md-end align-items-center">
                     <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
                     <div class="media-body">
-                        <!-- Mostrar "Usuario:" seguido del nombre -->
+                        
                         <h6 class="mb-0 usuario-nombre small">
                             Usuario: <c:out value="${sessionScope.usuario}" />
                         </h6>
-                        <!-- Mostrar "Fecha:" seguido de la fecha y hora -->
                         <small class="text-muted usuario-fecha">
                             Fecha: <c:out value="${sessionScope.fecha}" />
                         </small>
@@ -124,8 +116,6 @@
         <br>
 
 
-
-        <!-- Footer -->
         <footer class="container-fluid mt-auto py-3 bg-light">
             <div class="row align-items-center g-3">
                 <div class="col-12 col-md-3 text-center text-md-start">

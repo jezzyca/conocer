@@ -22,7 +22,7 @@ public class DirectorioAdministrador extends HttpServlet {
     @Override
     public void init() throws ServletException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // Asegúrate de usar el driver correcto
+            Class.forName("com.mysql.cj.jdbc.Driver"); 
         } catch (ClassNotFoundException e) {
             throw new ServletException("No se pudo cargar el driver de la base de datos", e);
         }
@@ -84,14 +84,14 @@ public class DirectorioAdministrador extends HttpServlet {
                     request.setAttribute("errorMessage", "Acción no válida.");
             }
 
-            conexion.commit(); // Confirma la transacción si todo fue exitoso
+            conexion.commit(); 
         } catch (SQLException ex) {
             System.out.println("Error SQL en POST: " + ex.getMessage());
             ex.printStackTrace();
             request.setAttribute("errorMessage", "Error en la operación: " + ex.getMessage());
         }
 
-        doGet(request, response); // Refresca la lista tras cualquier operación
+        doGet(request, response); 
     }
 
     private void altaUsuario(HttpServletRequest request, Connection conexion) throws SQLException {
@@ -149,7 +149,7 @@ public class DirectorioAdministrador extends HttpServlet {
     }
 
     private String generarIdUnico() {
-        return UUID.randomUUID().toString(); // Genera un UUID como ID único
+        return UUID.randomUUID().toString(); 
     }
 
     private byte[] ajustarCodigo(String password) {
