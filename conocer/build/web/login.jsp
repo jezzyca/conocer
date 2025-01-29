@@ -18,23 +18,22 @@
 <body id="fondoBody">
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow-sm p-4" style="width: 400px;">
+    <div class="card shadow-sm p-4" style="width: 400px; height: 380px; background-color: black; border-color: white; opacity: 0.9">
         <div class="card-header text-center">
-            <h2>REPORTES SII</h2>
-            <img src="img/logo_cono2.png" class="img-fluid" alt="Logo" style="max-width: 300px; margin: auto;">
+            <img src="img/logo_cono2.png" class="img-fluid" alt="Logo" style="max-width: 320px; margin: auto;">
         </div>
         <div class="card-body">
             <form id="loginForm" method="post" action="ValidarUsuarios">
                 <div class="mb-3">
-                    <label for="usuario" class="form-label">Usuario</label>
+                    <label for="usuario" class="form-label" style="color: white">Usuario:</label>
                     <input type="text" class="form-control" id="usuario" name="usuario" required>
                 </div>
                 <div class="mb-3">
-                    <label for="contrasena" class="form-label">Contraseña</label>
+                    <label for="contrasena" class="form-label" style="color: white">Contraseña:</label>
                     <input type="password" class="form-control" id="contrasena" name="contrasena" required>
                 </div>
                 <div class="d-grid text-center">
-                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Iniciar Sesión</button>
                 </div>
             </form>
         </div>

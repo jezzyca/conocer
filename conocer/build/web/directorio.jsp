@@ -44,10 +44,10 @@
                     <option value="2">Directorio CE / EI</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
-    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
+                <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
             <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
-                <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55">
+                <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
                 <div class="media-body">
                     <h6 class="mb-0 usuario-nombre small">
                         Usuario: <c:out value="${sessionScope.usuario}" />
@@ -55,6 +55,17 @@
                     <small class="text-muted usuario-fecha">
                         Fecha: <c:out value="${sessionScope.fecha}" />
                     </small>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger dropdown-toggle d-none" data-bs-toggle="dropdown">
+                        Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="cambioContrasena.jsp">Cambiar Contraseña</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
+                    </ul>
                 </div>
             </div>
         </div>

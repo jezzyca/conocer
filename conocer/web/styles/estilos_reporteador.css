@@ -42,9 +42,9 @@ width: 530px;
 }
 
 #fondoBody{
-    background-image: url('../img/fondopix.jpg');
+    background-image: url('../img/gobmx2.png');
     background-size: cover;
-    background-position: center;
+    background-position: rigth;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
@@ -114,17 +114,15 @@ width: 530px;
 	background-color: transparent !important;
 }
 
-/* Asegura que el dropdown se alinee justo debajo del botón "Productos" */
 .dropdown-content {
     margin-top: 0 !important;
     top: 21% !important;
     min-width: 120px !important;
 		background-color: #800020;
 		font-size: 15px;
-    z-index: 1000; /* Asegura que el dropdown esté por encima de otros elementos */
+    z-index: 1000; 
 }
 
-/* Asegura que el menú no cubra el botón de "Productos" */
 .dropdown-trigger:hover + .dropdown-content,
 .dropdown-content:hover {
     display: block;
@@ -191,38 +189,35 @@ width: 530px;
 }
 
 #descargarSp i {
-    margin-right: 8px; /* Espacio entre el icono y el texto */
+    margin-right: 8px; 
 }
 
 .btn-custom {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important; /* Espacio entre el icono y el texto */
-    line-height: 1 !important; /* Asegura que el texto no se extienda más allá del icono */
+    gap: 8px !important; 
+    line-height: 1 !important; 
 }
 
 
 
 .btn i {
-    font-size: 1.2em !important; /* Asegura que el tamaño del icono sea proporcional */
+    font-size: 1.2em !important; 
     display: flex !important;
     align-items: center;
 }
 
 
-
-
-
 .table {
-    font-size: 12px; /* Tamaño de fuente más legible */
+    font-size: 12px; 
     border-collapse: collapse;
-    width: 100%; /* Asegura que ocupe el espacio necesario */
+    width: 100%; 
 }
 
 .table th, .table td {
-    padding: 4px 6px; /* Reduce el relleno para compactar */
-    text-align: left; /* Alineación estándar */
+    padding: 4px 6px; 
+    text-align: left; 
 }
 
 .table th {
@@ -240,15 +235,15 @@ width: 530px;
 }
 
 .table-hover tbody tr:hover {
-    background-color: #dca5a5; /* Suave efecto al pasar el cursor */
+    background-color: #dca5a5; 
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9; /* Alterna filas */
+    background-color: #f9f9f9; 
 }
 
 .table-compact {
-    font-size: 10.5px; /* Fuente aún más compacta si es necesario */
+    font-size: 10.5px; 
 }
 
 
@@ -293,9 +288,6 @@ width: 530px;
 }
 
 
-
-/* El contenedor principal crecerá para empujar el footer */
-
 .table-container {
     margin-bottom: 50px !important; 
 }
@@ -303,7 +295,7 @@ width: 530px;
 .main-container {
     background-color: #f8f9fa;
     border-radius: 10px;
-    padding: 20px; /* Último valor para padding-bottom */
+    padding: 20px; 
     max-width: 900px;
     min-height: 500px;
     margin-top: 0;
@@ -311,17 +303,15 @@ width: 530px;
 }
 
 .pagination-container {
-    margin-bottom: 200px; /* Ajusta si usas paginación cerca del footer */
+    margin-bottom: 200px; 
 }
 
 
-/* Botones de acción */
 .btn-danger {
     font-weight: bold;
     font-size: 16px;
 }
 
-/* Estilo de los input-group */
 .input-group-text {
     background-color: #e9ecef;
     font-weight: 400;
@@ -331,14 +321,12 @@ width: 530px;
 }
 
 
-/* Tamaño de los input y selects */
 .form-control, .form-select {
     height: 35px;
     font-size: 15px;
     border-radius: 5px;
 }
 
-/* Select con icono de flecha */
 .select-icon {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23495057' viewBox='0 0 20 20'%3E%3Cpath d='M5.293 7.707a1 1 0 011.414 0L10 11.586l3.293-3.879a1 1 0 011.707.707V12a1 1 0 01-1.707.707L10 9.414l-3.293 3.879A1 1 0 015.293 12V8.414a1 1 0 010-1.414z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -346,7 +334,6 @@ width: 530px;
     background-size: 1em;
 }
 
-/* Checkbox e indicadores */
 .form-check-input {
     width: 20px;
     height: 15px;
@@ -381,10 +368,9 @@ width: 530px;
     background-color: white;
     border-radius: 5px;
     padding: 3px;
-    margin-bottom: 100px; /* Espacio para el footer */
+    margin-bottom: 100px; 
 }
 
-/* Estilos generales */
 .chart-container {
     width: 100%;
     margin: 20px auto;
@@ -395,12 +381,10 @@ width: 530px;
     height: 800px;
 }
 
-/* Estilos del header */
 .brand-logo img {
     max-height: 60px;
 }
 
-/* Estilos del contenedor principal */
 body, html {
     height: 100%;
     margin: 0;
@@ -408,12 +392,10 @@ body, html {
     flex-direction: column;
 }
 
-/* Estilos del contenido */
 .main-content {
-    flex: 1; /* Esto permite que el contenido ocupe el espacio disponible */
+    flex: 1; 
 }
 
-/* Estilos del footer */
 .footer {
     width: 100%;
     background-color: #f8f9fa;
@@ -422,10 +404,9 @@ body, html {
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #dee2e6;
-    position: relative; /* Ajusta el posicionamiento para no ser fijo */
+    position: relative;
 }
 
-/* Asegurando que el footer quede al fondo si el contenido es pequeño */
 body {
     display: flex;
     flex-direction: column;
@@ -462,25 +443,24 @@ body {
 
 
 .input-group-text i {
-    cursor: pointer; /* Cambiar cursor al pasar sobre el ícono */
+    cursor: pointer;
 } 
 
-/* Ajustes para tablets y dispositivos medianos */
 @media (max-width: 768px) {
     #bordeLogin {
-        width: 90%; /* Reduce el ancho del formulario */
-        height: auto; /* Ajusta la altura automáticamente */
-        padding: 20px; /* Espaciado interno */
-        margin: 0 auto; /* Centra en la pantalla */
+        width: 90%; 
+        height: auto; 
+        padding: 20px; 
+        margin: 0 auto;
     }
 
     #fondoBody {
-        background-attachment: scroll; /* Evita que el fondo fijo se corte en móviles */
-        background-size: cover; /* Asegura que se vea completo */
+        background-attachment: scroll; 
+        background-size: cover; 
     }
 
     .bienvenida, .bienvenida2 {
-        font-size: 30px; /* Reduce el tamaño de la fuente */
+        font-size: 30px; 
     }
 
     .tamanoIcono {
@@ -488,59 +468,56 @@ body {
     }
 
     .form-select {
-        width: 100%; /* Ajusta el ancho del selector */
+        width: 100%; 
     }
 
     .btn-group {
-        flex-wrap: wrap; /* Permite que los botones se apilen */
-        gap: 5px; /* Espaciado entre botones */
+        flex-wrap: wrap; 
+        gap: 5px; 
     }
 
     #guardar {
-        font-size: 12px; /* Reduce tamaño del texto */
-        padding: 8px; /* Mejora el espaciado */
+        font-size: 12px; 
+        padding: 8px; 
     }
 
     .table {
-        font-size: 10px; /* Reduce el tamaño de las tablas */
+        font-size: 10px;
     }
 }
 
-/* Ajustes para móviles */
 @media (max-width: 576px) {
     .chip {
-        font-size: 13px; /* Texto más pequeño */
-        height: auto; /* Ajusta el alto dinámicamente */
+        font-size: 13px; 
+        height: auto; 
         padding: 10px;
     }
 
     .tamanoLogo, .tamanoLogo2 {
-        max-width: 30%; /* Imágenes más pequeñas */
+        max-width: 30%;
     }
 
     .footer-logo {
-        max-width: 30px; /* Escala el logo en el footer */
+        max-width: 30px; 
     }
 
     .footer-container {
-        font-size: 12px; /* Texto más compacto */
+        font-size: 12px; 
     }
 
     .table {
-        font-size: 9px; /* Fuente pequeña para tablas */
+        font-size: 9px; 
     }
 
     .pagination .page-link {
-        padding: 0.25rem 0.5rem; /* Reduce botones de paginación */
-        font-size: 12px; /* Fuente compacta */
-    }
+        padding: 0.25rem 0.5rem; 
+        font-size: 12px; 
 }
 
 #pagination {
     padding: 10px;
 }
 
-/* Contenedor de búsqueda */
         #quickSearchContainer {
             margin-bottom: 15px;
             background-color: #f8f9fa;
@@ -548,13 +525,12 @@ body {
             border-radius: 5px;
         }
         
-        /* Estilo para resaltar resultados de búsqueda */
+
         .search-highlight {
             background-color: #ffff00;
             font-weight: bold;
         }
-        
-        /* Mejoras de responsividad */
+
         @media (max-width: 768px) {
             #quickSearchContainer {
                 flex-direction: column;
@@ -565,7 +541,6 @@ body {
             }
         }
         
-        /* Mejoras de tabla */
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
@@ -585,7 +560,6 @@ body {
 }
 
 
-/* Estilo del spinner */
 .loader-container {
     display: flex;
     justify-content: center;
@@ -616,30 +590,37 @@ body {
 
 #custom-link {
         color: white;
-        background-color: #e74c3c !important; /* Rojo personalizado */
+        background-color: #e74c3c !important;
         padding: 5px 10px;
         text-decoration: none;
         border-radius: 5px;
     }
     #custom-link:hover {
-        background-color: #c0392b; /* Color más oscuro al pasar el cursor */
+        background-color: #c0392b; 
     }
 
 
-
-         
-
 .chart-container {
     position: relative;
-    height: 100vh; /* Altura ajustada al 90% del viewport */
-    width: 90vw;  /* Ancho ajustado al 90% del viewport */
-    margin: 20px auto; /* Centrado automático */
+    height: 100vh; 
+    width: 90vw;  
+    margin: 20px auto;
 }
 
 #mainChart {
-    width: 100%;  /* Ocupa todo el ancho del contenedor */
-    height: 100%; /* Ocupa toda la altura del contenedor */
+    width: 100%;  
+    height: 100%; 
 }
 
+h2{
+   font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ff5733; 
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
 
             
