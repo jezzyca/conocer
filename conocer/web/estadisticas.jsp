@@ -47,14 +47,21 @@
                         <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
                     </ul>
                 </div>
-
                 <div class="btn-group ms-3">
                     <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                         Datos Generales<i class="fa-brands fa-windows ms-2 align-middle"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
+                        <c:if test="${sessionScope.tipoUsuario == '0AD4C2A2-59A5-481C-A501-8E3F2BDEE1E6'}">
+                        <li><a class="dropdown-item" href="certificadosMarca.jsp">Reportes</a></li>
+                        </c:if>
+                        <c:if test="${sessionScope.tipoUsuario == '2AE2D0AF-DD99-4B0B-A000-073FE17EDE79'}">
+                        <li><a class="dropdown-item" href="procesoEvaluacion.jsp">Reportes</a></li>
+                        </c:if>
+                        <c:if test="${sessionScope.tipoUsuario == '4FEBADDD-951A-4594-BDCC-D5EEEDB11FCD'}">
                         <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
+                        <li><a class="dropdown-item" href="repECMarca.jsp">Reportes EC Marca</a></li>
+                        </c:if>
                     </ul>
                 </div>
             </div>

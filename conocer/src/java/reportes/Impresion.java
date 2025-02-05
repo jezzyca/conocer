@@ -385,7 +385,12 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
         }
     }
 
-    private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
+
+    private String obtenerProcedimientoAlmacenado(String procedimiento) throws IllegalArgumentException {
+        if (procedimiento == null) {
+            throw new IllegalArgumentException("El parámetro 'procedimiento' no puede ser nulo");
+        }
+        
         switch (procedimiento) {
             case "1":
                 return "{CALL sp_REP_Certificados_Emitidos_Ultimo_Mes()}";
@@ -402,70 +407,81 @@ private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName(
             case "7":
                 return "{CALL sp_REP_Solicitud_Reimp_Cert()}";
             default:
-                throw new Exception("Procedimiento no válido: " + procedimiento);
+                throw new IllegalArgumentException("Procedimiento no válido: " + procedimiento);
         }
     }
     
-   
-    public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
+    public JSONArray ejecutarProcedimiento(String procedimiento, String parametroEC) throws SQLException, IOException {
+        if (procedimiento == null) {
+            throw new IllegalArgumentException("El parámetro 'procedimiento' no puede ser nulo");
+        }
+
+        JSONArray jsonArray = new JSONArray();
+        String storedProcedure = null;
+        Connection conn = null;
+        CallableStatement stmt = null;
+        ResultSet rs = null;
+
         try {
-            String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
+            storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
             ConexionGeneral conexion = new ConexionGeneral();
-            Connection conn = conexion.obtenerConexion();
-
-            try (CallableStatement stmt = conn.prepareCall(storedProcedure)) {
-                if (parametroEC != null) {
-                    stmt.setString(1, parametroEC);
-                }
-
-                ResultSet rs = stmt.executeQuery();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                JSONArray jsonArray = new JSONArray();
-
-                while (rs.next()) {
-                    JSONObject row = new JSONObject();
-
-                    for (int i = 1; i <= columnCount; i++) {
-                        String columnName = metaData.getColumnName(i);
-                        Object value = rs.getObject(i);
-
-                        if (value instanceof Blob) {
-                            Blob blob = (Blob) value;
-                            try (InputStream inputStream = blob.getBinaryStream();
-                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-                                byte[] buffer = new byte[1024];
-                                int bytesRead;
-
-                                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                                    outputStream.write(buffer, 0, bytesRead);
-                                }
-
-                                byte[] bytes = outputStream.toByteArray();
-                                String base64Image = Base64.getEncoder().encodeToString(bytes);
-
-                                row.put(columnName, "data:image/jpeg;base64," + base64Image);
-
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                row.put(columnName, "");
-                            }
-                        } else {
-                            row.put(columnName, value != null ? value : "");
-                        }
-                    }
-                    jsonArray.put(row);
-                }
-
-                System.out.println("JSON Array: " + jsonArray.toString());
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+            conn = conexion.obtenerConexion();
+            
+            if (conn == null) {
+                throw new SQLException("No se pudo establecer la conexión a la base de datos");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            stmt = conn.prepareCall(storedProcedure);
+            
+            if (parametroEC != null) {
+                stmt.setString(1, parametroEC);
+            }
+
+            rs = stmt.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (rs.next()) {
+                JSONObject row = new JSONObject();
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = metaData.getColumnName(i);
+                    Object value = rs.getObject(i);
+                    
+                    if (value instanceof Blob) {
+                        row.put(columnName, procesarBlob((Blob) value));
+                    } else {
+                        row.put(columnName, value != null ? value : "");
+                    }
+                }
+                jsonArray.put(row);
+            }
+            
+            return jsonArray;
+
+        } finally {
+            // Cerrar recursos en orden inverso
+            if (rs != null) try { rs.close(); } catch (SQLException e) { /* log error */ }
+            if (stmt != null) try { stmt.close(); } catch (SQLException e) { /* log error */ }
+            if (conn != null) try { conn.close(); } catch (SQLException e) { /* log error */ }
+        }
+    }
+
+    private String procesarBlob(Blob blob) throws SQLException, IOException {
+        if (blob == null) {
+            return "";
+        }
+
+        try (InputStream inputStream = blob.getBinaryStream();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            
+            byte[] bytes = outputStream.toByteArray();
+            return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
         }
     }
 

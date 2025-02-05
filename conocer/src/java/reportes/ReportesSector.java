@@ -51,7 +51,7 @@ import org.json.JSONObject;
 @WebServlet(name = "ReportesSector", urlPatterns = {"/ReportesSector"})
 public class ReportesSector extends HttpServlet {
 
-       private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
     private static final int DEFAULT_PAGE = 1;
 

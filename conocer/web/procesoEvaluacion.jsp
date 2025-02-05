@@ -109,6 +109,7 @@
 
 
         <div class="table-responsive mt-3">
+            <h6 class="" id="procedimientos"></h6>
             <table class="table table-striped table-bordered table-hover">
                 <thead class="table-dark sticky-top" id="tableHead">
                 </thead>
@@ -230,118 +231,151 @@ function realizarBusqueda() {
         });
 }
 
+const reportTitles = {
+    "1": "Reporte de Acreditación y Renovación",
+    "2": "Reporte de Cifras de Acreditación",
+    "3": "Reporte de Directorio CE / EI",
+    "4": "Reporte de Intituciones Acreditadas",
+    "5": "Reporte de Intituciones Acreditadas Básico",
+    "6": "Reporte de Logos ECE / OC",
+    "7": "Reporte de Acreditaciones CE / EI",
+    "8": "Reporte de Acreditaciones ECE / OC",
+    "9": "Reporte de Instituciones Acreditadas Básico (Password)",
+    "10": "Reporte de Renovaciones  CE / EI",
+    "11": "Reporte de Renovaciones  ECE / OC",
+    "12": "Reporte de Integral",
+    "13": "Reporte de Soluciones de Evaluación y Certificaciones EC",
+    "14": "Reporte de Verificadores EC / ECE / OC"
+}
+
 function cargarDatos(selectedValue, pagina, registrosPorPagina) {
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, selecciona un tipo de reporte');
-        return;
-    }
+   if (!selectedValue || selectedValue === 'Selecciona:') {
+       alert('Por favor, selecciona un tipo de reporte');
+       return;
+   }
 
-    const requestId = ++currentRequestId;
+   const requestId = ++currentRequestId;
+   const reportTitle = reportTitles[selectedValue] || 'Reporte';
+   document.getElementById('procedimientos').textContent = reportTitle;
 
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const paginationDiv = document.getElementById('pagination');
-    const quickSearchContainer = document.getElementById('quickSearchContainer');
-    const searchColumnSelect = document.getElementById('searchColumnSelect');
+   const elements = {
+       tableHead: document.getElementById('tableHead'),
+       tableBody: document.getElementById('tableBody'),
+       pagination: document.getElementById('pagination'),
+       quickSearch: document.getElementById('quickSearchContainer'),
+       searchColumn: document.getElementById('searchColumnSelect')
+   };
 
-    tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-    tableBody.innerHTML = `
-        <tr>
-            <td class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </td>
-        </tr>`;
-    paginationDiv.innerHTML = '';
-    quickSearchContainer.style.display = 'none';
-    searchColumnSelect.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+   elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
+   elements.tableBody.innerHTML = `
+       <tr>
+           <td class="text-center">
+               <div class="spinner-border text-primary" role="status">
+                   <span class="visually-hidden">Cargando...</span>
+               </div>
+           </td>
+       </tr>`;
+   elements.pagination.innerHTML = '';
+   elements.quickSearch.style.display = 'none';
+   elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
 
-    const params = new URLSearchParams({
-        procedimientos: selectedValue,
-        page: pagina,
-        pageSize: registrosPorPagina,
-    });
+   const params = new URLSearchParams({
+       procedimientos: selectedValue,
+       page: pagina,
+       pageSize: registrosPorPagina
+   });
 
-    fetch('ProcesoEvaluacion?' + params.toString(), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'same-origin',
-    })
-        .then(async (response) => {
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('La respuesta del servidor no es JSON válido');
-            }
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            if (requestId !== currentRequestId) return; 
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = '';
-            paginationDiv.innerHTML = '';
+   fetch('ProcesoEvaluacion?' + params.toString(), {
+       method: 'GET',
+       headers: { 'Accept': 'application/json' },
+       credentials: 'same-origin'
+   })
+   .then(async response => {
+       if (!response.headers.get('content-type')?.includes('application/json')) {
+           throw new Error('La respuesta del servidor no es JSON válido');
+       }
+       if (!response.ok) {
+           const errorData = await response.json();
+           throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+       }
+       return response.json();
+   })
+   .then(data => {
+       if (requestId !== currentRequestId) return;
+       
+       resetTableElements(elements);
 
-            if (!data || !data.success || !data.data || !data.data[selectedValue]) {
-                throw new Error('No se encontraron datos para el reporte seleccionado');
-            }
+       if (!data?.success || !data?.data?.[selectedValue]) {
+           throw new Error('No se encontraron datos para el reporte seleccionado');
+       }
 
-            globalTableData = data.data[selectedValue];
+       globalTableData = data.data[selectedValue];
 
-            if (globalTableData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
-                    </tr>`;
-                return;
-            }
+       if (globalTableData.length === 0) {
+           displayNoDataMessage(elements.tableBody);
+           return;
+       }
 
-            const firstRow = globalTableData[0];
-            const headerRow = document.createElement('tr');
+       const columns = Object.keys(globalTableData[0]);
+       createTableHeader(columns, elements);
+       renderTableRows(globalTableData);
+       elements.quickSearch.style.display = 'flex';
 
-            Object.keys(firstRow).forEach((key) => {
-                const th = document.createElement('th');
-                th.textContent = key;
-                th.className = 'text-nowrap';
-                headerRow.appendChild(th);
+       if (data.totalPages > 1) {
+           generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
+       }
+   })
+   .catch(error => {
+       if (requestId !== currentRequestId) return;
+       handleLoadError(error, elements);
+   });
+}
 
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = key;
-                searchColumnSelect.appendChild(option);
-            });
+function resetTableElements(elements) {
+   elements.tableHead.innerHTML = '';
+   elements.tableBody.innerHTML = '';
+   elements.pagination.innerHTML = '';
+}
 
-            tableHead.appendChild(headerRow);
-            renderTableRows(globalTableData);
-            quickSearchContainer.style.display = 'flex';
+function displayNoDataMessage(tableBody) {
+   tableBody.innerHTML = `
+       <tr>
+           <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
+       </tr>`;
+}
 
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-            }
-        })
-        .catch((error) => {
-            if (requestId !== currentRequestId) return; 
-            console.error('Error al cargar datos:', error);
+function createTableHeader(columns, elements) {
+   const headerRow = document.createElement('tr');
+   columns.forEach(column => {
+       const th = document.createElement('th');
+       th.textContent = column;
+       th.className = 'text-nowrap';
+       headerRow.appendChild(th);
 
-            tableHead.innerHTML = '';
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center text-danger">
-                        <div class="alert alert-danger" role="alert">
-                            <h5 class="alert-heading">Error al cargar los datos</h5>
-                            <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                            <hr>
-                            <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-                        </div>
-                    </td>
-                </tr>`;
+       const option = document.createElement('option');
+       option.value = column;
+       option.textContent = column;
+       elements.searchColumn.appendChild(option);
+   });
+   elements.tableHead.appendChild(headerRow);
+}
 
-            quickSearchContainer.style.display = 'none';
-            paginationDiv.innerHTML = '';
-        });
+function handleLoadError(error, elements) {
+   console.error('Error al cargar datos:', error);
+   elements.tableHead.innerHTML = '';
+   elements.tableBody.innerHTML = `
+       <tr>
+           <td colspan="10" class="text-center text-danger">
+               <div class="alert alert-danger" role="alert">
+                   <h5 class="alert-heading">Error al cargar los datos</h5>
+                   <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
+                   <hr>
+                   <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
+               </div>
+           </td>
+       </tr>`;
+   elements.quickSearch.style.display = 'none';
+   elements.pagination.innerHTML = '';
 }
 
 function renderTableRows(data) {
@@ -399,12 +433,12 @@ function renderTableRows(data) {
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
                                 
-                                // Manejar errores de carga
+                                
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
                                 };
-                                // Limpiar el URL del blob cuando la imagen se carga
+                                
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);

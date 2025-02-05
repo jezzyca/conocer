@@ -389,7 +389,7 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
             case "1":
-                return "{CALL sp_Reporte_Solicitud_Cert_Finanzas()}";
+                return "{CALL sp_Reporte_Solicitud_Cert_Finanzas()}";  
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
@@ -435,6 +435,7 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
                                 byte[] bytes = outputStream.toByteArray();
                                 String base64Image = Base64.getEncoder().encodeToString(bytes);
 
+                                // Enviar la imagen con el prefijo 'data:image/jpeg;base64,' para el cliente
                                 row.put(columnName, "data:image/jpeg;base64," + base64Image);
 
                             } catch (IOException e) {
@@ -472,6 +473,8 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
         processRequest(request, response);
     }
 }
+
+
 
 
 
