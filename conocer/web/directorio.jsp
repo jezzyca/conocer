@@ -546,13 +546,13 @@ function descargarReporte() {
     botonDescargar.disabled = true;
     botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
-    const reportNames = {
+    const nombreReporte = {
         "1": "Acreditaciones_y_Renovaciones",
         "2": "ReporteConSumaMarca",
         "3": "CertificadosMarca_X_Entidad_EC_OC"
     };
 
-    const reportName = reportNames[selectedValue] || "Reporte_Desconocido";
+    const reportName = nombreReporte[selectedValue] || "Reporte_Desconocido";
     const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
     const params = new URLSearchParams();
@@ -562,7 +562,7 @@ function descargarReporte() {
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
-    fetch('Directorio?' + params.toString(), {
+    fetch('ReportesCertificados?' + params.toString(), {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -630,6 +630,7 @@ function descargarReporte() {
         botonDescargar.innerHTML = 'Descargar Información';
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);

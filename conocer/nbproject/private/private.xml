@@ -3,23 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/InformesEjecutivo.java</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSII.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSolicitudFinanzas.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/informesEjecutivo.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/institucionesAcred.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReportesSII.java</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/impresion.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesCertificados.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reporteSolicitud.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/directorio.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/CertificadosMarca.java</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSector.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReportesSector.java</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReportesSolicitudFinanzas.java</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReportesCertificados.java</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/certificadosMarca.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/Impresion.java</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/Directorio.java</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReporteSolicitud.java</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesCertificados.jsp</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/directorio.jsp</file>
         </group>
     </open-files>
 </project-private>
