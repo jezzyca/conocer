@@ -30,7 +30,7 @@
                     </a>
                 </div>
 
-                <div class="col-7 d-flex justify-content-center align-items-center">
+                <div class="col-6 d-flex justify-content-center align-items-center">
                     
                     <div class="btn-group">
                         <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
@@ -66,7 +66,8 @@
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '2AE2D0AF-DD99-4B0B-A000-073FE17EDE79'}">
                                 <li><a class="dropdown-item" href="procesoEvaluacion.jsp">Reportes</a></li>
-                                 <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
+                                <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
+                                <li><a class="dropdown-item" href="busqueda.jsp">Busqueda</a>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'D3625435-5295-4349-976C-12787488AC5B'}">
                                 <li><a class="dropdown-item" href="institucionesAcred.jsp">Reportes</a></li>
@@ -83,6 +84,7 @@
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'E6D10215-1531-482F-8AB7-D5497BD8E9DC'}">
                                 <li><a class="dropdown-item" href="reporteSolicitud.jsp">Reportes</a></li>
+                                <li><a class="dropdown-item" href="busqueda.jsp">Busqueda</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
                                 <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reportes</a></li>
@@ -93,8 +95,7 @@
                         </ul>
                     </div>
                 </div>
-
-                <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
+                <div class="col-3 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
                 <div class="media-body">
                     <h6 class="mb-0 usuario-nombre small">
@@ -118,10 +119,8 @@
             </div>
             </div>
         </div>
-
         <br>
-
-
+        
         <footer class="container-fluid mt-auto py-3 bg-light">
             <div class="row align-items-center g-3">
                 <div class="col-12 col-md-3 text-center text-md-start">

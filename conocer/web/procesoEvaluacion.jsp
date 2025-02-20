@@ -42,23 +42,24 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                        <option value="1">Acreditación y Renovación</option>
-                        <option value="2">Cifras de Acreditación</option>
-                        <option value="3">Directorio CE / EI</option>
-                        <option value="4">Intituciones Acreditadas</option>
-                        <option value="5">Intituciones Acreditadas Básico</option>
-                        <option value="6">Logos ECE / OC</option>  
-                        <option value="7">Reporte de Acreditaciones CE / EI</option>
-                        <option value="8">Reporte de Acreditaciones ECE / OC</option>
-                        <option value="9">Reporte de Instituciones Acreditadas Básico (Password)</option>
-                        <option value="10">Reporte de Renovaciones  CE / EI</option>
-                        <option value="11">Reporte de Renovaciones  ECE / OC</option>
-                        <option value="12">Reporte Integral</option>
-                        <option value="13">Soluciones de Evaluación y Certificaciones EC</option>
-                        <option value="14">Verificadores EC / ECE / OC</option>
+                    <option value="1">Acreditación y Renovación</option>
+                    <option value="2">Cifras de Acreditación</option>
+                    <option value="3">Directorio CE / EI</option>
+                    <option value="4">Intituciones Acreditadas</option>
+                    <option value="5">Intituciones Acreditadas Básico</option>
+                    <option value="6">Logos ECE / OC</option>  
+                    <option value="7">Reporte de Acreditaciones CE / EI</option>
+                    <option value="8">Reporte de Acreditaciones ECE / OC</option>
+                    <option value="9">Reporte de Instituciones Acreditadas Básico (Password)</option>
+                    <option value="10">Reporte de Renovaciones  CE / EI</option>
+                    <option value="11">Reporte de Renovaciones  ECE / OC</option>
+                    <option value="12">Reporte Integral</option>
+                    <option value="13">Soluciones de Evaluación y Certificaciones EC</option>
+                    <option value="14">Verificadores EC / ECE / OC</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
-    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar
+                </button>
             </div>
             <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
@@ -83,16 +84,15 @@
                 </div>
             </div>
         </div>
+                    
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
     </div>
-    <div class="col-md-2 col-12 mb-2">
-        <select id="searchColumnSelect" class="form-select">
-            <option value="">Buscar en todas las columnas</option>
+    <div class="col-md-1 col-12 mb-1">
+        <select id="searchColumnSelect" class="form-select hide">
+            <option value=""></option>
         </select>
-    </div>
-    <div class="col-md-2 col-12 mb-2 d-flex align-items-center">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
             <label class="form-check-label" for="exactMatchCheckbox"></label>
@@ -104,10 +104,6 @@
         </button>
     </div>
 </div>
-
-
-
-
         <div class="table-responsive mt-3">
             <h6 class="" id="procedimientos"></h6>
             <table class="table table-striped table-bordered table-hover">
@@ -122,13 +118,9 @@
                 </tbody>
             </table>
         </div>
-
-       
         <div id="pagination" class="d-flex justify-content-center mt-3">
-           
         </div>
     </div>
-
     <footer class="container-fluid mt-auto py-3 bg-light">
         <div class="row align-items-center g-3">
             <div class="col-12 col-md-3 text-center text-md-start">
@@ -145,35 +137,37 @@
         </div>
     </footer>
 
-
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <script>
+        let globalTableData = [];
+        let currentSelectedReport = null;
+        let currentRequestId = 0;
 
-let globalTableData = [];
-let currentSelectedReport = null;
-let currentRequestId = 0;
-
-
-document.getElementById('seleccion').addEventListener('change', function () {
-    const selectedValue = this.value;
-    currentSelectedReport = selectedValue;
-    cargarDatos(selectedValue, 1, 30);
-});
-
+        document.getElementById('seleccion').addEventListener('change', function () {
+            const selectedValue = this.value;
+            currentSelectedReport = selectedValue;
+            cargarDatos(selectedValue, 1, 30);
+        });
+        
+function getSearchParams() {
+    return {
+        searchTerm: document.getElementById('quickSearchInput').value.trim(),
+        searchColumn: document.getElementById('searchColumnSelect').value,
+        exactMatch: document.getElementById('exactMatchCheckbox').checked
+    };
+}
 
 function realizarBusqueda() {
-    const searchTerm = document.getElementById('quickSearchInput').value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
 
     if (!currentSelectedReport) {
         alert('Por favor, seleccione un reporte primero');
         return;
     }
-
+  
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -181,16 +175,15 @@ function realizarBusqueda() {
 
     const params = new URLSearchParams({
         procedimientos: currentSelectedReport,
-        searchTerm: searchTerm,
-        searchColumn: searchColumn,
-        exactMatch: exactMatch,
+        searchTerm,
+        searchColumn,
+        exactMatch,
         fullSearch: 'true', 
         allRecords: 'true', 
         page: 1,
-        pageSize: 1000000, 
+        pageSize: 100,
     });
-
-
+    
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -203,20 +196,31 @@ function realizarBusqueda() {
 
     fetch('ProcesoEvaluacion?' + params.toString(), {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
+        headers: { 
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+        },
         credentials: 'same-origin',
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
         .then((data) => {
             if (!data.success) {
                 throw new Error(data.message || 'Error al realizar la búsqueda');
             }
-            globalTableData = data.data[currentSelectedReport];
-            renderTableRows(globalTableData);
 
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
+            globalTableData = data.data[currentSelectedReport];
+            
+            if (!globalTableData || !Array.isArray(globalTableData)) {
+                throw new Error('No se encontraron resultados');
             }
+
+            console.log(`Búsqueda completada. Se encontraron ${globalTableData.length} resultados.`);
+            realizarBusquedaLocal();
         })
         .catch((error) => {
             console.error('Error en la búsqueda:', error);
@@ -231,152 +235,238 @@ function realizarBusqueda() {
         });
 }
 
-const reportTitles = {
-    "1": "Reporte de Acreditación y Renovación",
-    "2": "Reporte de Cifras de Acreditación",
-    "3": "Reporte de Directorio CE / EI",
-    "4": "Reporte de Intituciones Acreditadas",
-    "5": "Reporte de Intituciones Acreditadas Básico",
-    "6": "Reporte de Logos ECE / OC",
-    "7": "Reporte de Acreditaciones CE / EI",
-    "8": "Reporte de Acreditaciones ECE / OC",
-    "9": "Reporte de Instituciones Acreditadas Básico (Password)",
-    "10": "Reporte de Renovaciones  CE / EI",
-    "11": "Reporte de Renovaciones  ECE / OC",
-    "12": "Reporte de Integral",
-    "13": "Reporte de Soluciones de Evaluación y Certificaciones EC",
-    "14": "Reporte de Verificadores EC / ECE / OC"
+function realizarBusquedaLocal() {
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
+
+    if (!searchTerm) {
+        renderTableRows(globalTableData);
+        return;
+    }
+
+    if (searchTerm.length < 2) return;
+
+    const filteredData = globalTableData.filter(row => {
+        if (searchColumn) {
+            const columnValue = row[searchColumn] !== null && row[searchColumn] !== undefined 
+                ? row[searchColumn].toString() 
+                : '';
+            return exactMatch 
+                ? columnValue === searchTerm 
+                : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+
+        return Object.values(row).some(value => {
+            if (value === null || value === undefined) return false;
+            const stringValue = value.toString();
+            return exactMatch 
+                ? stringValue === searchTerm 
+                : stringValue.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    });
+
+    renderTableRows(filteredData);
 }
 
-function cargarDatos(selectedValue, pagina, registrosPorPagina) {
-   if (!selectedValue || selectedValue === 'Selecciona:') {
-       alert('Por favor, selecciona un tipo de reporte');
-       return;
-   }
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('quickSearchInput');
+    const searchButton = document.getElementById('searchButton');
 
-   const requestId = ++currentRequestId;
-   const reportTitle = reportTitles[selectedValue] || 'Reporte';
-   document.getElementById('procedimientos').textContent = reportTitle;
+    searchInput?.addEventListener('input', realizarBusquedaLocal);
 
-   const elements = {
-       tableHead: document.getElementById('tableHead'),
-       tableBody: document.getElementById('tableBody'),
-       pagination: document.getElementById('pagination'),
-       quickSearch: document.getElementById('quickSearchContainer'),
-       searchColumn: document.getElementById('searchColumnSelect')
-   };
+    searchInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            realizarBusqueda();
+        }
+    });
 
-   elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td class="text-center">
-               <div class="spinner-border text-primary" role="status">
-                   <span class="visually-hidden">Cargando...</span>
-               </div>
-           </td>
-       </tr>`;
-   elements.pagination.innerHTML = '';
-   elements.quickSearch.style.display = 'none';
-   elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+    searchButton?.addEventListener('click', realizarBusqueda);
+});
 
-   const params = new URLSearchParams({
-       procedimientos: selectedValue,
-       page: pagina,
-       pageSize: registrosPorPagina
-   });
-
-   fetch('ProcesoEvaluacion?' + params.toString(), {
-       method: 'GET',
-       headers: { 'Accept': 'application/json' },
-       credentials: 'same-origin'
-   })
-   .then(async response => {
-       if (!response.headers.get('content-type')?.includes('application/json')) {
-           throw new Error('La respuesta del servidor no es JSON válido');
-       }
-       if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-       }
-       return response.json();
-   })
-   .then(data => {
-       if (requestId !== currentRequestId) return;
-       
-       resetTableElements(elements);
-
-       if (!data?.success || !data?.data?.[selectedValue]) {
-           throw new Error('No se encontraron datos para el reporte seleccionado');
-       }
-
-       globalTableData = data.data[selectedValue];
-
-       if (globalTableData.length === 0) {
-           displayNoDataMessage(elements.tableBody);
-           return;
-       }
-
-       const columns = Object.keys(globalTableData[0]);
-       createTableHeader(columns, elements);
-       renderTableRows(globalTableData);
-       elements.quickSearch.style.display = 'flex';
-
-       if (data.totalPages > 1) {
-           generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-       }
-   })
-   .catch(error => {
-       if (requestId !== currentRequestId) return;
-       handleLoadError(error, elements);
-   });
-}
-
-function resetTableElements(elements) {
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = '';
-   elements.pagination.innerHTML = '';
-}
-
-function displayNoDataMessage(tableBody) {
-   tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
-       </tr>`;
-}
-
-function createTableHeader(columns, elements) {
-   const headerRow = document.createElement('tr');
-   columns.forEach(column => {
-       const th = document.createElement('th');
-       th.textContent = column;
-       th.className = 'text-nowrap';
-       headerRow.appendChild(th);
-
-       const option = document.createElement('option');
-       option.value = column;
-       option.textContent = column;
-       elements.searchColumn.appendChild(option);
-   });
-   elements.tableHead.appendChild(headerRow);
-}
+        const reportTitles = {
+            "1": "Reporte de Acreditación y Renovación",
+            "2": "Reporte de Cifras de Acreditación",
+            "3": "Reporte de Directorio CE / EI",
+            "4": "Reporte de Intituciones Acreditadas",
+            "5": "Reporte de Intituciones Acreditadas Básico",
+            "6": "Reporte de Logos ECE / OC",
+            "7": "Reporte de Acreditaciones CE / EI",
+            "8": "Reporte de Acreditaciones ECE / OC",
+            "9": "Reporte de Instituciones Acreditadas Básico (Password)",
+            "10": "Reporte de Renovaciones  CE / EI",
+            "11": "Reporte de Renovaciones  ECE / OC",
+            "12": "Reporte Integral",
+            "13": "Reporte de Soluciones de Evaluación y Certificaciones EC",
+            "14": "Reporte de Verificadores EC / ECE / OC"
+        }
 
 function handleLoadError(error, elements) {
-   console.error('Error al cargar datos:', error);
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center text-danger">
-               <div class="alert alert-danger" role="alert">
-                   <h5 class="alert-heading">Error al cargar los datos</h5>
-                   <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                   <hr>
-                   <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-               </div>
-           </td>
-       </tr>`;
-   elements.quickSearch.style.display = 'none';
-   elements.pagination.innerHTML = '';
+    console.error('Error al cargar los datos:', error);
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error al cargar los datos: ${error.message}
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
+    }
+
+    if (elements.quickSearch) {
+        elements.quickSearch.style.display = 'none';
+    }
 }
+
+      function cargarDatos(selectedValue, pagina, registrosPorPagina) {
+    if (!selectedValue || selectedValue === 'Selecciona:') {
+        alert('Por favor, selecciona un tipo de reporte');
+        return;
+    }
+
+    const requestId = ++currentRequestId;
+    const reportTitle = reportTitles[selectedValue] || 'Reporte';
+    document.getElementById('procedimientos').textContent = reportTitle;
+
+    const elements = {
+        tableHead: document.getElementById('tableHead'),
+        tableBody: document.getElementById('tableBody'),
+        pagination: document.getElementById('pagination'),
+        quickSearch: document.getElementById('quickSearchContainer'),
+        searchColumn: document.getElementById('searchColumnSelect')
+    };
+
+    elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
+    elements.tableBody.innerHTML = `
+        <tr>
+            <td class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </td>
+        </tr>`;
+    elements.pagination.innerHTML = '';
+    elements.quickSearch.style.display = 'none';
+    elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+
+    const params = new URLSearchParams({
+        procedimientos: selectedValue,
+        page: pagina,
+        pageSize: registrosPorPagina
+    });
+
+    fetch('ProcesoEvaluacion?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (requestId !== currentRequestId) return;
+
+        resetTableElements(elements);
+
+        if (!data?.success || !data?.data?.[selectedValue]) {
+            throw new Error('No se encontraron datos para el reporte seleccionado');
+        }
+
+        globalTableData = data.data[selectedValue];
+
+        if (globalTableData.length === 0) {
+            displayNoDataMessage(elements.tableBody);
+            return;
+        }
+
+        updateTableHeader();
+
+        renderTableRows(globalTableData);
+        elements.quickSearch.style.display = 'flex';
+
+        if (data.totalPages > 1) {
+            generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
+        }
+    })
+    .catch(error => {
+        if (requestId !== currentRequestId) return;
+        handleLoadError(error, elements);
+    });
+}
+        
+ function updateTableHeader() {
+    const tableHead = document.getElementById('tableHead');
+    if (!tableHead) {
+        console.error('No se encontró el elemento tableHead');
+        return;
+    }
+
+    const columnOrder = columnOrderMap[currentSelectedReport] || [];
+
+    tableHead.innerHTML = '';
+
+    const headerRow = document.createElement('tr');
+
+    columnOrder.forEach(columnName => {
+        const th = document.createElement('th');
+        th.textContent = columnName;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+    });
+
+    tableHead.appendChild(headerRow);
+}
+
+ function createTableHeader(columns, elements) {
+    const headerRow = document.createElement('tr');
+
+    window.columnOrder = columns;
+    
+    columns.forEach(column => {
+        const th = document.createElement('th');
+        th.textContent = column;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+
+        const option = document.createElement('option');
+        option.value = column;
+        option.textContent = column;
+        elements.searchColumn.appendChild(option);
+    });
+    elements.tableHead.appendChild(headerRow);
+}
+
+const columnOrderMap = {
+    "1": ["Cedula","Siglas","Razón Social","Solicitud","Tipo de Solicitud","Estandar","Estatus de Solicitud","Fecha de Solicitud", "Linea de Captura", "Estatus Linea de Captura"],
+    "2": ["Cédula", "Siglas", "Fecha de Acreditación", "Nombre", "Operativo", "EC Acreditados", "CD Estandar Competencia", "Centros Evaluación", "Evaluadores Independientes"],
+    "3": ["Cedula ECE/OC", "Nombre ECE/OC", "Cedula CE/EI", "Nombre CE/EI", "Direccion", "Colonia", "Codigo Postal", "Localidad", "Municipio", "Estado", "Representante", "Correo Representante", "Telefono Representante", "Contacto 1", "Correo Contacto 1", "Telefono Contacto 1", "Contacto 2", "Correo Contacto 2", "Telefono Contacto 2", "Estandares", "Vigencia"],
+    "4": ["Cédula", "Razón Social", "Siglas / Acronimo", "Pagina Web", "RFC", "Estado Acreditación", "Nombre Representante Legal", "Cargo Representante", "Correo Representante", "Telefono Representante", "Celular Representante"], 
+    "5": ["FL PRESTADOR SERVICIOS", "Cédula", "Fecha Acreditación", "Prestador Servicios", "Siglas", "Tipo Prestador", "Estado Acreditación Inicial", "Estado Acreditación", "Estado"], 
+    "6": ["Imagen", "Siglas", "Nombre", "Cédula", "Tiene Imagen"], 
+    "7": ["Cédula ECE/OC", "Razón Social ECE/OC", "Cédula CE/EI", "Nombre Completo Razón Social CE", "Código", "Título EC", "Fecha Final Vigencia", "Estado", "Entidad Federativa"], 
+    "8": ["No. Solicitud Acred. EC/OC", "Cédula", "Siglas", "Razón Social", "Estandar de Competencia", "Titulo del Estandar", "Vigencia Inicial", "Vigencia Final", "Estado", "Entidad Federativa"], 
+    "9": ["No. Prest. Serv.", "CÉDULA", "Razón social", "Siglas", "Usuario", "Contraseña", "Nombre", "Primer Apellido", "Segundo Apellido"], 
+    "10": ["Cédula ECE/OC", "Nombre ECE/OC", "Cédula CE/EI", "Nombre CE/EI", "Código", "Título", "Inicio vigencia", "Fin vigencia", "Fecha de Ultima Renovacion"], 
+    "11": ["Cédula", "Nombre", "Código", "Título", "Inicio vigencia", "Fin Vigencia", "Tipo acreditación"], 
+    "12": ["Cédula Certificador", "Nombre", "Operativo", "Total E.C."], 
+    "13": ["NOMBRE ECE/OC", "TIPO PRESTADOR SERVICIOS", "NOMBRE CENTRO EVALUADOR", "CODIGO EC", "TITULO EC", "ESTATUS ECE/OC", "ESTATUS CE"], 
+    "14": ["Cédula", "Siglas", "Nombre", "Código", "Vigencia Acreditacion", "Título", "CURP", "Nombre Verificador", "Estatus"], 
+};
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
@@ -398,56 +488,52 @@ function renderTableRows(data) {
         return;
     }
 
-    tableBody.innerHTML = '';
-    
+    tableBody.innerHTML = ''; 
+
     try {
+       
+        const columnOrder = columnOrderMap[currentSelectedReport] || Object.keys(data[0]);
+
         data.forEach(row => {
             const tr = document.createElement('tr');
-            
-            Object.entries(row).forEach(([key, value]) => {
+
+            columnOrder.forEach(columnName => {
                 const td = document.createElement('td');
-                
-                if (key.toLowerCase() === 'imagen') {
+                const value = row[columnName];
+
+                if (columnName.toLowerCase() === 'imagen') {
                     if (value) {
                         try {
                             let imageSource;
-                            
+
                             if (Array.isArray(value)) {
-                                
                                 const uint8Array = new Uint8Array(value);
-                              
-                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                              
+                                const blob = new Blob([uint8Array], { type: 'image/jpeg' }); 
                                 imageSource = URL.createObjectURL(blob);
                             } else if (typeof value === 'string') {
-                               
                                 imageSource = value;
                             }
-                            
+
                             if (imageSource) {
                                 const img = document.createElement('img');
                                 img.src = imageSource;
                                 img.alt = 'Imagen';
-                                img.style.maxWidth = '400px';
-                                img.style.maxHeight = '400px';
+                                img.style.maxWidth = '300px';
+                                img.style.maxHeight = '300px';
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
-                                
-                                
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
                                 };
-                                
                                 img.onload = () => {
                                     if (Array.isArray(value)) {
                                         URL.revokeObjectURL(imageSource);
                                     }
                                 };
-                                
                                 img.onclick = () => createImageModal(imageSource);
-                                
-                                td.appendChild(img);
+
+                                td.appendChild(img); 
                             } else {
                                 td.textContent = 'Formato de imagen no válido';
                             }
@@ -456,16 +542,17 @@ function renderTableRows(data) {
                             td.textContent = 'Error al procesar imagen';
                         }
                     } else {
-                        td.textContent = 'Sin imagen';
+                        td.textContent = 'Sin imagen'; 
                     }
                 } else {
-                    td.textContent = value ?? ''; 
+                    
+                    td.textContent = value ?? '';
                 }
-                
-                tr.appendChild(td);
+
+                tr.appendChild(td); 
             });
-            
-            tableBody.appendChild(tr);
+
+            tableBody.appendChild(tr); 
         });
     } catch (error) {
         console.error('Error al renderizar tabla:', error);
@@ -481,222 +568,236 @@ function renderTableRows(data) {
     }
 }
 
+function resetTableElements(elements) {
+    if (!elements) {
+        console.error('No se proporcionaron elementos para resetear');
+        return;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = '';
+    }
+
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
+    }
+}
+
 document.getElementById('quickSearchInput').addEventListener('input', function() {
-    const searchTerm = this.value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+            const searchTerm = this.value.trim();
+            const searchColumn = document.getElementById('searchColumnSelect').value;
+            const exactMatch = document.getElementById('exactMatchCheckbox').checked;
 
-    if (!searchTerm) {
-        renderTableRows(globalTableData);
-        return;
-    }
+            if (!searchTerm) {
+                renderTableRows(globalTableData);
+                return;
+            }
 
-    const filteredData = globalTableData.filter(row => {
-        if (searchColumn) {
-            const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
-            return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+            const filteredData = globalTableData.filter(row => {
+                if (searchColumn) {
+                    const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
+                    return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+                }
+
+                return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
+            });
+
+            renderTableRows(filteredData);
+        });
+
+        function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            if (currentPage > 1) {
+                const prevButton = crearBotonPaginacion('Anterior', () => {
+                    cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
+                }, false, 'bg-danger', 'text-white');
+                paginationDiv.appendChild(prevButton);
+            }
+
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                const firstPageButton = crearBotonPaginacion('1', () => {
+                    cargarDatos(selectedValue, 1, registrosPorPagina);
+                }, false, 'bg-primary', 'text-white');
+                paginationDiv.appendChild(firstPageButton);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    paginationDiv.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = crearBotonPaginacion(i.toString(), () => {
+                    cargarDatos(selectedValue, i, registrosPorPagina);
+                }, i === currentPage, 'bg-primary', 'text-white');
+
+                paginationDiv.appendChild(pageButton);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    paginationDiv.appendChild(ellipsis);
+                }
+
+                const lastPageButton = crearBotonPaginacion(totalPages.toString(), () => {
+                    cargarDatos(selectedValue, totalPages, registrosPorPagina);
+                }, false, 'bg-primary', 'text-white');
+
+                paginationDiv.appendChild(lastPageButton);
+            }
+
+            if (currentPage < totalPages) {
+                const nextButton = crearBotonPaginacion('Siguiente', () => {
+                    cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
+                }, false, 'bg-danger', 'text-white');
+                paginationDiv.appendChild(nextButton);
+            }
         }
 
-        return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
-    });
+        function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
+            const button = document.createElement('button');
+            button.textContent = texto;
+            button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
 
-    renderTableRows(filteredData);
-});
+            if (esActual) {
+                button.disabled = true;
+                button.classList.add('active');
+            }
 
-function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
-    const paginationDiv = document.getElementById('pagination');
-    paginationDiv.innerHTML = '';
-
-    if (currentPage > 1) {
-        const prevButton = crearBotonPaginacion('Anterior', () => {
-            cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
-        }, false, 'bg-danger', 'text-white');
-        paginationDiv.appendChild(prevButton);
-    }
-
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    if (startPage > 1) {
-        const firstPageButton = crearBotonPaginacion('1', () => {
-            cargarDatos(selectedValue, 1, registrosPorPagina);
-        }, false, 'bg-primary', 'text-white');
-        paginationDiv.appendChild(firstPageButton);
-
-        if (startPage > 2) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
-        }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = crearBotonPaginacion(i.toString(), () => {
-            cargarDatos(selectedValue, i, registrosPorPagina);
-        }, i === currentPage, 'bg-primary', 'text-white');
-
-        paginationDiv.appendChild(pageButton);
-    }
-
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
+            button.addEventListener('click', clickHandler);
+            return button;
         }
 
-        const lastPageButton = crearBotonPaginacion(totalPages.toString(), () => {
-            cargarDatos(selectedValue, totalPages, registrosPorPagina);
-        }, false, 'bg-primary', 'text-white');
+        function descargarReporte() {
+            const selectElement = document.getElementById('seleccion');
+            const selectedValue = selectElement.value;
 
-        paginationDiv.appendChild(lastPageButton);
-    }
+            if (!selectedValue || selectedValue === 'Selecciona:') {
+                alert('Por favor, seleccione un tipo de reporte antes de descargar');
+                return;
+            }
 
-    if (currentPage < totalPages) {
-        const nextButton = crearBotonPaginacion('Siguiente', () => {
-            cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
-        }, false, 'bg-danger', 'text-white');
-        paginationDiv.appendChild(nextButton);
-    }
-}
+            const botonDescargar = document.getElementById('descargarSp');
+            botonDescargar.disabled = true;
+            botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
-function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
-    const button = document.createElement('button');
-    button.textContent = texto;
-    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
+            const nombreReporte = {
+            };
 
-    if (esActual) {
-        button.disabled = true;
-        button.classList.add('active');
-    }
+            const reportName = nombreReporte[selectedValue] || "Reporte_Desconocido";
+            const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
-    button.addEventListener('click', clickHandler);
-    return button;
-}
+            const params = new URLSearchParams();
+            params.append('formato', 'excel');
+            params.append('procedimientos', selectedValue);
+            params.append('nombreReporte', reportName);
 
-function descargarReporte() {
-    const selectElement = document.getElementById('seleccion');
-    const selectedValue = selectElement.value;
+            console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, seleccione un tipo de reporte antes de descargar');
-        return;
-    }
+            fetch('ProcesoEvaluacion?' + params.toString(), {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Cache-Control': 'no-cache'
+                }
+            })
+            .then(response => {
+                console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
+                console.log('Status:', response.status);
+                
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(text || `Error del servidor: ${response.status}`);
+                    });
+                }
 
-    const botonDescargar = document.getElementById('descargarSp');
-    botonDescargar.disabled = true;
-    botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
+                const contentType = response.headers.get('content-type');
+                console.log('Content-Type:', contentType);
+                
+                if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                    console.error('Content-Type incorrecto:', contentType);
+                    return response.text().then(text => {
+                        console.log('Contenido de respuesta:', text);
+                        throw new Error('El servidor no devolvió un archivo Excel válido');
+                    });
+                }
+                
+                return response.blob();
+            })
+            .then(blob => {
+                console.log('Tamaño del blob:', blob.size, 'bytes');
+                console.log('Tipo del blob:', blob.type);
 
-    const reportNames = {
-        "1": "Acreditaciones_y_Renovaciones",
-        "2": "ReporteConSumaMarca",
-        "3": "CertificadosMarca_X_Entidad_EC_OC"
-    };
+                if (blob.size === 0) {
+                    throw new Error('El archivo generado está vacío');
+                }
 
-    const reportName = reportNames[selectedValue] || "Reporte_Desconocido";
-    const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const fileName = `${reportName}_${fechaActual}.xlsx`;
+                
+                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                    window.navigator.msSaveOrOpenBlob(blob, fileName);
+                    return;
+                }
 
-    const params = new URLSearchParams();
-    params.append('formato', 'excel');
-    params.append('procedimientos', selectedValue);
-    params.append('nombreReporte', reportName);
-
-    console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
-
-    fetch('ProcesoEvaluacion?' + params.toString(), {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Cache-Control': 'no-cache'
-        }
-    })
-    .then(response => {
-        console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
-        console.log('Status:', response.status);
-        
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error(text || `Error del servidor: ${response.status}`);
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+            })
+            .catch(error => {
+                console.error('Error detallado:', error);
+                alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
+            })
+            .finally(() => {
+                botonDescargar.disabled = false;
+                botonDescargar.innerHTML = 'Descargar Información';
             });
         }
 
-        const contentType = response.headers.get('content-type');
-        console.log('Content-Type:', contentType);
-        
-        if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            console.error('Content-Type incorrecto:', contentType);
-            return response.text().then(text => {
-                console.log('Contenido de respuesta:', text);
-                throw new Error('El servidor no devolvió un archivo Excel válido');
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
+
+            document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    realizarBusqueda();
+                }
             });
+
+            document.getElementById('seleccion').addEventListener('change', function() {
+                const selectedValue = this.value;
+                currentSelectedReport = selectedValue;
+                cargarDatos(selectedValue, 1, 30);
+            });
+
+            document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+        });
+
+        const initialSelectedValue = document.getElementById('seleccion').value;
+        if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
+            currentSelectedReport = initialSelectedValue;
+            cargarDatos(initialSelectedValue, 1, 30);
         }
-        
-        return response.blob();
-    })
-    .then(blob => {
-        console.log('Tamaño del blob:', blob.size, 'bytes');
-        console.log('Tipo del blob:', blob.type);
-
-        if (blob.size === 0) {
-            throw new Error('El archivo generado está vacío');
-        }
-
-        const fileName = `${reportName}_${fechaActual}.xlsx`;
- 
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, fileName);
-            return;
-        }
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
-    })
-    .catch(error => {
-        console.error('Error detallado:', error);
-        alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
-    })
-    .finally(() => {
-        botonDescargar.disabled = false;
-        botonDescargar.innerHTML = 'Descargar Información';
-    });
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-
-    document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
-
-    document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            realizarBusqueda();
-        }
-    });
-
-    document.getElementById('seleccion').addEventListener('change', function() {
-        const selectedValue = this.value;
-        currentSelectedReport = selectedValue;
-        cargarDatos(selectedValue, 1, 30);
-    });
-
-    document.getElementById('descargarSp').addEventListener('click', descargarReporte);
-});
-
-const initialSelectedValue = document.getElementById('seleccion').value;
-if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
-    currentSelectedReport = initialSelectedValue;
-    cargarDatos(initialSelectedValue, 1, 30);
-}
     </script>
 
 </body>

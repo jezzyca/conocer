@@ -135,6 +135,16 @@
         <servlet-name>descargarReporte</servlet-name>
         <url-pattern>/descargarReporte</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>busquedaPW</servlet-name>
+        <servlet-class>busqueda.busquedaPW</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>busquedaPW</servlet-name>
+        <url-pattern>/busquedaPW</url-pattern>
+    </servlet-mapping>
+    
     <!-- Configuración de la sesión -->
     <session-config>
         <session-timeout>30</session-timeout>

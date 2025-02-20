@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class ConexionGeneral {
     private final String driver = "com.mysql.cj.jdbc.Driver";
-    private final String url = "jdbc:mysql://10.1.2.183:3306/DB_SI_06?useSSL=false";
+    private final String url = "jdbc:mysql://172.16.6.38:3306/DB_SI_06?useSSL=false";
     private final String uss = "appEvaluacion";
     private final String contra = "E74p3!vD364";
     

@@ -315,7 +315,6 @@ public class ReportesSII extends HttpServlet {
         return datos;
     }
 
-    // [Resto de métodos auxiliares sin cambios...]
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
         response.reset();
@@ -381,56 +380,60 @@ public class ReportesSII extends HttpServlet {
 
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
-            case "1":
-                return "{CALL sp_Rep_AcreditacionesyRenovaciones()}";
+            case "1": 
+                return "{CALL sp_Rep_Directorio_CEEI()}";
             case "2":
-                return "{CALL sp_REP_ReporteConSumaMarca()}";
+                return "{CALL sp_Rep_AcreditacionesyRenovaciones()}";
             case "3":
-                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_EC_OC()}";
+                return "{CALL sp_REP_ReporteConSumaMarca()}";
             case "4":
-                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_FEDERATIVA()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_EC_OC()}";
             case "5":
-                return "{CALL SP_CERTIFICADOSMARCA_X_EXAMEN_GRID()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_ENTIDAD_FEDERATIVA()}";
             case "6":
-                return "{CALL sp_REP_CERTIFICADOS_EMITIDOS()}";
+                return "{CALL SP_CERTIFICADOSMARCA_X_EXAMEN_GRID()}";
             case "7":
-                return "{CALL sp_REP_CIFRAS_ACREDITACION()}";
+                return "{CALL sp_REP_CERTIFICADOS_EMITIDOS()}";
             case "8":
-                return "{CALL sp_REP_CINTILLOS_EC()}";   
+                return "{CALL sp_REP_CIFRAS_ACREDITACION()}";
             case "9":
-                return "{CALL spRepDescargaInstrumentoEvaluacion()}";
+                return "{CALL sp_REP_CINTILLOS_EC()}";   
             case "10":
-                return "{CALL sp_REP_Directorio_Ampliado_Enlaces()}";
+                return "{CALL spRepDescargaInstrumentoEvaluacion()}";
             case "11":
-                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
+                return "{CALL sp_REP_Directorio_Ampliado_Enlaces()}";
             case "12":
-                return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
+                return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
             case "13":
-                return "{CALL sp_REP_Inst_Educativa()}"; 
+                return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
             case "14":
-                return "{CALL sp_REP_LOGO_ECE_OC()}";  
+                return "{CALL sp_REP_Inst_Educativa()}"; 
             case "15":
-                return "{CALL sp_REP_LOTES_CERTIFICADOS()}";
+                return "{CALL sp_REP_LOGO_ECE_OC()}";  
             case "16":
-                return "{CALL sp_REP_PERSONAS_CERTIFICADOS()}";
+                return "{CALL sp_REP_LOTES_CERTIFICADOS()}";
             case "17":
-                return "{CALL sp_REP_ACREDITACIONES_CE_EI()}";
+                return "{CALL sp_REP_PERSONAS_CERTIFICADOS()}";
             case "18":
-                return "{CALL sp_REP_ACREDITACIONES_ECE_OC()}";  
+                return "{CALL sp_REP_ACREDITACIONES_CE_EI()}";
             case "19":
-                return "{CALL sp_REP_Inst_Empresarial()}";
+                return "{CALL sp_REP_ACREDITACIONES_ECE_OC()}";  
             case "20":
-                return "{CALL sp_REP_RENOVACIONES_CE_EI()}";
+                return "{CALL sp_REP_Inst_Empresarial()}";
             case "21":
-                return "{CALL sp_REP_RENOVACIONES_ECE_OC()}";
+                return "{CALL sp_REP_RENOVACIONES_CE_EI()}";
             case "22":
-                return "{CALL sp_REP_INTEGRAL()}";
+                return "{CALL sp_REP_RENOVACIONES_ECE_OC()}";
             case "23":
-                return "{CALL sp_REP_SECTOR_PRODUCTIVO()}";
+                return "{CALL sp_REP_INTEGRAL()}";
             case "24":
-                return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
+                return "{CALL sp_REP_SECTOR_PRODUCTIVO()}";
             case "25":
+                return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
+            case "26":
                 return "{CALL sp_REP_VERFICADORES_EC_ECE_OC()}";
+            case "27":
+                return "{CALL sp_Reporte_Solicitud_Cert_Finanzas()}";  
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }

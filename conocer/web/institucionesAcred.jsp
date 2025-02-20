@@ -46,7 +46,7 @@
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
-            <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
+            <div class="col-3 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
                 <div class="media-body">
                     <h6 class="mb-0 usuario-nombre small">
@@ -74,12 +74,10 @@
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
     </div>
-    <div class="col-md-2 col-12 mb-2">
-        <select id="searchColumnSelect" class="form-select">
-            <option value="">Buscar en todas las columnas</option>
+    <div class="col-md-1 col-12 mb-1">
+        <select id="searchColumnSelect" class="form-select hide">
+            <option value=""></option>
         </select>
-    </div>
-    <div class="col-md-2 col-12 mb-2 d-flex align-items-center">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
             <label class="form-check-label" for="exactMatchCheckbox"></label>
@@ -91,7 +89,7 @@
         </button>
     </div>
 </div>
-
+                    
         <div class="table-responsive mt-3">
             <h6 class="" id="procedimientos"></h6>
             <table class="table table-striped table-bordered table-hover">
@@ -139,16 +137,22 @@ document.getElementById('seleccion').addEventListener('change', function () {
     cargarDatos(selectedValue, 1, 30);
 });
 
+function getSearchParams() {
+    return {
+        searchTerm: document.getElementById('quickSearchInput').value.trim(),
+        searchColumn: document.getElementById('searchColumnSelect').value,
+        exactMatch: document.getElementById('exactMatchCheckbox').checked
+    };
+}
+
 function realizarBusqueda() {
-    const searchTerm = document.getElementById('quickSearchInput').value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
 
     if (!currentSelectedReport) {
         alert('Por favor, seleccione un reporte primero');
         return;
     }
-
+  
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -156,15 +160,15 @@ function realizarBusqueda() {
 
     const params = new URLSearchParams({
         procedimientos: currentSelectedReport,
-        searchTerm: searchTerm,
-        searchColumn: searchColumn,
-        exactMatch: exactMatch,
+        searchTerm,
+        searchColumn,
+        exactMatch,
         fullSearch: 'true', 
         allRecords: 'true', 
         page: 1,
-        pageSize: 1000000,
+        pageSize: 100,
     });
-
+    
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -177,20 +181,31 @@ function realizarBusqueda() {
 
     fetch('InstitucionesAcred?' + params.toString(), {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
+        headers: { 
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+        },
         credentials: 'same-origin',
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
         .then((data) => {
             if (!data.success) {
                 throw new Error(data.message || 'Error al realizar la búsqueda');
             }
-            globalTableData = data.data[currentSelectedReport];
-            renderTableRows(globalTableData);
 
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
+            globalTableData = data.data[currentSelectedReport];
+            
+            if (!globalTableData || !Array.isArray(globalTableData)) {
+                throw new Error('No se encontraron resultados');
             }
+
+            console.log(`Búsqueda completada. Se encontraron ${globalTableData.length} resultados.`);
+            realizarBusquedaLocal();
         })
         .catch((error) => {
             console.error('Error en la búsqueda:', error);
@@ -205,142 +220,215 @@ function realizarBusqueda() {
         });
 }
 
+function realizarBusquedaLocal() {
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
+
+    if (!searchTerm) {
+        renderTableRows(globalTableData);
+        return;
+    }
+
+    if (searchTerm.length < 2) return;
+
+    const filteredData = globalTableData.filter(row => {
+        if (searchColumn) {
+            const columnValue = row[searchColumn] !== null && row[searchColumn] !== undefined 
+                ? row[searchColumn].toString() 
+                : '';
+            return exactMatch 
+                ? columnValue === searchTerm 
+                : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+
+        return Object.values(row).some(value => {
+            if (value === null || value === undefined) return false;
+            const stringValue = value.toString();
+            return exactMatch 
+                ? stringValue === searchTerm 
+                : stringValue.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    });
+
+    renderTableRows(filteredData);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('quickSearchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    searchInput?.addEventListener('input', realizarBusquedaLocal);
+
+    searchInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            realizarBusqueda();
+        }
+    });
+
+    searchButton?.addEventListener('click', realizarBusqueda);
+});
+
 const reportTitles = {
     "1": "Reporte de Instituciones Acreditadas",
     "2": "Reporte de Instituciones Acreditadas Básico"
 }
 
 
-function cargarDatos(selectedValue, pagina, registrosPorPagina) {
-   if (!selectedValue || selectedValue === 'Selecciona:') {
-       alert('Por favor, selecciona un tipo de reporte');
-       return;
-   }
-
-   const requestId = ++currentRequestId;
-   const reportTitle = reportTitles[selectedValue] || 'Reporte';
-   document.getElementById('procedimientos').textContent = reportTitle;
-
-   const elements = {
-       tableHead: document.getElementById('tableHead'),
-       tableBody: document.getElementById('tableBody'),
-       pagination: document.getElementById('pagination'),
-       quickSearch: document.getElementById('quickSearchContainer'),
-       searchColumn: document.getElementById('searchColumnSelect')
-   };
-
-   elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td class="text-center">
-               <div class="spinner-border text-primary" role="status">
-                   <span class="visually-hidden">Cargando...</span>
-               </div>
-           </td>
-       </tr>`;
-   elements.pagination.innerHTML = '';
-   elements.quickSearch.style.display = 'none';
-   elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
-
-   const params = new URLSearchParams({
-       procedimientos: selectedValue,
-       page: pagina,
-       pageSize: registrosPorPagina
-   });
-
-   fetch('InstitucionesAcred?' + params.toString(), {
-       method: 'GET',
-       headers: { 'Accept': 'application/json' },
-       credentials: 'same-origin'
-   })
-   .then(async response => {
-       if (!response.headers.get('content-type')?.includes('application/json')) {
-           throw new Error('La respuesta del servidor no es JSON válido');
-       }
-       if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-       }
-       return response.json();
-   })
-   .then(data => {
-       if (requestId !== currentRequestId) return;
-       
-       resetTableElements(elements);
-
-       if (!data?.success || !data?.data?.[selectedValue]) {
-           throw new Error('No se encontraron datos para el reporte seleccionado');
-       }
-
-       globalTableData = data.data[selectedValue];
-
-       if (globalTableData.length === 0) {
-           displayNoDataMessage(elements.tableBody);
-           return;
-       }
-
-       const columns = Object.keys(globalTableData[0]);
-       createTableHeader(columns, elements);
-       renderTableRows(globalTableData);
-       elements.quickSearch.style.display = 'flex';
-
-       if (data.totalPages > 1) {
-           generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-       }
-   })
-   .catch(error => {
-       if (requestId !== currentRequestId) return;
-       handleLoadError(error, elements);
-   });
-}
-
-function resetTableElements(elements) {
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = '';
-   elements.pagination.innerHTML = '';
-}
-
-function displayNoDataMessage(tableBody) {
-   tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
-       </tr>`;
-}
-
-function createTableHeader(columns, elements) {
-   const headerRow = document.createElement('tr');
-   columns.forEach(column => {
-       const th = document.createElement('th');
-       th.textContent = column;
-       th.className = 'text-nowrap';
-       headerRow.appendChild(th);
-
-       const option = document.createElement('option');
-       option.value = column;
-       option.textContent = column;
-       elements.searchColumn.appendChild(option);
-   });
-   elements.tableHead.appendChild(headerRow);
-}
-
 function handleLoadError(error, elements) {
-   console.error('Error al cargar datos:', error);
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center text-danger">
-               <div class="alert alert-danger" role="alert">
-                   <h5 class="alert-heading">Error al cargar los datos</h5>
-                   <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                   <hr>
-                   <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-               </div>
-           </td>
-       </tr>`;
-   elements.quickSearch.style.display = 'none';
-   elements.pagination.innerHTML = '';
+    console.error('Error al cargar los datos:', error);
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error al cargar los datos: ${error.message}
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
+    }
+
+    if (elements.quickSearch) {
+        elements.quickSearch.style.display = 'none';
+    }
 }
 
+      function cargarDatos(selectedValue, pagina, registrosPorPagina) {
+    if (!selectedValue || selectedValue === 'Selecciona:') {
+        alert('Por favor, selecciona un tipo de reporte');
+        return;
+    }
+
+    const requestId = ++currentRequestId;
+    const reportTitle = reportTitles[selectedValue] || 'Reporte';
+    document.getElementById('procedimientos').textContent = reportTitle;
+
+    const elements = {
+        tableHead: document.getElementById('tableHead'),
+        tableBody: document.getElementById('tableBody'),
+        pagination: document.getElementById('pagination'),
+        quickSearch: document.getElementById('quickSearchContainer'),
+        searchColumn: document.getElementById('searchColumnSelect')
+    };
+
+    elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
+    elements.tableBody.innerHTML = `
+        <tr>
+            <td class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </td>
+        </tr>`;
+    elements.pagination.innerHTML = '';
+    elements.quickSearch.style.display = 'none';
+    elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+
+    const params = new URLSearchParams({
+        procedimientos: selectedValue,
+        page: pagina,
+        pageSize: registrosPorPagina
+    });
+
+    fetch('InstitucionesAcred?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (requestId !== currentRequestId) return;
+
+        resetTableElements(elements);
+
+        if (!data?.success || !data?.data?.[selectedValue]) {
+            throw new Error('No se encontraron datos para el reporte seleccionado');
+        }
+
+        globalTableData = data.data[selectedValue];
+
+        if (globalTableData.length === 0) {
+            displayNoDataMessage(elements.tableBody);
+            return;
+        }
+
+        updateTableHeader();
+
+        renderTableRows(globalTableData);
+        elements.quickSearch.style.display = 'flex';
+
+        if (data.totalPages > 1) {
+            generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
+        }
+    })
+    .catch(error => {
+        if (requestId !== currentRequestId) return;
+        handleLoadError(error, elements);
+    });
+}
+        
+ function updateTableHeader() {
+    const tableHead = document.getElementById('tableHead');
+    if (!tableHead) {
+        console.error('No se encontró el elemento tableHead');
+        return;
+    }
+
+    const columnOrder = columnOrderMap[currentSelectedReport] || [];
+
+    tableHead.innerHTML = '';
+
+    const headerRow = document.createElement('tr');
+
+    columnOrder.forEach(columnName => {
+        const th = document.createElement('th');
+        th.textContent = columnName;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+    });
+
+    tableHead.appendChild(headerRow);
+}
+
+ function createTableHeader(columns, elements) {
+    const headerRow = document.createElement('tr');
+
+    window.columnOrder = columns;
+    
+    columns.forEach(column => {
+        const th = document.createElement('th');
+        th.textContent = column;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+
+        const option = document.createElement('option');
+        option.value = column;
+        option.textContent = column;
+        elements.searchColumn.appendChild(option);
+    });
+    elements.tableHead.appendChild(headerRow);
+}
+
+const columnOrderMap = {
+    "1": ["Cédula", "Razón Social", "Siglas / Acronimo", "Pagina Web", "RFC", "Estado Acreditación", "Nombre Representante Legal", "Cargo Representante", "Correo Representante", "Telefono Representante", "Celular Representante"], 
+    "2": ["FL PRESTADOR SERVICIOS", "Cédula", "Fecha Acreditación", "Prestador Servicios", "Siglas", "Tipo Prestador", "Estado Acreditación Inicial", "Estado Acreditación", "Estado"], 
+};
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
@@ -363,64 +451,27 @@ function renderTableRows(data) {
     }
 
     tableBody.innerHTML = '';
-    
+
     try {
+
+        const columnOrder = columnOrderMap[currentSelectedReport] || Object.keys(data[0]);
+
         data.forEach(row => {
             const tr = document.createElement('tr');
-            
-            Object.entries(row).forEach(([key, value]) => {
-                const td = document.createElement('td');
-                
-                if (key.toLowerCase() === 'imagen') {
-                    if (value) {
-                        try {
-                            let imageSource;
 
-                            if (Array.isArray(value)) {
-                                const uint8Array = new Uint8Array(value);
-                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                                imageSource = URL.createObjectURL(blob);
-                            } else if (typeof value === 'string') {
-                                imageSource = value;
-                            }
-                            
-                            if (imageSource) {
-                                const img = document.createElement('img');
-                                img.src = imageSource;
-                                img.alt = 'Imagen';
-                                img.style.maxWidth = '400px';
-                                img.style.maxHeight = '400px';
-                                img.style.objectFit = 'contain';
-                                img.className = 'img-fluid cursor-pointer';
-                                img.onerror = () => {
-                                    console.error('Error al cargar la imagen');
-                                    td.textContent = 'No tiene imagen';
-                                };
-                                img.onload = () => {
-                                    if (Array.isArray(value)) {
-                                        URL.revokeObjectURL(imageSource);
-                                    }
-                                };
-                                img.onclick = () => createImageModal(imageSource);
-                                
-                                td.appendChild(img);
-                            } else {
-                                td.textContent = 'Formato de imagen no válido';
-                            }
-                        } catch (error) {
-                            console.error('Error al procesar imagen:', error);
-                            td.textContent = 'Error al procesar imagen';
-                        }
-                    } else {
-                        td.textContent = 'Sin imagen';
-                    }
+            columnOrder.forEach(columnName => {
+                const td = document.createElement('td');
+                const value = row[columnName];
+
+                if (columnName.toLowerCase() === 'imagen') {
+
                 } else {
-                    td.textContent = value ?? ''; 
+                    td.textContent = value ?? '';
                 }
-                
+
                 tr.appendChild(td);
             });
-            
+
             tableBody.appendChild(tr);
         });
     } catch (error) {
@@ -434,6 +485,25 @@ function renderTableRows(data) {
                     </div>
                 </td>
             </tr>`;
+    }
+}
+
+function resetTableElements(elements) {
+    if (!elements) {
+        console.error('No se proporcionaron elementos para resetear');
+        return;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = '';
+    }
+
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
     }
 }
 
@@ -530,6 +600,20 @@ function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = '
     return button;
 }
 
+function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
+    const button = document.createElement('button');
+    button.textContent = texto;
+    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
+
+    if (esActual) {
+        button.disabled = true;
+        button.classList.add('active');
+    }
+
+    button.addEventListener('click', clickHandler);
+    return button;
+}
+
 function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
     const selectedValue = selectElement.value;
@@ -543,13 +627,13 @@ function descargarReporte() {
     botonDescargar.disabled = true;
     botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
-    const reportNames = {
+    const nombreReporte = {
         "1": "Acreditaciones_y_Renovaciones",
         "2": "ReporteConSumaMarca",
         "3": "CertificadosMarca_X_Entidad_EC_OC"
     };
 
-    const reportName = reportNames[selectedValue] || "Reporte_Desconocido";
+    const reportName = nombreReporte[selectedValue] || "Reporte_Desconocido";
     const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
     const params = new URLSearchParams();
@@ -600,7 +684,7 @@ function descargarReporte() {
         }
 
         const fileName = `${reportName}_${fechaActual}.xlsx`;
-
+        
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, fileName);
             return;
@@ -627,6 +711,7 @@ function descargarReporte() {
         botonDescargar.innerHTML = 'Descargar Información';
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     

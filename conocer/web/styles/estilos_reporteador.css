@@ -623,4 +623,14 @@ h2{
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-            
+.btn-outline-danger {
+    width: 30px !important; /* Tamaño del botón */
+    height: 30px !important;
+    padding: 5px !important;
+    border-radius: 30% !important; /* Hace que el botón sea circular */
+}
+
+.image-button {
+    width: 25px!important; /* Tamaño de la imagen dentro del botón */
+    height: auto !important;
+}

@@ -94,12 +94,10 @@
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
     </div>
-    <div class="col-md-2 col-12 mb-2">
-        <select id="searchColumnSelect" class="form-select">
-            <option value="">Buscar en todas las columnas</option>
+    <div class="col-md-1 col-12 mb-1">
+        <select id="searchColumnSelect" class="form-select hide">
+            <option value=""></option>
         </select>
-    </div>
-    <div class="col-md-2 col-12 mb-2 d-flex align-items-center">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="exactMatchCheckbox">
             <label class="form-check-label" for="exactMatchCheckbox"></label>
@@ -160,16 +158,22 @@ document.getElementById('seleccion').addEventListener('change', function () {
     cargarDatos(selectedValue, 1, 30);
 });
 
+function getSearchParams() {
+    return {
+        searchTerm: document.getElementById('quickSearchInput').value.trim(),
+        searchColumn: document.getElementById('searchColumnSelect').value,
+        exactMatch: document.getElementById('exactMatchCheckbox').checked
+    };
+}
+
 function realizarBusqueda() {
-    const searchTerm = document.getElementById('quickSearchInput').value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
 
     if (!currentSelectedReport) {
         alert('Por favor, seleccione un reporte primero');
         return;
     }
-
+  
     if (!searchTerm) {
         cargarDatos(currentSelectedReport, 1, 30);
         return;
@@ -177,15 +181,15 @@ function realizarBusqueda() {
 
     const params = new URLSearchParams({
         procedimientos: currentSelectedReport,
-        searchTerm: searchTerm,
-        searchColumn: searchColumn,
-        exactMatch: exactMatch,
+        searchTerm,
+        searchColumn,
+        exactMatch,
         fullSearch: 'true', 
-        allRecords: 'true',
+        allRecords: 'true', 
         page: 1,
-        pageSize: 1000000, 
+        pageSize: 100,
     });
-
+    
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
         <tr>
@@ -198,20 +202,31 @@ function realizarBusqueda() {
 
     fetch('ReportesCertificados?' + params.toString(), {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
+        headers: { 
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+        },
         credentials: 'same-origin',
     })
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
         .then((data) => {
             if (!data.success) {
                 throw new Error(data.message || 'Error al realizar la búsqueda');
             }
-            globalTableData = data.data[currentSelectedReport];
-            renderTableRows(globalTableData);
 
-            if (data.totalPages && data.totalPages > 1) {
-                generarPaginacion(data.totalPages, 1, currentSelectedReport, 30);
+            globalTableData = data.data[currentSelectedReport];
+            
+            if (!globalTableData || !Array.isArray(globalTableData)) {
+                throw new Error('No se encontraron resultados');
             }
+
+            console.log(`Búsqueda completada. Se encontraron ${globalTableData.length} resultados.`);
+            realizarBusquedaLocal();
         })
         .catch((error) => {
             console.error('Error en la búsqueda:', error);
@@ -225,6 +240,53 @@ function realizarBusqueda() {
                 </tr>`;
         });
 }
+
+function realizarBusquedaLocal() {
+    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
+
+    if (!searchTerm) {
+        renderTableRows(globalTableData);
+        return;
+    }
+
+    if (searchTerm.length < 2) return;
+
+    const filteredData = globalTableData.filter(row => {
+        if (searchColumn) {
+            const columnValue = row[searchColumn] !== null && row[searchColumn] !== undefined 
+                ? row[searchColumn].toString() 
+                : '';
+            return exactMatch 
+                ? columnValue === searchTerm 
+                : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+
+        return Object.values(row).some(value => {
+            if (value === null || value === undefined) return false;
+            const stringValue = value.toString();
+            return exactMatch 
+                ? stringValue === searchTerm 
+                : stringValue.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    });
+
+    renderTableRows(filteredData);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('quickSearchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    searchInput?.addEventListener('input', realizarBusquedaLocal);
+
+    searchInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            realizarBusqueda();
+        }
+    });
+
+    searchButton?.addEventListener('click', realizarBusqueda);
+});
 
 const reportTitles = {
     "1": "Reporte de Acreditación y Renovación",
@@ -251,136 +313,181 @@ const reportTitles = {
 }
 
 
-function cargarDatos(selectedValue, pagina, registrosPorPagina) {
-   if (!selectedValue || selectedValue === 'Selecciona:') {
-       alert('Por favor, selecciona un tipo de reporte');
-       return;
-   }
-
-   const requestId = ++currentRequestId;
-   const reportTitle = reportTitles[selectedValue] || 'Reporte';
-   document.getElementById('procedimientos').textContent = reportTitle;
-
-   const elements = {
-       tableHead: document.getElementById('tableHead'),
-       tableBody: document.getElementById('tableBody'),
-       pagination: document.getElementById('pagination'),
-       quickSearch: document.getElementById('quickSearchContainer'),
-       searchColumn: document.getElementById('searchColumnSelect')
-   };
-
-   elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td class="text-center">
-               <div class="spinner-border text-primary" role="status">
-                   <span class="visually-hidden">Cargando...</span>
-               </div>
-           </td>
-       </tr>`;
-   elements.pagination.innerHTML = '';
-   elements.quickSearch.style.display = 'none';
-   elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
-
-   const params = new URLSearchParams({
-       procedimientos: selectedValue,
-       page: pagina,
-       pageSize: registrosPorPagina
-   });
-
-   fetch('ReportesCertificados?' + params.toString(), {
-       method: 'GET',
-       headers: { 'Accept': 'application/json' },
-       credentials: 'same-origin'
-   })
-   .then(async response => {
-       if (!response.headers.get('content-type')?.includes('application/json')) {
-           throw new Error('La respuesta del servidor no es JSON válido');
-       }
-       if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-       }
-       return response.json();
-   })
-   .then(data => {
-       if (requestId !== currentRequestId) return;
-       
-       resetTableElements(elements);
-
-       if (!data?.success || !data?.data?.[selectedValue]) {
-           throw new Error('No se encontraron datos para el reporte seleccionado');
-       }
-
-       globalTableData = data.data[selectedValue];
-
-       if (globalTableData.length === 0) {
-           displayNoDataMessage(elements.tableBody);
-           return;
-       }
-
-       const columns = Object.keys(globalTableData[0]);
-       createTableHeader(columns, elements);
-       renderTableRows(globalTableData);
-       elements.quickSearch.style.display = 'flex';
-
-       if (data.totalPages > 1) {
-           generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
-       }
-   })
-   .catch(error => {
-       if (requestId !== currentRequestId) return;
-       handleLoadError(error, elements);
-   });
-}
-
-function resetTableElements(elements) {
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = '';
-   elements.pagination.innerHTML = '';
-}
-
-function displayNoDataMessage(tableBody) {
-   tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center">No hay datos disponibles para este reporte</td>
-       </tr>`;
-}
-
-function createTableHeader(columns, elements) {
-   const headerRow = document.createElement('tr');
-   columns.forEach(column => {
-       const th = document.createElement('th');
-       th.textContent = column;
-       th.className = 'text-nowrap';
-       headerRow.appendChild(th);
-
-       const option = document.createElement('option');
-       option.value = column;
-       option.textContent = column;
-       elements.searchColumn.appendChild(option);
-   });
-   elements.tableHead.appendChild(headerRow);
-}
-
 function handleLoadError(error, elements) {
-   console.error('Error al cargar datos:', error);
-   elements.tableHead.innerHTML = '';
-   elements.tableBody.innerHTML = `
-       <tr>
-           <td colspan="10" class="text-center text-danger">
-               <div class="alert alert-danger" role="alert">
-                   <h5 class="alert-heading">Error al cargar los datos</h5>
-                   <p>${error.message || 'Ocurrió un error inesperado. Por favor, intente nuevamente.'}</p>
-                   <hr>
-                   <p class="mb-0">Si el problema persiste, contacte al administrador del sistema.</p>
-               </div>
-           </td>
-       </tr>`;
-   elements.quickSearch.style.display = 'none';
-   elements.pagination.innerHTML = '';
+    console.error('Error al cargar los datos:', error);
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error al cargar los datos: ${error.message}
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
+    }
+
+    if (elements.quickSearch) {
+        elements.quickSearch.style.display = 'none';
+    }
 }
 
+      function cargarDatos(selectedValue, pagina, registrosPorPagina) {
+    if (!selectedValue || selectedValue === 'Selecciona:') {
+        alert('Por favor, selecciona un tipo de reporte');
+        return;
+    }
+
+    const requestId = ++currentRequestId;
+    const reportTitle = reportTitles[selectedValue] || 'Reporte';
+    document.getElementById('procedimientos').textContent = reportTitle;
+
+    const elements = {
+        tableHead: document.getElementById('tableHead'),
+        tableBody: document.getElementById('tableBody'),
+        pagination: document.getElementById('pagination'),
+        quickSearch: document.getElementById('quickSearchContainer'),
+        searchColumn: document.getElementById('searchColumnSelect')
+    };
+
+    elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
+    elements.tableBody.innerHTML = `
+        <tr>
+            <td class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </td>
+        </tr>`;
+    elements.pagination.innerHTML = '';
+    elements.quickSearch.style.display = 'none';
+    elements.searchColumn.innerHTML = '<option value="">Buscar en todas las columnas</option>';
+
+    const params = new URLSearchParams({
+        procedimientos: selectedValue,
+        page: pagina,
+        pageSize: registrosPorPagina
+    });
+
+    fetch('ReportesCertificados?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (requestId !== currentRequestId) return;
+
+        resetTableElements(elements);
+
+        if (!data?.success || !data?.data?.[selectedValue]) {
+            throw new Error('No se encontraron datos para el reporte seleccionado');
+        }
+
+        globalTableData = data.data[selectedValue];
+
+        if (globalTableData.length === 0) {
+            displayNoDataMessage(elements.tableBody);
+            return;
+        }
+
+        updateTableHeader();
+
+        renderTableRows(globalTableData);
+        elements.quickSearch.style.display = 'flex';
+
+        if (data.totalPages > 1) {
+            generarPaginacion(data.totalPages, pagina, selectedValue, registrosPorPagina);
+        }
+    })
+    .catch(error => {
+        if (requestId !== currentRequestId) return;
+        handleLoadError(error, elements);
+    });
+}
+        
+ function updateTableHeader() {
+    const tableHead = document.getElementById('tableHead');
+    if (!tableHead) {
+        console.error('No se encontró el elemento tableHead');
+        return;
+    }
+
+    const columnOrder = columnOrderMap[currentSelectedReport] || [];
+
+    tableHead.innerHTML = '';
+
+    const headerRow = document.createElement('tr');
+
+    columnOrder.forEach(columnName => {
+        const th = document.createElement('th');
+        th.textContent = columnName;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+    });
+
+    tableHead.appendChild(headerRow);
+}
+
+ function createTableHeader(columns, elements) {
+    const headerRow = document.createElement('tr');
+
+    window.columnOrder = columns;
+    
+    columns.forEach(column => {
+        const th = document.createElement('th');
+        th.textContent = column;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+
+        const option = document.createElement('option');
+        option.value = column;
+        option.textContent = column;
+        elements.searchColumn.appendChild(option);
+    });
+    elements.tableHead.appendChild(headerRow);
+}
+
+const columnOrderMap = {
+    "1": ["Cedula","Siglas","Razón Social","Solicitud","Tipo de Solicitud","Estandar","Estatus de Solicitud","Fecha de Solicitud", "Linea de Captura", "Estatus Linea de Captura"],
+    "2": ["NO_FOLIO_SOLICITUD", "ECE/OC", "Fecha de Certificado", "Folio Conocer", "Folio Preimpreso", "CURP Persona Certificada", "Nombre Persona Certificada", "Apellido Paterno Persona Certificada", "Apellido Materno Persona Certificada", "Nombre Completo Persona Certificada", "Tipo Certificado", "Código", "Siglas Certificador", "Nombre Certificador", "Nombre Centro Evaluacion / Evaluador Independiente"],
+    "3": ["Cédula", "Siglas", "Fecha de Acreditación", "Nombre", "Operativo", "EC Acreditados", "CD Estandar Competencia", "Centros Evaluación", "Evaluadores Independientes"],
+    "4": ["Imagen", "Código Estándar de Competencia", "Cintillo", "Tiene imagen", "Fecha Publ. D.O.F."],
+    "5": ["FOLIO", "FECHA DE SOLICITUD", "NUMERO DE PORTAFOLIOS", "NUMERO DE FICHAS", "NO FICHAS RECIBIDAS", "FOLIO DEL PROCESO", "USUARIO SNC", "ESTÁNDAR DE COMPETENCIA", "JUICIO DEL EVALUADOR", "PUBLICACIÓN DE DATOS", "ENTREGA DE FICHA", "DICTAMEN"],
+    "6": ["FOLIO", "FECHA DE SOLICITUD", "NUMERO DE PORTAFOLIOS", "NUMERO DE FICHAS", "NO FICHAS RECIBIDAS", "FOLIO DEL PROCESO", "USUARIO SNC", "ESTÁNDAR DE COMPETENCIA", "JUICIO DEL EVALUADOR", "JUICIO DEL EVALUADOR", "ENTREGA DE FICHA", "DICTAMEN"],
+    "7": ["No.", "Comité", "Estándar Competencia Asignado", "Título", "Nombre(s)", "Apellido Paterno", "Apellido Materno", "Tipo de Enlace", "Teléfono", "Tel. Móvil", "Correo electrónico", "Correo electrónico 2", "Comentarios"],
+    "8": ["Cédula", "Razón Social", "Siglas / Acronimo", "Pagina Web", "RFC", "Estado Acreditación", "Nombre Representante Legal", "Cargo Representante", "Correo Representante", "Telefono Representante", "Celular Representante"], 
+    "9": ["FL PRESTADOR SERVICIOS", "Cédula", "Fecha Acreditación", "Prestador Servicios", "Siglas", "Tipo Prestador", "Estado Acreditación Inicial", "Estado Acreditación", "Estado"], 
+    "10": ["Nombre Institución", "Domicilio", "Colonia", "Delegación/Municipio", "Código postal", "Estado", "Teléfono", "Correo electrónico", "Página web", "Nivel de oferta educativa", "Nombre rector/director/presidente", "Total trabajadores/empleados", "Número de trabajadores/empleados susceptibles de certificación", "Sindicato", "Funciones/EC"],   
+    "11": ["Imagen", "Siglas", "Nombre", "Cédula", "Tiene Imagen"],
+    "12": ["Fecha de recepción", "Folio solicitud certificación", "Código EC", "Total procesos", "Nivel EC", "Total de fichas", "Clave ECE/OC"],  
+    "13": ["Cédula ECE/OC", "Razón Social ECE/OC", "Cédula CE/EI", "Nombre Completo Razón Social CE", "Código", "Título EC", "Fecha Final Vigencia", "Estado", "Entidad Federativa"], 
+    "14": ["No. Solicitud Acred. EC/OC", "Cédula", "Siglas", "Razón Social", "Estandar de Competencia", "Titulo del Estandar", "Vigencia Inicial", "Vigencia Final", "Estado", "Entidad Federativa"], 
+    "15": ["Nombre Institución", "Domicilio", "Colonia", "Delegación/Municipio", "Código postal", "Estado", "Teléfono", "Correo electrónico", "Página web", "Giro", "Nombre director general", "Sucursales", "Años de operación", "Total trabajadores/empleados", "Número de trabajadores/empleados susceptibles de certificación", "Asociaciones/Cámaras", "Funciones/EC"],
+    "16": ["Cédula ECE/OC", "Nombre ECE/OC", "Cédula CE/EI", "Nombre CE/EI", "Código", "Título", "Inicio vigencia", "Fin vigencia", "Fecha de Ultima Renovacion"], 
+    "17": ["Cédula", "Nombre", "Código", "Título", "Inicio vigencia", "Fin Vigencia", "Tipo acreditación"], //revisar
+    "18": ["Cédula Certificador", "Nombre", "Operativo", "Total E.C."], 
+    "19": ["Sector", "Código estándar", "Titulo estándar", "Siglas certificador", "Cédula certificador", "ECE", "OC", "Nombre certificador", "Total Certificados"],
+    "20": ["NOMBRE ECE/OC", "TIPO PRESTADOR SERVICIOS", "NOMBRE CENTRO EVALUADOR", "CODIGO EC", "TITULO EC", "ESTATUS ECE/OC", "ESTATUS CE"], 
+    "21": ["Cédula", "Siglas", "Nombre", "Código", "Vigencia Acreditacion", "Título", "CURP", "Nombre Verificador", "Estatus"],
+};
 
 function renderTableRows(data) {
     const tableBody = document.getElementById('tableBody');
@@ -402,36 +509,40 @@ function renderTableRows(data) {
         return;
     }
 
-    tableBody.innerHTML = '';
-    
+    tableBody.innerHTML = ''; 
+
     try {
+       
+        const columnOrder = columnOrderMap[currentSelectedReport] || Object.keys(data[0]);
+
         data.forEach(row => {
             const tr = document.createElement('tr');
-            
-            Object.entries(row).forEach(([key, value]) => {
+
+            columnOrder.forEach(columnName => {
                 const td = document.createElement('td');
-                
-                if (key.toLowerCase() === 'imagen') {
+                const value = row[columnName];
+
+                if (columnName.toLowerCase() === 'imagen') {
                     if (value) {
                         try {
                             let imageSource;
+
                             if (Array.isArray(value)) {
                                 const uint8Array = new Uint8Array(value);
-                                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+                                const blob = new Blob([uint8Array], { type: 'image/jpeg' }); 
                                 imageSource = URL.createObjectURL(blob);
                             } else if (typeof value === 'string') {
                                 imageSource = value;
                             }
-                            
+
                             if (imageSource) {
                                 const img = document.createElement('img');
                                 img.src = imageSource;
                                 img.alt = 'Imagen';
-                                img.style.maxWidth = '400px';
-                                img.style.maxHeight = '400px';
+                                img.style.maxWidth = '300px';
+                                img.style.maxHeight = '300px';
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
-                                
                                 img.onerror = () => {
                                     console.error('Error al cargar la imagen');
                                     td.textContent = 'No tiene imagen';
@@ -442,8 +553,8 @@ function renderTableRows(data) {
                                     }
                                 };
                                 img.onclick = () => createImageModal(imageSource);
-                                
-                                td.appendChild(img);
+
+                                td.appendChild(img); 
                             } else {
                                 td.textContent = 'Formato de imagen no válido';
                             }
@@ -452,16 +563,17 @@ function renderTableRows(data) {
                             td.textContent = 'Error al procesar imagen';
                         }
                     } else {
-                        td.textContent = 'Sin imagen';
+                        td.textContent = 'Sin imagen'; 
                     }
                 } else {
-                    td.textContent = value ?? ''; 
+                    
+                    td.textContent = value ?? '';
                 }
-                
-                tr.appendChild(td);
+
+                tr.appendChild(td); 
             });
-            
-            tableBody.appendChild(tr);
+
+            tableBody.appendChild(tr); 
         });
     } catch (error) {
         console.error('Error al renderizar tabla:', error);
@@ -474,6 +586,25 @@ function renderTableRows(data) {
                     </div>
                 </td>
             </tr>`;
+    }
+}
+
+function resetTableElements(elements) {
+    if (!elements) {
+        console.error('No se proporcionaron elementos para resetear');
+        return;
+    }
+
+    if (elements.tableHead) {
+        elements.tableHead.innerHTML = '';
+    }
+
+    if (elements.tableBody) {
+        elements.tableBody.innerHTML = '';
+    }
+
+    if (elements.pagination) {
+        elements.pagination.innerHTML = '';
     }
 }
 
@@ -554,6 +685,20 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }, false, 'bg-danger', 'text-white');
         paginationDiv.appendChild(nextButton);
     }
+}
+
+function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
+    const button = document.createElement('button');
+    button.textContent = texto;
+    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
+
+    if (esActual) {
+        button.disabled = true;
+        button.classList.add('active');
+    }
+
+    button.addEventListener('click', clickHandler);
+    return button;
 }
 
 function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
