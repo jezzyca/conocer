@@ -5,12 +5,10 @@
         <group>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/repECMarca.jsp</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSII.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSector.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/procesoEvaluacion.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesSolicitudFinanzas.jsp</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/institucionesAcred.jsp</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/ReportesSII.java</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/impresion.jsp</file>
-            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reportesCertificados.jsp</file>
+            <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/src/java/reportes/Directorio.java</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/reporteSolicitud.jsp</file>
             <file>file:/C:/Users/carlo/OneDrive/Documentos/GitHub/conocer/conocer/web/directorio.jsp</file>
         </group>

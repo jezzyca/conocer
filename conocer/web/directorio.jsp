@@ -605,10 +605,19 @@ function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = '
 
 function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
-    const selectedValue = selectElement.value;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
 
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, seleccione un tipo de reporte antes de descargar');
+    // Validar que al menos un valor haya sido seleccionado
+    if (selectedOptions.length === 0 || selectedOptions.includes('Selecciona:')) {
+        alert('Por favor, seleccione al menos un tipo de reporte antes de descargar.');
+        return;
+    }
+
+    const validOptions = ["1", "2"]; // Lista de opciones válidas
+    const selectedValidOptions = selectedOptions.filter(option => validOptions.includes(option));
+
+    if (selectedValidOptions.length === 0) {
+        alert('Selección inválida. Por favor, elija un tipo de reporte válido.');
         return;
     }
 
@@ -616,17 +625,20 @@ function descargarReporte() {
     botonDescargar.disabled = true;
     botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
+    // Mapeo de nombres de reportes
     const nombreReporte = {
-        
+        "1": "Reporte_de_Acreditaciones_EC_OC",
+        "2": "Reporte_de_Directorio_CEEI"
     };
 
-    const reportName = nombreReporte[selectedValue] || "Reporte_Desconocido";
-    const fechaActual = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    // Construir el nombre del reporte combinando los seleccionados
+    const reportNames = selectedValidOptions.map(value => nombreReporte[value] || `Reporte_${value}`).join("_");
 
+    // Construcción de parámetros
     const params = new URLSearchParams();
     params.append('formato', 'excel');
-    params.append('procedimientos', selectedValue);
-    params.append('nombreReporte', reportName);
+    params.append('procedimientos', selectedValidOptions.join(',')); // Enviar múltiples procedimientos separados por coma
+    params.append('nombreReporte', reportNames);
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
@@ -639,55 +651,65 @@ function descargarReporte() {
         }
     })
     .then(response => {
-        console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
-        console.log('Status:', response.status);
-        
         if (!response.ok) {
             return response.text().then(text => {
-                console.error('Error response:', text);
                 throw new Error(text || `Error del servidor: ${response.status}`);
             });
         }
 
         const contentType = response.headers.get('content-type');
-        console.log('Content-Type:', contentType);
-        
         if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            console.error('Content-Type incorrecto:', contentType);
             return response.text().then(text => {
-                console.log('Contenido de respuesta:', text);
-                throw new Error('El servidor no devolvió un archivo Excel válido');
+                throw new Error('El servidor no devolvió un archivo Excel válido.');
             });
         }
-        
-        return response.blob();
+
+        // Extraer el nombre del archivo de las cabeceras
+        const disposition = response.headers.get('content-disposition');
+        let fileName;
+
+        if (disposition && disposition.includes('filename=')) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+                fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+            }
+        }
+
+        if (!fileName) {
+            // Fallback si no se puede extraer el nombre del Content-Disposition
+            const fechaActual = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
+            fileName = `${reportNames}_${fechaActual}.xlsx`;
+        }
+
+        return response.blob().then(blob => {
+            return { blob, fileName };
+        });
     })
-    .then(blob => {
-        console.log('Tamaño del blob:', blob.size, 'bytes');
-        console.log('Tipo del blob:', blob.type);
+    .then(data => {
+        const { blob, fileName } = data;
 
         if (blob.size === 0) {
-            throw new Error('El archivo generado está vacío');
+            throw new Error('El archivo generado está vacío.');
         }
 
-        const fileName = `${reportName}_${fechaActual}.xlsx`;
-        
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            // Para Internet Explorer
             window.navigator.msSaveOrOpenBlob(blob, fileName);
-            return;
-        }
+        } else {
+            // Para otros navegadores
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
     })
     .catch(error => {
         console.error('Error detallado:', error);
@@ -698,7 +720,6 @@ function descargarReporte() {
         botonDescargar.innerHTML = 'Descargar Información';
     });
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
