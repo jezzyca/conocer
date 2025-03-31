@@ -50,6 +50,9 @@ import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.HashMap;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 /**
  *
@@ -62,7 +65,16 @@ public class ProcesoEvaluacion extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
     private static final int DEFAULT_PAGE = 1;
+    private static final Map<String, String> NOMBRES_PROCEDIMIENTOS = new HashMap<>();
+    static {
+        NOMBRES_PROCEDIMIENTOS.put("1", "");
+        NOMBRES_PROCEDIMIENTOS.put("2", "");
+        NOMBRES_PROCEDIMIENTOS.put("3", "");
+        NOMBRES_PROCEDIMIENTOS.put("4", "");
+        NOMBRES_PROCEDIMIENTOS.put("5", "");
+    }
     
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
@@ -86,106 +98,82 @@ public class ProcesoEvaluacion extends HttpServlet {
             manejarError(response, e);
         }
     }
-    
 
-private void procesarJSON(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    response.setContentType("application/json;charset=UTF-8");
-    LOGGER.info("Procesando solicitud JSON...");
+    private void procesarJSON(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        LOGGER.info("Procesando solicitud JSON...");
 
-    try {
-        int page = parseIntOrDefault(request.getParameter("page"), DEFAULT_PAGE);
-        int pageSize = parseIntOrDefault(request.getParameter("pageSize"), DEFAULT_PAGE_SIZE);
-        List<String> procedimientos = obtenerProcedimientos(request);
-        LOGGER.log(Level.INFO, "Procedimientos solicitados: {0}", procedimientos);
+        try {
+            int page = parseIntOrDefault(request.getParameter("page"), DEFAULT_PAGE);
+            int pageSize = parseIntOrDefault(request.getParameter("pageSize"), DEFAULT_PAGE_SIZE);
+            List<String> procedimientos = obtenerProcedimientos(request);
+            LOGGER.log(Level.INFO, "Procedimientos solicitados: {0}", procedimientos);
 
-        if (procedimientos.isEmpty()) {
-            throw new Exception("No se especificaron procedimientos para generar el reporte.");
-        }
+            if (procedimientos.isEmpty()) {
+                throw new Exception("No se especificaron procedimientos para generar el reporte.");
+            }
 
-        Map<String, List<Map<String, Object>>> allData = new LinkedHashMap<>();
-        Map<String, Integer> totalRecords = new LinkedHashMap<>();
+            Map<String, List<Map<String, Object>>> allData = new HashMap<>();
+            Map<String, Integer> totalRecords = new HashMap<>();
+            Map<String, List<String>> columnOrders = new HashMap<>();
 
-        try (Connection conexion = new ConexionGeneral().getConnection()) {
-            for (String procedimiento : procedimientos) {
-                String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
-                     ResultSet rs = stmt.executeQuery()) {
+            try (Connection conexion = new ConexionGeneral().getConnection()) {
+                for (String procedimiento : procedimientos) {
+                    String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
+                    try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
+                         ResultSet rs = stmt.executeQuery()) {
 
-                    List<Map<String, Object>> resultados = new ArrayList<>();
-                    ResultSetMetaData metaData = rs.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-
-                    // Crear lista ordenada de nombres de columnas
-                    List<String> columnNames = new ArrayList<>();
-                    for (int i = 1; i <= columnCount; i++) {
-                        columnNames.add(metaData.getColumnLabel(i));
-                    }
-
-                    while (rs.next()) {
-                        Map<String, Object> fila = new LinkedHashMap<>(); // Usar LinkedHashMap para mantener el orden
-                        for (String nombreColumna : columnNames) {
-                            Object valorColumna = rs.getObject(nombreColumna);
-                            fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
+                        List<Map<String, Object>> resultados = new ArrayList<>();
+                        ResultSetMetaData metaData = rs.getMetaData();
+                        int columnCount = metaData.getColumnCount();
+                        
+                        List<String> columnOrder = new ArrayList<>();
+                        for (int i = 1; i <= columnCount; i++) {
+                            columnOrder.add(metaData.getColumnLabel(i));
                         }
-                        resultados.add(fila);
-                    }
+                        columnOrders.put(procedimiento, columnOrder);
 
-                    totalRecords.put(procedimiento, resultados.size());
-                    int offset = (page - 1) * pageSize;
-                    List<Map<String, Object>> paginatedResults = paginarLista(resultados, offset, pageSize);
-                    allData.put(procedimiento, paginatedResults);
+                        while (rs.next()) {
+                            Map<String, Object> fila = new LinkedHashMap<>();
+                            for (int i = 1; i <= columnCount; i++) {
+                                String nombreColumna = metaData.getColumnLabel(i);
+                                Object valorColumna = rs.getObject(i);
+                                fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
+                            }
+                            resultados.add(fila);
+                        }
+
+                        totalRecords.put(procedimiento, resultados.size());
+                        int offset = (page - 1) * pageSize;
+                        List<Map<String, Object>> paginatedResults = paginarLista(resultados, offset, pageSize);
+                        allData.put(procedimiento, paginatedResults);
+                    }
                 }
             }
+
+            JSONObject resultado = new JSONObject();
+            resultado.put("success", true);
+            resultado.put("data", convertirResultadosAJson(allData));
+            resultado.put("currentPage", page);
+            resultado.put("pageSize", pageSize);
+            resultado.put("columnOrders", columnOrders); 
+
+            int maxTotalRecords = totalRecords.values().stream()
+                    .mapToInt(Integer::intValue)
+                    .max()
+                    .orElse(0);
+
+            resultado.put("totalPages", (int) Math.ceil((double) maxTotalRecords / pageSize));
+            resultado.put("totalRecords", maxTotalRecords);
+
+            try (PrintWriter out = response.getWriter()) {
+                out.print(resultado.toString());
+            }
+        } catch (Exception e) {
+            manejarError(response, e);
         }
-
-        JSONObject resultado = new JSONObject();
-        resultado.put("success", true);
-        resultado.put("data", convertirResultadosAJson(allData));
-        resultado.put("currentPage", page);
-        resultado.put("pageSize", pageSize);
-
-        int maxTotalRecords = totalRecords.values().stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0);
-
-        resultado.put("totalPages", (int) Math.ceil((double) maxTotalRecords / pageSize));
-        resultado.put("totalRecords", maxTotalRecords);
-
-        try (PrintWriter out = response.getWriter()) {
-            out.print(resultado.toString());
-        }
-    } catch (Exception e) {
-        manejarError(response, e);
     }
-}
-
-private JSONObject convertirResultadosAJson(Map<String, List<Map<String, Object>>> data) {
-    JSONObject datosJson = new JSONObject();
-
-    data.entrySet().forEach((entry) -> {
-        JSONArray procedimientoArray = new JSONArray();
-
-        entry.getValue().forEach((fila) -> {
-            // Asegúrate de que el mapa sea LinkedHashMap
-            JSONObject jsonFila = new JSONObject(new LinkedHashMap<>(fila));
-            procedimientoArray.put(jsonFila);
-        });
-
-        datosJson.put(entry.getKey(), procedimientoArray);
-    });
-
-    return datosJson;
-}
-
-private int parseIntOrDefault(String param, int defaultValue) {
-    try {
-        return Integer.parseInt(param);
-    } catch (NumberFormatException e) {
-        return defaultValue;
-    }
-}
 
    private void exportarExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
     LOGGER.info("Iniciando exportación a Excel...");
@@ -200,37 +188,69 @@ private int parseIntOrDefault(String param, int defaultValue) {
 
         Map<String, List<Map<String, Object>>> datos = obtenerDatosReporte(procedimientos, request);
         LOGGER.info("Datos obtenidos para el reporte: " + (datos != null ? "OK" : "NULL"));
-        
+
         if (datos == null || datos.isEmpty()) {
             throw new Exception("No hay datos para generar el reporte.");
         }
 
+        // Generación del nombre del reporte
         String nombreReporte = request.getParameter("nombreReporte");
         if (nombreReporte == null || nombreReporte.isEmpty()) {
-            nombreReporte = "Reporte";
+            String procId = procedimientos.get(0);
+            nombreReporte = NOMBRES_PROCEDIMIENTOS.getOrDefault(procId, "Reporte_" + procId);
         }
 
         String fechaActual = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = nombreReporte + "Reporte_" + fechaActual + ".xlsx";
+        String fileName = nombreReporte + "_" + fechaActual + ".xlsx";
+
+        LOGGER.log(Level.INFO, "Nombre del reporte recibido: {0}", nombreReporte);
+        LOGGER.log(Level.INFO, "Nombre del archivo generado: {0}", fileName);
 
         response.reset();
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
-        
+
         workbook = new XSSFWorkbook();
         CellStyle headerStyle = crearEstiloEncabezado(workbook);
         CellStyle dateStyle = workbook.createCellStyle();
         CreationHelper createHelper = workbook.getCreationHelper();
         dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
 
+        Map<String, List<String>> columnOrders = new HashMap<>();
+
+        for (String procedimiento : procedimientos) {
+            try (Connection conexion = new ConexionGeneral().getConnection()) {
+                String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
+                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento);
+                     ResultSet rs = stmt.executeQuery()) {
+
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+
+                    List<String> columnOrder = new ArrayList<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        columnOrder.add(metaData.getColumnLabel(i));
+                    }
+                    columnOrders.put(procedimiento, columnOrder);
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error al obtener orden de columnas para " + procedimiento, e);
+            }
+        }
+
         for (Map.Entry<String, List<Map<String, Object>>> entry : datos.entrySet()) {
-            String sheetName = WorkbookUtil.createSafeSheetName(entry.getKey());
+            String procedimiento = entry.getKey();
+            String sheetName = WorkbookUtil.createSafeSheetName(procedimiento);
             Sheet sheet = workbook.createSheet(sheetName);
             List<Map<String, Object>> registros = entry.getValue();
 
             if (!registros.isEmpty()) {
                 Row headerRow = sheet.createRow(0);
-                List<String> columnas = new ArrayList<>(registros.get(0).keySet());
+
+                List<String> columnas = columnOrders.get(procedimiento);
+                if (columnas == null || columnas.isEmpty()) {
+                    columnas = new ArrayList<>(registros.get(0).keySet());
+                }
 
                 for (int i = 0; i < columnas.size(); i++) {
                     Cell cell = headerRow.createCell(i);
@@ -244,7 +264,8 @@ private int parseIntOrDefault(String param, int defaultValue) {
 
                     for (int colNum = 0; colNum < columnas.size(); colNum++) {
                         Cell cell = row.createCell(colNum);
-                        Object value = registro.get(columnas.get(colNum));
+                        String columnName = columnas.get(colNum);
+                        Object value = registro.get(columnName);
 
                         if (value != null) {
                             if (value instanceof Date) {
@@ -263,6 +284,11 @@ private int parseIntOrDefault(String param, int defaultValue) {
 
                 for (int i = 0; i < columnas.size(); i++) {
                     sheet.autoSizeColumn(i);
+                    int maxWidth = 45 * 256;
+                    if (sheet.getColumnWidth(i) > maxWidth) {
+                        sheet.setColumnWidth(i, maxWidth);
+                    }
+
                 }
             } else {
                 Row row = sheet.createRow(0);
@@ -296,75 +322,128 @@ private int parseIntOrDefault(String param, int defaultValue) {
         }
     }
 }
-   
-   
-  private CellStyle crearEstiloEncabezado(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        return style;
-    }
-  
-  
-private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
-        throws Exception {
-    Map<String, List<Map<String, Object>>> datos = new LinkedHashMap<>();
-    Connection conexion = null;
 
-    try {
-        conexion = new ConexionGeneral().getConnection();
-        LOGGER.info("Conexión establecida correctamente");
+    private CellStyle crearEstiloEncabezado(Workbook workbook) {    
+    
+    CellStyle style = workbook.createCellStyle(); 
+    Font font = workbook.createFont();
 
-        for (String procedimiento : procedimientos) {
-            String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
-            LOGGER.log(Level.INFO, "Ejecutando procedimiento: {0}", sqlProcedimiento);
+    font.setBold(true); 
+    font.setFontHeightInPoints((short) 12); 
+    font.setColor(IndexedColors.WHITE.getIndex()); 
 
-            try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento)) {
-                ResultSet rs = stmt.executeQuery();
-                LOGGER.info("Query ejecutada correctamente");
+    style.setFont(font); 
+    
+    // Agregar bordes delgados a todas las direcciones
+    style.setBorderBottom(BorderStyle.THIN);
+    style.setBorderTop(BorderStyle.THIN);
+    style.setBorderRight(BorderStyle.THIN);
+    style.setBorderLeft(BorderStyle.THIN);
 
-                List<Map<String, Object>> resultados = new ArrayList<>();
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                LOGGER.info("Número de columnas: " + columnCount);
+    style.setFillForegroundColor(IndexedColors.RED.getIndex());
+    style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                while (rs.next()) {
-                    // Cambiar HashMap por LinkedHashMap para mantener el orden
-                    Map<String, Object> fila = new LinkedHashMap<>();
-                    
-                    for (int i = 1; i <= columnCount; i++) {
-                        String nombreColumna = metaData.getColumnLabel(i);
-                        Object valorColumna = rs.getObject(i);
-                        fila.put(nombreColumna, valorColumna != null ? valorColumna : "N/A");
-                    }
-                    resultados.add(fila);
-                }
+    style.setAlignment(HorizontalAlignment.CENTER);
+    style.setVerticalAlignment(VerticalAlignment.CENTER);
 
-                LOGGER.info("Registros obtenidos: " + resultados.size());
-                datos.put(procedimiento, resultados);
-                rs.close();
-            }
-        }
-    } finally {
-        if (conexion != null) {
-            try {
-                conexion.close();
-                LOGGER.info("Conexión cerrada correctamente");
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error al cerrar la conexión", e);
-            }
-        }
-    }
+    style.setBorderBottom(BorderStyle.THIN);
+    style.setBorderTop(BorderStyle.THIN);
+    style.setBorderRight(BorderStyle.THIN);
+    style.setBorderLeft(BorderStyle.THIN);
 
-    return datos;
+    return style;
 }
+
+
+    private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> procedimientos, HttpServletRequest request)
+        throws Exception {
+        Map<String, List<Map<String, Object>>> datos = new HashMap<>();
+        Connection conexion = null;
+
+        try {
+            conexion = new ConexionGeneral().getConnection();
+            LOGGER.info("Conexión establecida correctamente");
+
+            String searchTerm = request.getParameter("searchTerm");
+            String searchColumn = request.getParameter("searchColumn");
+            boolean exactMatch = Boolean.parseBoolean(request.getParameter("exactMatch"));
+
+            for (String procedimiento : procedimientos) {
+                String sqlProcedimiento = obtenerProcedimientoAlmacenado(procedimiento.trim());
+                LOGGER.log(Level.INFO, "Ejecutando procedimiento: {0}", sqlProcedimiento);
+
+                try (CallableStatement stmt = conexion.prepareCall(sqlProcedimiento)) {
+                    ResultSet rs = stmt.executeQuery();
+                    LOGGER.info("Query ejecutada correctamente");
+
+                    List<Map<String, Object>> resultados = new ArrayList<>();
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    LOGGER.info("Número de columnas: " + columnCount);
+
+                    List<String> columnNames = new ArrayList<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        columnNames.add(metaData.getColumnLabel(i));
+                    }
+
+                    while (rs.next()) {
+                        Map<String, Object> fila = new LinkedHashMap<>();
+                        boolean cumpleCriterio = false;
+
+                        if (searchTerm == null || searchTerm.isEmpty()) {
+                            cumpleCriterio = true;
+                        } else {
+                            for (int i = 1; i <= columnCount; i++) {
+                                String nombreColumna = metaData.getColumnLabel(i);
+                                Object valorColumna = rs.getObject(i);
+                                String valorString = valorColumna != null ? valorColumna.toString().toLowerCase() : "";
+
+                                if (searchColumn != null && !searchColumn.isEmpty() && !nombreColumna.equals(searchColumn)) {
+                                    continue;
+                                }
+
+                                if (exactMatch) {
+                                    if (valorString.equals(searchTerm.toLowerCase())) {
+                                        cumpleCriterio = true;
+                                        break;
+                                    }
+                                } else {
+                                    if (valorString.contains(searchTerm.toLowerCase())) {
+                                        cumpleCriterio = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (cumpleCriterio) {
+                            for (String columnName : columnNames) {
+                                int columnIndex = columnNames.indexOf(columnName) + 1;
+                                Object valorColumna = rs.getObject(columnIndex);
+                                fila.put(columnName, valorColumna != null ? valorColumna : "N/A");
+                            }
+                            resultados.add(fila);
+                        }
+                    }
+
+                    LOGGER.info("Registros filtrados obtenidos: " + resultados.size());
+                    datos.put(procedimiento, resultados);
+                    rs.close();
+                }
+            }
+        } finally {
+            if (conexion != null) {
+                try {
+                    conexion.close();
+                    LOGGER.info("Conexión cerrada correctamente");
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error al cerrar la conexión", e);
+                }
+            }
+        }
+
+        return datos;
+    }
 
     private void manejarError(HttpServletResponse response, Exception e) throws IOException {
         LOGGER.log(Level.SEVERE, "Error en la aplicación", e);
@@ -406,7 +485,29 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
 
         return lista.subList(offset, toIndex);
     }
-    
+
+    private JSONObject convertirResultadosAJson(Map<String, List<Map<String, Object>>> data) {
+        JSONObject datosJson = new JSONObject();
+
+        data.entrySet().forEach((entry) -> {
+            JSONArray procedimientoArray = new JSONArray();
+
+            entry.getValue().forEach((fila) -> {
+                procedimientoArray.put(new JSONObject(fila));
+            });
+            datosJson.put(entry.getKey(), procedimientoArray);
+        });
+        return datosJson;
+    }
+     
+    private int parseIntOrDefault(String param, int defaultValue) {
+        try {
+            return Integer.parseInt(param);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     private String obtenerProcedimientoAlmacenado(String procedimiento) throws Exception {
         switch (procedimiento) {
             case "1":
@@ -437,77 +538,51 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
                 return "{CALL sp_REP_SOLUCIONES_EVALUACION_CERTIFICACION_EC()}";
             case "14":
                 return "{CALL sp_REP_VERFICADORES_EC_ECE_OC()}";
+            case "15":
+                return "SELECT DISTINCT KCEV.FL_CENTRO_EVALUACION, KCEV.CL_ACREDITACION_CE_EI, KU.FL_USUARIO, KU.NB_USUARIO, KSU.SUS_FIELD1,\n"
+                        + "	KCEV.FE_INICIO_VIGENCIA,\n"
+                        + "	KCEV.FE_VIGENCIA_ACRED,\n"
+                        + "	KPM.DS_RAZON_SOCIAL,\n"
+                        + "    KPM.DS_SIGLAS,\n"
+                        + "    CONCAT(KP.NB_PERSONA,' ',KP.NB_APELLIDO_PATERNO,' ',KP.NB_APELLIDO_MATERNO) AS REPRESENTANTE,\n"
+                        + "--  KP.FL_PERSONA,\n"
+                        + "    KCE.DS_CORREO_ELECTRONICO,\n"
+                        + "    KT.NO_TELEFONO,\n"
+                        + "    -- KCEV.FL_CENTRO_EVALUACION, \n"
+                        + "    KDIR.NO_CODIGO_POSTAL, \n"
+                        + "    CEF.NB_ENTIDAD_FEDERATIVA,\n"
+                        + "   	CM.NB_MUNICIPIO,\n"
+                        + "   	CCD.NB_CIUDAD,\n"
+                        + "    CC.NB_COLONIA,\n"
+                        + "    KDIR.DS_CALLE_NUMERO,\n"
+                        + "    KDIR.DS_NUMERO_INTERIOR\n"
+                        + "FROM \n"
+                        + "K_CENTRO_EVALUACION KCEV\n"
+                        + "LEFT JOIN K_CENTRO_EVALUACION_PERSONA KCEVP ON KCEVP.FL_CENTRO_EVALUACION = KCEV.FL_CENTRO_EVALUACION\n"
+                        + "LEFT JOIN K_CENTRO_EVALUACION_X_PERSONA_MORAL KCEXPM ON KCEXPM.FL_CENTRO_EVALUACION = KCEV.FL_CENTRO_EVALUACION \n"
+                        + "LEFT JOIN K_PERSONA_MORAL KPM ON KCEXPM.FL_PERSONA_MORAL = KPM.FL_PERSONA_MORAL\n"
+                        + "LEFT JOIN K_DIRECCION KDIR ON KPM.FL_DIRECCION = KDIR.FL_DIRECCION\n"
+                        + "LEFT JOIN C_ENTIDAD_FEDERATIVA CEF ON CEF.CL_ENTIDAD_FEDERATIVA = KDIR.CL_ENTIDAD_FEDERATIVA\n"
+                        + "LEFT JOIN C_MUNICIPIO CM ON CM.CL_MUNICIPIO = KDIR.CL_MUNICIPIO\n"
+                        + "LEFT JOIN C_COLONIA CC ON CC.CL_COLONIA = KDIR.CL_CIUDAD\n"
+                        + "LEFT JOIN C_CIUDAD CCD ON CCD.CL_CIUDAD = KDIR.CL_CIUDAD\n"
+                        + "LEFT JOIN K_USUARIO KU ON KU.FL_PERSONA = KCEVP.FL_PERSONA\n"
+                        + "LEFT JOIN K_PERSONA KP ON KP.FL_PERSONA = KCEVP.FL_PERSONA\n"
+                        + "LEFT JOIN K_PERSONA_X_CORREO KPXC ON KPXC.FL_PERSONA =  KP.FL_PERSONA\n"
+                        + "LEFT JOIN K_CORREO_ELECTRONICO KCE ON KCE.FL_CORREO_ELECTRONICO = KPXC.FL_CORREO_ELECTRONICO\n"
+                        + "LEFT JOIN K_PERSONA_X_TELEFONO KPXT ON KPXT.FL_PERSONA = KP.FL_PERSONA\n"
+                        + "LEFT JOIN K_TELEFONO KT ON KPXT.FL_TELEFONO= KT.FL_TELEFONO\n"
+                        + "LEFT JOIN K_SIGNEDUSERS KSU ON KSU.SUS_ACCESS = KU.NB_USUARIO;";
+            case "16":
+                return "{CALL SP_RENEC_SECTOR_PRODUCTIVO_CIAN()}";
+            case "17":
+                return  "SELECT * FROM C_SECTOR_PRODUCTIVO csp;";
+            case "18":
+                return "SELECT * FROM tblComites tc;";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }
     }
-    
-
-public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
-    try {
-        String storedProcedure = obtenerProcedimientoAlmacenado(procedimiento);
-        ConexionGeneral conexion = new ConexionGeneral();
-        Connection conn = conexion.obtenerConexion();
-
-        try (CallableStatement stmt = conn.prepareCall(storedProcedure)) {
-            if (parametroEC != null) {
-                stmt.setString(1, parametroEC);
-            }
-
-            ResultSet rs = stmt.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            JSONArray jsonArray = new JSONArray();
-
-            while (rs.next()) {
-                // Cambiar HashMap por LinkedHashMap para mantener el orden
-                Map<String, Object> rowMap = new LinkedHashMap<>();
-
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    Object value = rs.getObject(i);
-
-                    if (value instanceof Blob) {
-                        Blob blob = (Blob) value;
-                        try (InputStream inputStream = blob.getBinaryStream();
-                             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-                            byte[] buffer = new byte[1024];
-                            int bytesRead;
-
-                            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                                outputStream.write(buffer, 0, bytesRead);
-                            }
-
-                            byte[] bytes = outputStream.toByteArray();
-                            String base64Image = Base64.getEncoder().encodeToString(bytes);
-
-                            rowMap.put(columnName, "data:image/jpeg;base64," + base64Image);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            rowMap.put(columnName, "");
-                        }
-                    } else {
-                        rowMap.put(columnName, value != null ? value : "");
-                    }
-                }
-
-                // Convertir el LinkedHashMap a JSONObject
-                JSONObject row = new JSONObject(rowMap);
-                jsonArray.put(row);
-            }
-
-            System.out.println("JSON Array: " + jsonArray.toString());
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -521,3 +596,6 @@ public void ejecutarProcedimiento(String procedimiento, String parametroEC) {
         processRequest(request, response);
     }
 }
+    
+ 
+    

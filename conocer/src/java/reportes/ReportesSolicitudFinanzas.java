@@ -150,8 +150,6 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
                                     stmt.setInt(1, Integer.parseInt(numeroSolicitud));
                                     LOGGER.log(Level.INFO, "Parámetro número de solicitud para procedimiento 3: {0}", numeroSolicitud);
                                     
-                                    // Si se necesita usar tipoCertificado en el futuro para este procedimiento
-                                    // stmt.setString(2, tipoCertificado);
                                 } catch (NumberFormatException e) {
                                     LOGGER.log(Level.WARNING, "Número de solicitud inválido para procedimiento 3: {0}", numeroSolicitud);
                                     stmt.setInt(1, 1); 
@@ -474,13 +472,10 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
         return Collections.emptyList();
     }
 
-    // Obtener el orden de las columnas del primer registro
     List<String> columnOrder = (List<String>) lista.get(0).get("__COLUMN_ORDER__");
 
-    // Paginar los datos (excluyendo el primer registro si es __COLUMN_ORDER__)
     List<Map<String, Object>> paginatedResults = lista.subList(offset + 1, toIndex);
 
-    // Agregar el orden de las columnas al inicio de la página
     Map<String, Object> columnOrderMap = new LinkedHashMap<>();
     columnOrderMap.put("__COLUMN_ORDER__", columnOrder);
     paginatedResults.add(0, columnOrderMap);

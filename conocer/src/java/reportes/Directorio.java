@@ -260,7 +260,7 @@ public class Directorio extends HttpServlet {
                 // Ajustar el tamaño de columnas después de insertar todos los datos
                 for (int i = 0; i < columnas.size(); i++) {
                     sheet.autoSizeColumn(i);
-                    int maxWidth = 40 * 256; // Limitar el ancho máximo a 30 caracteres
+                    int maxWidth = 45 * 256; // Limitar el ancho máximo a 30 caracteres
                     if (sheet.getColumnWidth(i) > maxWidth) {
                         sheet.setColumnWidth(i, maxWidth);
                     }

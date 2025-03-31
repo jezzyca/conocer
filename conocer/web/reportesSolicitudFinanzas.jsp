@@ -11,6 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Reportes de Solicitudes</title>
+        <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -72,7 +73,7 @@
                 </a>
             </div>
 
-            <div class="col-6 d-flex justify-content-center align-items-center">
+            <div class="col-7 d-flex justify-content-center align-items-center">
                 <div class="btn-group">
                     <button type="button" class="btn btn-danger dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
                         Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
@@ -166,6 +167,7 @@
             <div id="resultados" class="card">
                 <div class="card-header">
                     <h5>Resultados del Reporte</h5>
+                    <c:out value="${sessionScope.fecha}" />
                 </div>
                 <div class="card-body">
                     <div id="tablaResultados"></div>

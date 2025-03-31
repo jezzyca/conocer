@@ -12,7 +12,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
-<!-- Validación de sesión -->
 <c:if test="${sessionScope.usuario == null}">
     <c:redirect url="login.jsp" />
 </c:if>
@@ -69,6 +68,8 @@
                     <option value="25">Soluciones de Evaluación y Certificaciones EC</option>
                     <option value="26">Verificadores EC/ECE/OC</option>
                     <option value="27">Solicitudes de Certificados</option>
+                    <option value="28">Solicitudes Enviadas a Conocer</option>
+                    <option value="29">Claves Centro</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -160,20 +161,16 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-    <script>
-
+   <script>   
 let globalTableData = [];
 let currentSelectedReport = null;
-let currentRequestId = 0; 
-
+let currentRequestId = 0;
 
 document.getElementById('seleccion').addEventListener('change', function () {
     const selectedValue = this.value;
     currentSelectedReport = selectedValue;
     cargarDatos(selectedValue, 1, 30);
 });
-
 
 function getSearchParams() {
     return {
@@ -332,9 +329,10 @@ const reportTitles = {
     "24": "Reporte de Sector Productivo",
     "25": "Reporte de Soluciones de Evaluación y Certificaciones EC",
     "26": "Reporte de Verificadores EC/ECE/OC",
-    "27": "Solicitudes de Certificados"
+    "27": "Reporte de Solicitudes de Certificados",
+    "28": "Reporte de Solicitudes Enviadas a Conocer",
+    "29": "Reporte de Claves Centro",
 }
-
 
 function handleLoadError(error, elements) {
     console.error('Error al cargar los datos:', error);
@@ -363,23 +361,7 @@ function handleLoadError(error, elements) {
     }
 }
 
-function actualizarSelectorColumnas(selectedValue) {
-    const searchColumnSelect = document.getElementById('searchColumnSelect');
-    if (!searchColumnSelect) return;
-
-    const columnas = columnOrderMap[selectedValue] || [];
-
-    searchColumnSelect.innerHTML = '<option value="">Buscar en todas las columnas</option>';
- 
-    columnas.forEach(columna => {
-        const option = document.createElement('option');
-        option.value = columna;
-        option.textContent = columna;
-        searchColumnSelect.appendChild(option);
-    });
-}
-
-function cargarDatos(selectedValue, pagina, registrosPorPagina) {
+      function cargarDatos(selectedValue, pagina, registrosPorPagina) {
     if (!selectedValue || selectedValue === 'Selecciona:') {
         alert('Por favor, selecciona un tipo de reporte');
         return;
@@ -396,13 +378,6 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         quickSearch: document.getElementById('quickSearchContainer'),
         searchColumn: document.getElementById('searchColumnSelect')
     };
-
-    if (!elements.tableHead || !elements.tableBody) {
-        console.error('Elementos críticos no encontrados');
-        return;
-    }
-
-    actualizarSelectorColumnas(selectedValue);
 
     elements.tableHead.innerHTML = '<tr><th class="text-center">Cargando datos...</th></tr>';
     elements.tableBody.innerHTML = `
@@ -467,11 +442,7 @@ function cargarDatos(selectedValue, pagina, registrosPorPagina) {
         if (requestId !== currentRequestId) return;
         handleLoadError(error, elements);
     });
-    
-    elements.quickSearch.style.display = 'flex';
-
 }
-
         
  function updateTableHeader() {
     const tableHead = document.getElementById('tableHead');
@@ -533,7 +504,7 @@ const columnOrderMap = {
     "15": ["Imagen", "Siglas", "Nombre", "Cédula", "Tiene imagen"],
     "16": ["Fecha de recepción", "Folio solicitud certificación", "Código EC", "Total procesos", "Nivel EC", "Total de fichas", "Clave ECE/OC"],
     "17": ["IDAVISO", "IDLOTECERTIFICACION", "CÓDIGO_DE_ESTÁNDAR", "FECHA", "TITULO_EC", "CEDULA", "ENTIDAD_CERTIFICADORA", "ESTADO", "AUTORIZA_PUBLICAR_DATOS", "NOMBRE_PERSONA_CERTIFICADA", "APELLIDO_PATERNO_PERSONA_CERTIFICADA", "APELLIDO_MATERNO_PERSONA_CERTIFICADA", "NACIMIENTO", "NACIONALIDAD", "CURP", "GÉNERO", "FECHA_DE_NACIMIENTO", "CALLE_Y_NUM", "CP", "COLONIA", "CIUDAD", "ENTIDAD", "CORREO", "TELEFONO", "CELULAR", "SUELDO", "LEER_ESCRIBIR", "TIENE_ESTUDIOS", "NIVEL_DE_ESTUDIO", "TIENE_DISCAPACIDAD", "DISCAPACIDAD", "IDIOMA", "TRABAJA", "PUESTO", "EXPERIENCIA", "OBSERVACIONES", "CERTIFICACIONES_EXTERNAS", "ENTIDAD_FEDERATIVA_PS", "ENTIDAD_FEDERATIVA_CE_EI", "ORIGEN"],
-    "18": ["Cédula ECE/OC", "Razón Social ECE/OC", "Cédula CE/EI", "Nombre Completo Razón Social CE", "Código", "Título EC", "Fecha Final Vigencia", "Estado", "Entidad Federativa"], 
+    "18": ["Cédula ECE/OC", "Razón Social ECE/OC", "Cédula CE/EI", "Nombre Completo Razón Social CE", "Código", "Título EC", "Fecha Final Vigencia", "Estatus", "Entidad Federativa"], 
     "19": ["No. Solicitud Acred. EC/OC", "Cédula", "Siglas", "Razón Social", "Estandar de Competencia", "Titulo del Estandar", "Vigencia Inicial", "Vigencia Final", "Estado", "Entidad Federativa"], 
     "20": ["Nombre Institución", "Domicilio", "Colonia", "Delegación/Municipio", "Código postal", "Estado", "Teléfono", "Correo electrónico", "Página web", "Giro", "Nombre director general", "Sucursales", "Años de operación", "Total trabajadores/empleados", "Número de trabajadores/empleados susceptibles de certificación", "Asociaciones/Cámaras", "Funciones/EC"],
     "21": ["Cédula ECE/OC", "Nombre ECE/OC", "Cédula CE/EI", "Nombre CE/EI", "Código", "Título", "Inicio vigencia", "Fin vigencia", "Fecha de Ultima Renovacion"], 
@@ -543,6 +514,8 @@ const columnOrderMap = {
     "25": ["NOMBRE ECE/OC", "TIPO PRESTADOR SERVICIOS", "NOMBRE CENTRO EVALUADOR", "CODIGO EC", "TITULO EC", "ESTATUS ECE/OC", "ESTATUS CE"], 
     "26": ["Cédula", "Siglas", "Nombre", "Código", "Vigencia Acreditacion", "Título", "CURP", "Nombre Verificador", "Estatus"],
     "27": ["Fecha Creación", "Fecha Solicitud", "No. Solicitud", "Cédula", "Razón Social", "Siglas", "CURP", "Nombre", "Cód. Est. Comp.", "Estándar de Competencia"],
+    "28": ["FECHA_SOLICITUD", "PS", "CLAVE_PS", "EC", "NIVEL_EC", "NOMBRE_USR", "CURP", "SOLICITUD", "ESTATUS_SOLICITUD_CERT", "FOLIO_PROCESO", "LOTE_EVALUACION", "LOTE_DICTAMEN", "JUICIO_COMPENTENCIA"],
+    "29": ["FL_CENTRO_EVALUACION", "CL_ACREDITACION_CE_EI", "FL_USUARIO", "NB_USUARIO", "SUS_FIELD1", "FE_INICIO_VIGENCIA", "FE_VIGENCIA_ACRED", "DS_RAZON_SOCIAL", "DS_SIGLAS", "REPRESENTANTE", "DS_CORREO_ELECTRONICO", "NO_TELEFONO", "NO_CODIGO_POSTAL", "NB_ENTIDAD_FEDERATIVA", "NB_MUNICIPIO", "NB_CIUDAD", "NB_COLONIA", "DS_CALLE_NUMERO", "DS_NUMERO_INTERIOR"],
 };
 
 function renderTableRows(data) {
@@ -595,8 +568,8 @@ function renderTableRows(data) {
                                 const img = document.createElement('img');
                                 img.src = imageSource;
                                 img.alt = 'Imagen';
-                                img.style.maxWidth = '300px';
-                                img.style.maxHeight = '300px';
+                                img.style.maxWidth = '500px';
+                                img.style.maxHeight = '400px';
                                 img.style.objectFit = 'contain';
                                 img.className = 'img-fluid cursor-pointer';
                                 img.onerror = () => {
@@ -665,12 +638,32 @@ function resetTableElements(elements) {
 }
 
 
+document.getElementById('quickSearchInput').addEventListener('input', function() {
+    const searchTerm = this.value.trim();
+    const searchColumn = document.getElementById('searchColumnSelect').value;
+    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+
+    if (!searchTerm) {
+        renderTableRows(globalTableData);
+        return;
+    }
+
+    const filteredData = globalTableData.filter(row => {
+        if (searchColumn) {
+            const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
+            return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+
+        return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
+    });
+
+    renderTableRows(filteredData);
+});
 
 function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
     const paginationDiv = document.getElementById('pagination');
     paginationDiv.innerHTML = '';
 
-    
     if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
             cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
@@ -694,7 +687,6 @@ function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorP
         }
     }
 
-  
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
             cargarDatos(selectedValue, i, registrosPorPagina);
@@ -739,26 +731,20 @@ function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = '
     return button;
 }
 
-function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
-    const button = document.createElement('button');
-    button.textContent = texto;
-    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
-
-    if (esActual) {
-        button.disabled = true;
-        button.classList.add('active');
-    }
-
-    button.addEventListener('click', clickHandler);
-    return button;
-}
-
 function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
-    const selectedValue = selectElement.value;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
 
-    if (!selectedValue || selectedValue === 'Selecciona:') {
-        alert('Por favor, seleccione un tipo de reporte antes de descargar');
+    if (selectedOptions.length === 0 || selectedOptions.includes('Selecciona:')) {
+        alert('Por favor, seleccione al menos un tipo de reporte antes de descargar.');
+        return;
+    }
+
+    const validOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25","26", "27", "28", "29", "30"]; 
+    const selectedValidOptions = selectedOptions.filter(option => validOptions.includes(option));
+
+    if (selectedValidOptions.length === 0) {
+        alert('Selección inválida. Por favor, elija un tipo de reporte válido.');
         return;
     }
 
@@ -768,50 +754,42 @@ function descargarReporte() {
 
     const nombreReporte = {
         "1": "Directorio_CE_EI",
-        "2": "Reporte_Acreditacion_Renovacion",
-        "3": "Certificados_Marca_Totales",
-        "4": "Certificados_Marca_EC_OCE",
-        "5": "Certificados_Marca_Estado",
-        "6": "Certificados_Marca_Nombre",
-        "7": "Certificados_Emitidos",
-        "8": "Cifras_Acreditacion",
-        "9": "Cintillos_EC",
-        "10": "Descarga_Instrumento_Evaluacion",
-        "11": "Directorio_ENLACES",
-        "12": "Instituciones_Acreditadas",
-        "13": "Instituciones_Acreditadas_Basico",
-        "14": "Instituciones_Educativas",
-        "15": "Logos_ECE_OC",
-        "16": "Lotes_Certificados",
-        "17": "Personas_Certificadas",
-        "18": "Acreditaciones_CE_EI",
-        "19": "Acreditaciones_ECE_OC",
-        "20": "Empresas",
-        "21": "Renovaciones_CE_EI",
-        "22": "Renovaciones_ECE_OC",
+        "2": "Reporte_Acreditación_y_Renovación",
+        "3": "Reporte_Certificados_de_Marca_con_Totales",
+        "4": "Reporte_Certificados_de_Marca_por_EC_OCE",
+        "5": "Reporte_Certificados_de_Marca_por_Estado",
+        "6": "Reporte_Certificados_de_Marca_por_Nombre_Certificado",
+        "7": "Reporte_Certificados_Emitidos",
+        "8": "Reporte_Cifras_de_Acreditación",
+        "9": "Reporte_Cintillos_EC",
+        "10": "Reporte_Descarga_Instrumento_Evaluación",
+        "11": "Reporte_Directorio_ENLACES",
+        "12": "Reporte_Instituciones_Acreditadas",
+        "13": "Reporte_Instituciones_Acreditadas_Basico",
+        "14": "Reporte_Instituciones_Educativas",
+        "15": "Reporte_Logos_ECE_OC",
+        "16": "Reporte_Lotes_Certificados",
+        "17": "Reporte_Personas_Certificadas",
+        "18": "Reporte_Acreditaciones_CE_EI",
+        "19": "Reporte_Acreditaciones_ECE_OC",
+        "20": "Reporte_Empresas",
+        "21": "Reporte_Renovaciones_CE_EI",
+        "22": "Reporte_Renovaciones_ECE_OC",
         "23": "Reporte_Integral",
-        "24": "Sector_Productivo",
-        "25": "Soluciones_Evaluacion_Certificaciones_EC",
-        "26": "Verificadores_EC_ECE_OC",
-        "27": "Solicitudes_Certificados"
+        "24": "Reporte_Sector_Productivo",
+        "25": "Reporte_Soluciones_Evaluación_y_Certificaciones_EC",
+        "26": "Reporte_Verificadores_EC_ECE_OC",
+        "27": "Solicitudes_Certificados",
+        "28": "Reporte_de_Solicitudes_Enviadas_a_Conocer",
+        "29": "Reporte_de_Claves_Centro",
     };
 
-    const reportName = nombreReporte[selectedValue] || `Reporte_${selectedValue}`;
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+    const reportNames = selectedValidOptions.map(value => nombreReporte[value] || `Reporte_${value}`).join("_");
 
     const params = new URLSearchParams();
     params.append('formato', 'excel');
-    params.append('procedimientos', selectedValue);
-    params.append('nombreReporte', reportName);
-    params.append('timestamp', timestamp); 
+    params.append('procedimientos', selectedValidOptions.join(',')); 
+    params.append('nombreReporte', reportNames);
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
@@ -824,55 +802,61 @@ function descargarReporte() {
         }
     })
     .then(response => {
-        console.log('Headers de respuesta:', Object.fromEntries(response.headers.entries()));
-        console.log('Status:', response.status);
-        
         if (!response.ok) {
             return response.text().then(text => {
-                console.error('Error response:', text);
                 throw new Error(text || `Error del servidor: ${response.status}`);
             });
         }
 
         const contentType = response.headers.get('content-type');
-        console.log('Content-Type:', contentType);
-        
         if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            console.error('Content-Type incorrecto:', contentType);
             return response.text().then(text => {
-                console.log('Contenido de respuesta:', text);
-                throw new Error('El servidor no devolvió un archivo Excel válido');
+                throw new Error('El servidor no devolvió un archivo Excel válido.');
             });
         }
-        
-        return response.blob();
+
+        const disposition = response.headers.get('content-disposition');
+        let fileName;
+
+        if (disposition && disposition.includes('filename=')) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+                fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+            }
+        }
+
+        if (!fileName) {
+            const fechaActual = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
+            fileName = `${reportNames}_${fechaActual}.xlsx`;
+        }
+
+        return response.blob().then(blob => {
+            return { blob, fileName };
+        });
     })
-    .then(blob => {
-        console.log('Tamaño del blob:', blob.size, 'bytes');
-        console.log('Tipo del blob:', blob.type);
+    .then(data => {
+        const { blob, fileName } = data;
 
         if (blob.size === 0) {
-            throw new Error('El archivo generado está vacío');
+            throw new Error('El archivo generado está vacío.');
         }
 
-        const fileName = `${reportName}_${timestamp}.xlsx`;
-        
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, fileName);
-            return;
-        }
+        } else {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 0);
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
     })
     .catch(error => {
         console.error('Error detallado:', error);
@@ -886,12 +870,12 @@ function descargarReporte() {
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
+
     document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             realizarBusqueda();
         }
     });
-
     document.getElementById('seleccion').addEventListener('change', function() {
         const selectedValue = this.value;
         currentSelectedReport = selectedValue;
