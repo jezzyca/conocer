@@ -129,7 +129,6 @@
                                                     <i class="material-icons">delete</i> Eliminar
                                                 </button>
                                             </form>
-                                            <!-- Botón para editar -->
                                             <button type="button" class="btn btn-warning btn-sm" 
                                                     data-bs-toggle="modal" data-bs-target="#editarModal"
                                                     data-id="${usuario.id}" data-username="${usuario.access}">

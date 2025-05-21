@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import conexion.ConexionGeneral;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 @WebServlet(name = "validacionUsers", urlPatterns = {"/ValidarUsuarios"})
 public class validacionUsers extends HttpServlet {
@@ -64,11 +65,14 @@ public class validacionUsers extends HttpServlet {
                                 session.setAttribute("tipoUsuario", rolId);
 
                                 Date fechaActual = new Date();
-                                SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
+
+                                TimeZone zonaMexico = TimeZone.getTimeZone("GMT-6");
+                                formatoFecha.setTimeZone(zonaMexico);
+
                                 String fechaFormateada = formatoFecha.format(fechaActual);
-
                                 session.setAttribute("fecha", fechaFormateada);
-
+                                
                                 System.out.println("Usuario: " + usuario);
                                 System.out.println("Fecha formateada: " + fechaFormateada);
 

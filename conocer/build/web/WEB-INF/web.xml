@@ -118,6 +118,15 @@
 </servlet-mapping>
 
 <servlet>
+    <servlet-name>ReportesSolicitudFinanzasBasico</servlet-name>
+    <servlet-class>reportes.ReportesSolicitudFinanzasBasico</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>ReportesSolicitudFinanzasBasico</servlet-name>
+    <url-pattern>/ReportesSolicitudFinanzasBasico</url-pattern>
+</servlet-mapping>
+
+<servlet>
     <servlet-name>ReportesCertificados</servlet-name>
     <servlet-class>reportes.ReportesCertificados</servlet-class>
 </servlet>
@@ -126,7 +135,6 @@
     <url-pattern>/ReportesCertificados</url-pattern>
 </servlet-mapping>
     
-    <!-- Servlet para descargar reportes -->
     <servlet>
         <servlet-name>descargarReporte</servlet-name>
         <servlet-class>reportes.descargarReporte</servlet-class>
@@ -145,7 +153,21 @@
         <url-pattern>/busquedaPW</url-pattern>
     </servlet-mapping>
     
-    <!-- Configuración de la sesión -->
+    <servlet>
+        <servlet-name>DirectorioDescuentos</servlet-name>
+        <servlet-class>reportes.DirectorioDescuentos</servlet-class>
+        <multipart-config>
+        <location></location>
+        <max-file-size>10485760</max-file-size>
+        <max-request-size>20971520</max-request-size>
+        <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DirectorioDescuentos</servlet-name>
+        <url-pattern>/DirectorioDescuentos</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>

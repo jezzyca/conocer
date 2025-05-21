@@ -1,15 +1,15 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package reportes;
 
 import conexion.ConexionGeneral;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,7 +17,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,12 +47,10 @@ import org.json.JSONObject;
 
 /**
  *
- * @author Conocer
- * @omar.bahena
+ * @author carlo
  */
-
-@WebServlet(name = "ReportesSolicitudFinanzas", urlPatterns = {"/ReportesSolicitudFinanzas"})
-public class ReportesSolicitudFinanzas extends HttpServlet {
+@WebServlet(name = "ReportesSolicitudFinanzasBasico", urlPatterns = {"/ReportesSolicitudFinanzasBasico"})
+public class ReportesSolicitudFinanzasBasico extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
     private static final int DEFAULT_PAGE_SIZE = 30;
@@ -126,20 +123,19 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
                                     stmt.setNull(1, java.sql.Types.INTEGER);
                                 }
 
-                                // FECHA INICIO
+                                // Fecha inicio (puede ser null)
                                 if (fechaInicio != null && !fechaInicio.isEmpty()) {
                                     stmt.setDate(2, java.sql.Date.valueOf(fechaInicio));
                                 } else {
                                     stmt.setNull(2, java.sql.Types.DATE);
                                 }
 
-                                // FECHA FIN
+                                // Fecha fin (puede ser null)
                                 if (fechaFin != null && !fechaFin.isEmpty()) {
                                     stmt.setDate(3, java.sql.Date.valueOf(fechaFin));
                                 } else {
                                     stmt.setNull(3, java.sql.Types.DATE);
                                 }
-
                                 LOGGER.log(Level.INFO, "Parámetros SP 1 -> Folio: {0}, FechaInicio: {1}, FechaFin: {2}",
                                         new Object[]{numeroSolicitud, fechaInicio, fechaFin});
                             } catch (Exception e) {
@@ -591,7 +587,7 @@ public class ReportesSolicitudFinanzas extends HttpServlet {
             /*case "1":
                 return "{CALL sp_Reporte_Solicitud_Cert_Finanzas(?)}"; */
             case "1": 
-                return "{CALL sp_Rep_Solicitud_de_Certificacion(?, ?, ?)}"; 
+                return "{CALL sp_Rep_Solicitud_de_Certificacion_Basico(?, ?, ?)}"; 
             case "2":
                 return "{CALL sp_Rep_Solicitud_Acreditacion_EC(?, ?, ?)}";
             case "3":

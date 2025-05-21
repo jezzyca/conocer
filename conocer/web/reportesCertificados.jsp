@@ -66,22 +66,30 @@
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
-            <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
-                <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
-                <div class="media-body">
-                    <h6 class="mb-0 usuario-nombre small">
-                        Usuario: <c:out value="${sessionScope.usuario}" />
-                    </h6>
-                    <small class="text-muted usuario-fecha">
-                        Fecha: <c:out value="${sessionScope.fecha}" />
-                    </small>
-                </div>
+            <div class="col-3 d-flex justify-content-end align-items-center">
+                <div class="dropdown d-flex align-items-center">
+                    <img src="img/userpersona.png"
+                         alt="Imagen usuario"
+                         class="rounded-circle me-2"
+                         width="55"
+                         style="cursor: pointer;"
+                         id="dropdownUser"
+                         data-bs-toggle="dropdown"
+                         aria-expanded="false">
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-danger dropdown-toggle d-none" data-bs-toggle="dropdown">
-                        Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <div>
+                        <h6 class="mb-1 usuario-nombre medium fw-bold text-primary">
+                            <i class="fa-solid fa-user me-2"></i>
+                            <c:out value="${sessionScope.usuario}" />
+                        </h6>
+                        <small class="text-muted usuario-fecha fst-italic">
+                            <i class="fa-solid fa-calendar-days"></i> Fecha:
+                            <c:out value="${sessionScope.fecha}"/>
+                            <br>Hora:<span id="hora-actual">Hora: </span>
+                        </small>
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li><a class="dropdown-item" href="cambioContrasena.jsp">Cambiar Contraseña</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
@@ -143,9 +151,11 @@
             </div>
         </div>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  
    <script>   
 let globalTableData = [];
 let currentSelectedReport = null;
@@ -310,7 +320,6 @@ const reportTitles = {
     "20": "Reporte de Soluciones de Evaluación y Certificaciónes EC",
     "21": "Reporte de Verificadores EC / ECE / OC",
 }
-
 function handleLoadError(error, elements) {
     console.error('Error al cargar los datos:', error);
 
@@ -851,6 +860,23 @@ if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;
     cargarDatos(initialSelectedValue, 1, 30);
 }
+
+function actualizarHora() {
+        const fechaActual = new Date();
+        const opciones = {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+            timeZone: 'America/Mexico_City'
+        };
+
+        const horaFormateada = new Intl.DateTimeFormat('es-MX', opciones).format(fechaActual);
+        document.getElementById('hora-actual').innerText = ' ' + horaFormateada;  
+    }
+
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
     </script>
 
 </body>

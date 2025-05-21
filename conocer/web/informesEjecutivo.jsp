@@ -49,22 +49,30 @@
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
             </div>
-            <div class="col-2 d-flex justify-content-end align-items-center ms-auto">
-                <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
-                <div class="media-body">
-                    <h6 class="mb-0 usuario-nombre small">
-                        Usuario: <c:out value="${sessionScope.usuario}" />
-                    </h6>
-                    <small class="text-muted usuario-fecha">
-                        Fecha: <c:out value="${sessionScope.fecha}" />
-                    </small>
-                </div>
+            <div class="col-3 d-flex justify-content-end align-items-center">
+                <div class="dropdown d-flex align-items-center">
+                    <img src="img/userpersona.png"
+                         alt="Imagen usuario"
+                         class="rounded-circle me-2"
+                         width="55"
+                         style="cursor: pointer;"
+                         id="dropdownUser"
+                         data-bs-toggle="dropdown"
+                         aria-expanded="false">
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-danger dropdown-toggle d-none" data-bs-toggle="dropdown">
-                        Cuenta <i class="fa-solid fa-user ms-2 align-middle"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <div>
+                        <h6 class="mb-1 usuario-nombre medium fw-bold text-primary">
+                            <i class="fa-solid fa-user me-2"></i>
+                            <c:out value="${sessionScope.usuario}" />
+                        </h6>
+                        <small class="text-muted usuario-fecha fst-italic">
+                            <i class="fa-solid fa-calendar-days"></i> Fecha:
+                            <c:out value="${sessionScope.fecha}"/>
+                            <br>Hora:<span id="hora-actual">Hora: </span>
+                        </small>
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li><a class="dropdown-item" href="cambioContrasena.jsp">Cambiar Contraseña</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
@@ -72,7 +80,7 @@
                 </div>
             </div>
         </div>
-
+                            
 <div id="quickSearchContainer" class="row align-items-center justify-content-center mt-3" style="display:none;">
     <div class="col-md-3 col-12 mb-2">
         <input type="text" id="quickSearchInput" class="form-control" placeholder="Buscar en la tabla...">
@@ -140,36 +148,24 @@ document.getElementById('seleccion').addEventListener('change', function () {
 });
 
 function getSearchParams() {
+    const searchTerm = document.getElementById('quickSearchInput')?.value?.trim() || '';
+    const searchColumn = document.getElementById('columnSelector')?.value || '';
+    const exactMatch = document.getElementById('exactMatchCheck')?.checked || false;
+    
     return {
-        searchTerm: document.getElementById('quickSearchInput').value.trim(),
-        searchColumn: document.getElementById('searchColumnSelect').value,
-        exactMatch: document.getElementById('exactMatchCheckbox').checked
+        searchTerm,
+        searchColumn,
+        exactMatch
     };
 }
 
 function realizarBusqueda() {
     const { searchTerm, searchColumn, exactMatch } = getSearchParams();
-
+    
     if (!currentSelectedReport) {
         alert('Por favor, seleccione un reporte primero');
         return;
     }
-  
-    if (!searchTerm) {
-        cargarDatos(currentSelectedReport, 1, 30);
-        return;
-    }
-
-    const params = new URLSearchParams({
-        procedimientos: currentSelectedReport,
-        searchTerm,
-        searchColumn,
-        exactMatch,
-        fullSearch: 'true', 
-        allRecords: 'true', 
-        page: 1,
-        pageSize: 100,
-    });
     
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = `
@@ -181,77 +177,58 @@ function realizarBusqueda() {
             </td>
         </tr>`;
 
+    const params = new URLSearchParams({
+        procedimientos: currentSelectedReport,
+        page: 1,
+        pageSize: 100, 
+        fullSearch: 'true'
+    });
+
+    if (searchTerm) {
+        params.append('searchTerm', searchTerm);
+        if (searchColumn) {
+            params.append('searchColumn', searchColumn);
+        }
+        params.append('exactMatch', exactMatch);
+        params.append('allRecords', 'true'); 
+    }
+
     fetch('InformesEjecutivo?' + params.toString(), {
         method: 'GET',
         headers: { 
             'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
-        },
-        credentials: 'same-origin',
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`Error del servidor: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            if (!data.success) {
-                throw new Error(data.message || 'Error al realizar la búsqueda');
-            }
-
-            globalTableData = data.data[currentSelectedReport];
-            
-            if (!globalTableData || !Array.isArray(globalTableData)) {
-                throw new Error('No se encontraron resultados');
-            }
-
-            console.log(`Búsqueda completada. Se encontraron ${globalTableData.length} resultados.`);
-            realizarBusquedaLocal();
-        })
-        .catch((error) => {
-            console.error('Error en la búsqueda:', error);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="100%" class="text-center text-danger">
-                        <div class="alert alert-danger" role="alert">
-                            Error al realizar la búsqueda: ${error.message}
-                        </div>
-                    </td>
-                </tr>`;
-        });
-}
-
-function realizarBusquedaLocal() {
-    const { searchTerm, searchColumn, exactMatch } = getSearchParams();
-
-    if (!searchTerm) {
-        renderTableRows(globalTableData);
-        return;
-    }
-
-    if (searchTerm.length < 2) return;
-
-    const filteredData = globalTableData.filter(row => {
-        if (searchColumn) {
-            const columnValue = row[searchColumn] !== null && row[searchColumn] !== undefined 
-                ? row[searchColumn].toString() 
-                : '';
-            return exactMatch 
-                ? columnValue === searchTerm 
-                : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+            'Content-Type': 'application/json'
         }
-
-        return Object.values(row).some(value => {
-            if (value === null || value === undefined) return false;
-            const stringValue = value.toString();
-            return exactMatch 
-                ? stringValue === searchTerm 
-                : stringValue.toLowerCase().includes(searchTerm.toLowerCase());
-        });
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) throw new Error(data.message || 'Error en la búsqueda');
+        
+        globalTableData = data.data[currentSelectedReport] || [];
+        renderTableRows(globalTableData);
+        
+        const feedback = document.createElement('div');
+        feedback.className = 'alert alert-info mt-2';
+        feedback.innerHTML = `
+            <i class="bi bi-info-circle"></i> 
+            Búsqueda ${searchTerm ? 'global' : 'completa'} realizada. 
+            ${globalTableData.length} resultados encontrados.
+        `;
+        document.getElementById('quickSearchContainer').appendChild(feedback);
+        setTimeout(() => feedback.remove(), 3000);
+    })
+    .catch(error => {
+        console.error('Error en la búsqueda:', error);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="100%" class="text-center text-danger">
+                    Error al realizar la búsqueda: ${error.message}
+                </td>
+            </tr>`;
     });
-
-    renderTableRows(filteredData);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -268,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchButton?.addEventListener('click', realizarBusqueda);
 });
+
 
 const reportTitles = {
     "1": "Reporte de Estándares de Competencia",
@@ -428,6 +406,7 @@ function handleLoadError(error, elements) {
     });
     elements.tableHead.appendChild(headerRow);
 }
+
 
 const columnOrderMap = {
     "1": ["Código EC","Nombre Proyecto de EC","Título EC","Nombre del CGC","Fecha de Publicación DOF", "Vigencia del certificado", "Nivel EC", "Versión EC", "EC Activo", "Instrumento Activo", "Tipo de EC"],
@@ -654,7 +633,6 @@ function descargarReporte() {
     const selectElement = document.getElementById('seleccion');
     const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
 
-    // Validar que al menos un valor haya sido seleccionado
     if (selectedOptions.length === 0 || selectedOptions.includes('Selecciona:')) {
         alert('Por favor, seleccione al menos un tipo de reporte antes de descargar.');
         return;
@@ -672,7 +650,6 @@ function descargarReporte() {
     botonDescargar.disabled = true;
     botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
 
-    // Mapeo de nombres de reportes
     const nombreReporte = {
         "1": "Reporte_de_Estadares_de_Competencia",
         "2": "Reporte_de_Informe_Ejecutivo_CGC",
@@ -681,14 +658,11 @@ function descargarReporte() {
         "5": "Reporte_de_Instituciones_Sociales"
     };
 
-    // Construir el nombre del reporte combinando los seleccionados
     const reportNames = selectedValidOptions.map(value => nombreReporte[value] || `Reporte_${value}`).join("_");
 
-    // Construcción de parámetros
     const params = new URLSearchParams();
     params.append('formato', 'excel');
-    params.append('procedimientos', selectedValidOptions.join(',')); // Enviar múltiples procedimientos separados por coma
-    params.append('nombreReporte', reportNames);
+    params.append('procedimientos', selectedValidOptions.join(',')); 
 
     console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
 
@@ -789,6 +763,23 @@ if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
     currentSelectedReport = initialSelectedValue;
     cargarDatos(initialSelectedValue, 1, 30);
 }
+
+function actualizarHora() {
+        const fechaActual = new Date();
+        const opciones = {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+            timeZone: 'America/Mexico_City'
+        };
+
+        const horaFormateada = new Intl.DateTimeFormat('es-MX', opciones).format(fechaActual);
+        document.getElementById('hora-actual').innerText = ' ' + horaFormateada;  
+    }
+
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
    </script>
 
 </body>

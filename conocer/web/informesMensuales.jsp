@@ -17,7 +17,6 @@
         <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles/estilos_reporteador.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body id="fondoBodyReportes">
@@ -53,12 +52,12 @@
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
                                 <li><a class="dropdown-item" href="repECMarca.jsp">Reportes EC Marca</a></li>
                                 <li><a class="dropdown-item" href="estadisticas.jsp">Comportamiento</a></li>
+                                <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '091FFD8E-1C76-4723-B581-C67A99F0EC87'}">
                                 <li><a class="dropdown-item" href="directorio.jsp">Reportes</a></li>
                                 </c:if>
-                                <c:if test="${sessionScope.tipoUsuario == '24acc47d-d42c-11ef-a4c6-000c296c6b68'}">
-                                <li><a class="dropdown-item" href="directorioAdministrador.jsp">Administrar Usuarios</a></li>
+                                <c:if test="${sessionScope.tipoUsuario == '24acc47d-d42c-11ef-a4c6-000c296c6b68'}"> 
                                 <li><a class="dropdown-item" href="reportesSII.jsp">Reportes</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'DF06A990-84EF-4443-8185-77F68F6500BD'}">
@@ -87,7 +86,9 @@
                                 <li><a class="dropdown-item" href="busqueda.jsp">Busqueda</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
-                                <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reportes</a></li>
+                                <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reporte Finanzas Actualizado</a></li>
+                                <li><a class="dropdown-item" href="reporteSolicitudFinanzasBasico.jsp">Reporte Finanzas Básico</a></li>
+                                <!--<li><a class="dropdown-item" href="registroDescuentos.jsp">Registro</a></li>-->
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'FAA8565B-A5E5-4F16-A264-4335D5888B25'}">
                                 <li><a class="dropdown-item" href="reportesCertificados.jsp">Reportes</a></li>
@@ -97,14 +98,18 @@
                 </div>
                 <div class="col-3 d-flex justify-content-end align-items-center ms-auto">
                 <img src="img/userpersona.png" alt="Imagen usuario" class="rounded-circle me-2" width="55" style="cursor: pointer;" data-bs-toggle="dropdown">
-                <div class="media-body">
-                    <h6 class="mb-0 usuario-nombre small">
-                        Usuario: <c:out value="${sessionScope.usuario}" />
+                <div class="media-body text-end">
+                    <h6 class="mb-1 usuario-nombre medium fw-bold text-primary">
+                        <i class="fa-solid fa-user"></i> <c:out value="${sessionScope.usuario}" />
                     </h6>
-                    <small class="text-muted usuario-fecha">
-                        Fecha: <c:out value="${sessionScope.fecha}" />
-                    </small>
+                        <small class="text-muted usuario-fecha fst-italic">
+                            <i class="fa-solid fa-calendar-days"></i> 
+                            <c:out value="${sessionScope.fecha}" /> 
+                            <br>
+                            <span id="hora-actual"></span>
+                        </small>
                 </div>
+
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-danger dropdown-toggle d-none" data-bs-toggle="dropdown">
@@ -141,9 +146,24 @@
 
     </body>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script>
+        function actualizarHora() {
+        const fechaActual = new Date();
+        const opciones = {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+            timeZone: 'America/Mexico_City'
+        };
+
+        const horaFormateada = new Intl.DateTimeFormat('es-MX', opciones).format(fechaActual);
+        document.getElementById('hora-actual').innerText = ' ' + horaFormateada;  
+    }
+
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
+    </script>
 </html>

@@ -84,8 +84,8 @@
             
         </style>
     </head>
+    <br>
     <body>
-        <br>
         <div class="container-fluid">
         <div class="row align-items-center d-flex">
             <div class="col-3 d-flex justify-content-start align-items-center">
@@ -138,17 +138,17 @@
                             <c:out value="${sessionScope.fecha}" /><br>
                             <span id="hora-actual"></span>
                         </small>
-                    </div>
-
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                            
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li><a class="dropdown-item" href="cambioContrasena.jsp">Cambiar Contraseña</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="Logout" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        </div>
+    </div>
                  
         <div class="container-fluid mt-4">
             <h1 class="mb-4">Reportes de Solicitudes</h1>
@@ -158,7 +158,7 @@
                     <h5>Buscar Solicitudes</h5>
                 </div>
                 <div class="card-body">
-                    <form id="formReporte" action="ReportesSolicitudFinanzas" method="post">
+                    <form id="formReporte" action="ReportesSolicitudFinanzasBasico" method="post">
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label for="procedimientos">Tipo de Reporte:</label>
@@ -236,20 +236,20 @@
         </div>
         
         <footer class="container-fluid mt-auto py-3 bg-light">
-            <div class="row align-items-center g-3">
-                <div class="col-12 col-md-3 text-center text-md-start">
-                    <img src="img/sep.png" alt="Logo SEP" class="img-fluid" style="max-height: 60px;">
-                </div>
-                <div class="col-12 col-md-6 text-center">
-                    <p class="small mb-1">•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
-                    <p class="small mb-1">•Barranca del Muerto 275, San José Insurgentes, Benito Juárez, 03900 Ciudad de México, D.F. 01 55 2282 0200</p>
-                    <a href="#" target="_blank" class="small text-decoration-none">• CONOCER •</a>
-                </div>
-                <div class="col-12 col-md-3 text-center text-md-end">
-                    <img src="img/conocerLogo.png" alt="Logo CONOCER" class="img-fluid" style="max-height: 60px;">
-                </div>
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-3 text-center text-md-start">
+                <img src="img/sep.png" alt="Logo SEP" class="img-fluid" style="max-height: 60px;">
             </div>
-        </footer>
+            <div class="col-12 col-md-6 text-center">
+                <p class="small mb-1">•2025•©CONSEJO NACIONAL DE NORMALIZACIÓN Y CERTIFICACIÓN DE COMPETENCIAS LABORALES. MÉXICO•</p>
+                <p class="small mb-1">•Barranca del Muerto 275, San José Insurgentes, Benito Juárez, 03900 Ciudad de México, D.F. 01 55 2282 0200</p>
+                <a href="#" target="_blank" class="small text-decoration-none">• CONOCER •</a>
+            </div>
+            <div class="col-12 col-md-3 text-center text-md-end">
+                <img src="img/conocerLogo.png" alt="Logo CONOCER" class="img-fluid" style="max-height: 60px;">
+            </div>
+        </div>
+    </footer>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
  <script>
@@ -278,7 +278,7 @@ console.log('Form data being sent:', $('#formReporte').serialize());
     console.log('Explicit fechaFin:', fechaFin);
     
         $.ajax({
-            url: 'ReportesSolicitudFinanzas',
+            url: 'ReportesSolicitudFinanzasBasico',
             type: 'POST',
             data: $('#formReporte').serialize(),
             dataType: 'json',
