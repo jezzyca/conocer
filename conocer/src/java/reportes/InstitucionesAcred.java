@@ -50,7 +50,7 @@ import org.json.JSONObject;
 /**
  *
  * @author Conocer
- * @omar.lopez
+ * @arturo.dominguez
  */
 @WebServlet(name = "InstitucionesAcred", urlPatterns = {"/InstitucionesAcred"})
 public class InstitucionesAcred extends HttpServlet {private static final Logger LOGGER = Logger.getLogger(ReportesSII.class.getName());
@@ -539,6 +539,42 @@ private Map<String, List<Map<String, Object>>> obtenerDatosReporte(List<String> 
                 return "{CALL sp_REP_INST_ACDREDITADAS_AVANZADO_AYE()}";
             case "2":
                 return "{CALL sp_REP_INST_ACDREDITADAS_BASICO()}";
+            case "3": 
+                return "{CALL sp_REP_ACREDITACIONES_ECE_OC()}";
+            case "4": 
+                return "{CALL sp_REP_ACREDITACIONES_CE_EI()}";
+            case "5":
+                return "{CALL sp_REP_Cert_SII_ENVIADO()}";
+            case "6":
+                return "{CALL sp_REP_Solicitud_Reimp_Cert()}";
+            case "7":
+                return "SELECT tne.codigo AS 'CODIGO', tne.titulo AS 'TITULO', tec.nivel AS 'NIVEL', tec.fechaAprobacion AS 'FECHA APROBACION', tec.vigenciaCertificado AS 'VIGENCIA DEL CERTIFICADO', tec.fechaPublicacion AS 'FECHA PUBLICACION DOF', tec.descripcion AS 'DESCRIPCION', tec.descripcionWeb AS 'DESCRIPCION WEB', tc.nombre AS 'COMITE DE GESTION POR COMPETENCIAS','SECTOR PRODUCTIVO','PROFORHCOM','NO PROFORHCOM', eer.nombre AS 'ESTATUS EC',\n"
+                        + "CASE tec.operativo \n"
+                        + "	WHEN 0 THEN 'No operativo' \n"
+                        + "	WHEN 1 THEN 'Operativo'  						  \n"
+                        + "END AS 'ESTATUS RENEC',\n"
+                        + "tmr.nombre AS 'TIPO MODELO',\n"
+                        + "CASE tec.restringido \n"
+                        + "	WHEN 0 THEN '' \n"
+                        + "	WHEN 1 THEN 'Restringido'  						  \n"
+                        + "END AS 'RESTRINGIDO',\n"
+                        + "ceg.Descripcion AS 'SECTOR PRODUCTIVO SCIAN'\n"
+                        + ",tec.idSectorProductivo\n"
+                        + "from tblNormasEstandares tne \n"
+                        + "inner join tblEstandaresCompetencia tec on tec.idEstandarCompetencia = tne.idNormaEstandar\n"
+                        + "inner join tblComites tc on tc.idComite = tne.idComite\n"
+                        + "inner join EstadosEC_ref eer on eer.idEstadoEC = tec.idEstadoEC \n"
+                        + "inner join TiposModelo_ref tmr on tmr.idTipoModelo = tne.idTipoModelo\n"
+                        + "left join C_ESP_GENERALES ceg on ceg.CVE_TIPO = tec.IDSECTORPRODUCTIVOSCIAN \n"
+                        + "where tne.codigo like 'EC%'\n"
+                        + "and tec.operativo =1\n"
+                        + "and eer.nombre = 'Vigente'\n"
+                        + "-- AND tne.codigo = 'EC0196'\n"
+                        + "ORDER BY tec.idEstandarCompetencia ASC;";
+            case "8":
+                return "SELECT * FROM C_SECTOR_PRODUCTIVO csp;";
+            case "9":
+                return "SELECT * FROM tblComites tc WHERE operativo = 1;";
             default:
                 throw new Exception("Procedimiento no válido: " + procedimiento);
         }

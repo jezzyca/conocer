@@ -70,6 +70,7 @@
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'D3625435-5295-4349-976C-12787488AC5B'}">
                                 <li><a class="dropdown-item" href="institucionesAcred.jsp">Reportes</a></li>
+                                <li><a class="dropdown-item" href="busqueda.jsp">Busqueda</a>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == '0AD4C2A2-59A5-481C-A501-8E3F2BDEE1E6'}">
                                 <li><a class="dropdown-item" href="certificadosMarca.jsp">Reportes</a></li>
@@ -88,10 +89,10 @@
                                 <c:if test="${sessionScope.tipoUsuario == 'CA9A6633-D971-4FEC-B379-0B8CDC859C0E'}">
                                 <li><a class="dropdown-item" href="reportesSolicitudFinanzas.jsp">Reporte Finanzas Actualizado</a></li>
                                 <li><a class="dropdown-item" href="reporteSolicitudFinanzasBasico.jsp">Reporte Finanzas Básico</a></li>
-                                <!--<li><a class="dropdown-item" href="registroDescuentos.jsp">Registro</a></li>-->
+                                <li><a class="dropdown-item" href="registroDescuentos.jsp">Registro</a></li>
                                 </c:if>
                                 <c:if test="${sessionScope.tipoUsuario == 'FAA8565B-A5E5-4F16-A264-4335D5888B25'}">
-                                <li><a class="dropdown-item" href="reportesCertificados.jsp">Reportes</a></li>
+                                <!--<li><a class="dropdown-item" href="reportesCertificados.jsp">Reportes</a></li>-->
                                 </c:if>
                         </ul>
                     </div>

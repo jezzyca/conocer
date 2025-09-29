@@ -293,6 +293,7 @@ function cargarDatos(tipo) {
         function hideSpinner() {
             document.getElementById('loadingSpinner').style.display = 'none';
         }
+        
     </script>
 </body>
 </html>

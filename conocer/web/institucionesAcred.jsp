@@ -40,8 +40,15 @@
                 <label for="seleccion" class="colorLabel me-2">Selecciona el tipo de reporte:</label>
                 <select name="procedimientos" id="seleccion" class="form-select w-50">
                     <option selected disabled>Selecciona:</option>
-                        <option value="1">Instituciones Acreditadas</option>
-                        <option value="2">Instituciones Acreditadas Básico</option>
+                        <!--<option value="1">Reporte de Instituciones Acreditadas</option>
+                        <option value="2">Reporte de Instituciones Acreditadas Básico</option>!-->
+                        <option value="3">Reporte de Acreditaciones EC / OC</option>
+                        <option value="4">Reporte de Acreditaciones CE / EI</option>
+                        <option value="5">Reporte de Solicitud de Certificados</option>
+                        <option value="6">Reporte de Reposiciones de Certificados</option>
+                        <option value="7">Reporte RENEC</option>
+                        <option value="8">Reporte de Sectores Productivos</option>
+                        <option value="9">Reporte CGC Comites</option>
                 </select>
                 <button id="descargarSp" type="button" class="btn btn-outline-danger btn-custom ms-2">
     <i class="bi bi-file-earmark-arrow-down-fill"></i>Descargar</button>
@@ -56,7 +63,6 @@
                          id="dropdownUser"
                          data-bs-toggle="dropdown"
                          aria-expanded="false">
-
                     <div>
                         <h6 class="mb-1 usuario-nombre medium fw-bold text-primary">
                             <i class="fa-solid fa-user me-2"></i>
@@ -215,7 +221,7 @@ function realizarBusqueda() {
         feedback.innerHTML = `
             <i class="bi bi-info-circle"></i> 
             Búsqueda ${searchTerm ? 'global' : 'completa'} realizada. 
-            ${globalTableData.length} resultados encontrados.
+        ${globalTableData.length} resultados encontrados.
         `;
         document.getElementById('quickSearchContainer').appendChild(feedback);
         setTimeout(() => feedback.remove(), 3000);
@@ -249,7 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const reportTitles = {
     "1": "Reporte de Instituciones Acreditadas",
-    "2": "Reporte de Instituciones Acreditadas Básico"
+    "2": "Reporte de Instituciones Acreditadas Básico",
+    "3": "Reporte de Acreditaciones EC / OC",
+    "4": "Reporte de Acreditaciones CE / EI",
+    "5": "Reporte de Solicitud de Certificados",
+    "6": "Reporte de Reposiciones de Certificados",
+    "7": "Reporte RENEC",
+    "8": "Reporte de Sectores Productivos",
+    "9": "Reporte CGC Comites"
 }
 
 function handleLoadError(error, elements) {
@@ -367,56 +380,55 @@ function handleLoadError(error, elements) {
     if (!tableHead) {
         console.error('No se encontró el elemento tableHead');
         return;
-    }
+        }
 
-    const columnOrder = columnOrderMap[currentSelectedReport] || [];
-
-    tableHead.innerHTML = '';
-
-    const headerRow = document.createElement('tr');
-
-    columnOrder.forEach(columnName => {
+        const columnOrder = columnOrderMap[currentSelectedReport] || [];
+        tableHead.innerHTML = '';
+        const headerRow = document.createElement('tr');
+        columnOrder.forEach(columnName => {
         const th = document.createElement('th');
         th.textContent = columnName;
         th.className = 'text-nowrap';
         headerRow.appendChild(th);
-    });
+        });
+        tableHead.appendChild(headerRow);
+        }
 
-    tableHead.appendChild(headerRow);
-}
-
- function createTableHeader(columns, elements) {
-    const headerRow = document.createElement('tr');
-
-    window.columnOrder = columns;
-    
-    columns.forEach(column => {
+        function createTableHeader(columns, elements) {
+        const headerRow = document.createElement('tr');
+        window.columnOrder = columns;
+        columns.forEach(column => {
         const th = document.createElement('th');
         th.textContent = column;
         th.className = 'text-nowrap';
         headerRow.appendChild(th);
-
         const option = document.createElement('option');
         option.value = column;
         option.textContent = column;
         elements.searchColumn.appendChild(option);
-    });
-    elements.tableHead.appendChild(headerRow);
-}
+        });
+        elements.tableHead.appendChild(headerRow);
+        }
 
-const columnOrderMap = {
-    "1": ["Cédula", "Razón Social", "Siglas / Acronimo", "Pagina Web", "RFC", "Estado Acreditación", "Nombre Representante Legal", "Cargo Representante", "Correo Representante", "Telefono Representante", "Celular Representante"], 
-    "2": ["FL PRESTADOR SERVICIOS", "Cédula", "Fecha Acreditación", "Prestador Servicios", "Siglas", "Tipo Prestador", "Estado Acreditación Inicial", "Estado Acreditación", "Estado"], 
-};
-
-function renderTableRows(data) {
-    const tableBody = document.getElementById('tableBody');
-    if (!tableBody) {
+        const columnOrderMap = {
+                "1": ["Cédula", "Razón Social", "Siglas / Acronimo", "Pagina Web", "RFC", "Estado Acreditación", "Nombre Representante Legal", "Cargo Representante", "Correo Representante", "Telefono Representante", "Celular Representante"],
+                "2": ["FL PRESTADOR SERVICIOS", "Cédula", "Fecha Acreditación", "Prestador Servicios", "Siglas", "Tipo Prestador", "Estado Acreditación Inicial", "Estado Acreditación", "Estado"],
+                "3": ["No. Solicitud Acred. EC/OC", "Cédula", "Siglas", "Razón Social", "Estandar de Competencia", "Titulo del Estandar", "Vigencia Inicial", "Vigencia Final", "Estado", "Entidad Federativa"],
+                "4": ["Cédula ECE/OC", "Razón Social ECE/OC", "Cédula CE/EI", "Nombre Completo Razón Social CE", "Código", "Título EC", "Fecha Final Vigencia", "Estatus", "Entidad Federativa"],
+                "5": ["FECHA_SOLICITUD", "PS", "CLAVE_PS", "EC", "NIVEL_EC", "NOMBRE_USR", "CURP", "SOLICITUD", "ESTATUS_SOLICITUD_CERT", "FOLIO_PROCESO", "LOTE_EVALUACION", "LOTE_DICTAMEN", "JUICIO_COMPENTENCIA"],
+                "6": ["SOLICITUD", "FECHA", "CEDULA", "SIGLAS", "ESTANDAR", "CURP", "NOMBRE", "FOLIO_CONOCER", "FOLIO_PRE_IMPRESO_ANTERIOR", "FOLIO_PRE_IMPRESO_NUEVO", "FECHA_DE_ENVIO", "ESTATUS"],
+                "7": ["CODIGO", "TITULO", "NIVEL", "FECHA APROBACION", "VIGENCIA DEL CERTIFICADO", "FECHA PUBLICACION DOF", "DESCRIPCION", "DESCRIPCION WEB", "COMITE DE GESTION POR COMPETENCIAS", "SECTOR PRODUCTIVO", "PROFORHCOM", "NO PROFORHCOM", "ESTATUS EC", "ESTATUS RENEC", "TIPO MODELO", "RESTRINGIDO", "SECTOR PRODUCTIVO SCIAN", "idSectorProductivo"],
+                "8": ["CL_SECTOR_PRODUCTIVO", "NB_SECTOR_PRODUCTIVO", "FG_ACTIVO", "nombre_imagen", "SO_ACTIVO"],
+                "9": ["idComite", "clave", "nombre", "presidente", "vicepresidente", "calleNumero", "colonia", "codigoPostal", "localidad", "telefonos", "correo", "url", "logo", "idSectorProductivo", "operativo", "idMunicipioDel", "puestoPresidente", "puestoVicepresidente", "fechaIntegracion", "idAccess_Aux", "contacto", "fax", "instrumentoData", "idTipoComite", "fehaRegistro"]
+            };
+        function renderTableRows(data) {
+        const tableBody = document.getElementById('tableBody');
+        if (!tableBody) {
         console.error('No se encontró el elemento tableBody');
         return;
-    }
+        }
 
-    if (!data || !Array.isArray(data) || data.length === 0) {
+        if (!data || !Array.isArray(data) || data.length === 0) {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="100%" class="text-center">
@@ -427,75 +439,68 @@ function renderTableRows(data) {
                 </td>
             </tr>`;
         return;
-    }
+        }
 
-    tableBody.innerHTML = ''; 
+        tableBody.innerHTML = '';
+        try {
 
-    try {
-       
         const columnOrder = columnOrderMap[currentSelectedReport] || Object.keys(data[0]);
-
         data.forEach(row => {
-            const tr = document.createElement('tr');
+        const tr = document.createElement('tr');
+        columnOrder.forEach(columnName => {
+        const td = document.createElement('td');
+        const value = row[columnName];
+        if (columnName.toLowerCase() === 'imagen') {
+        if (value) {
+        try {
+        let imageSource;
+        if (Array.isArray(value)) {
+        const uint8Array = new Uint8Array(value);
+        const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+        imageSource = URL.createObjectURL(blob);
+        } else if (typeof value === 'string') {
+        imageSource = value;
+        }
 
-            columnOrder.forEach(columnName => {
-                const td = document.createElement('td');
-                const value = row[columnName];
+        if (imageSource) {
+        const img = document.createElement('img');
+        img.src = imageSource;
+        img.alt = 'Imagen';
+        img.style.maxWidth = '500px';
+        img.style.maxHeight = '400px';
+        img.style.objectFit = 'contain';
+        img.className = 'img-fluid cursor-pointer';
+        img.onerror = () => {
+        console.error('Error al cargar la imagen');
+        td.textContent = 'No tiene imagen';
+        };
+        img.onload = () => {
+        if (Array.isArray(value)) {
+        URL.revokeObjectURL(imageSource);
+        }
+        };
+        img.onclick = () => createImageModal(imageSource);
+        td.appendChild(img);
+        } else {
+        td.textContent = 'Formato de imagen no válido';
+        }
+        } catch (error) {
+        console.error('Error al procesar imagen:', error);
+        td.textContent = 'Error al procesar imagen';
+        }
+        } else {
+        td.textContent = 'Sin imagen';
+        }
+        } else {
 
-                if (columnName.toLowerCase() === 'imagen') {
-                    if (value) {
-                        try {
-                            let imageSource;
+        td.textContent = value ?? '';
+        }
 
-                            if (Array.isArray(value)) {
-                                const uint8Array = new Uint8Array(value);
-                                const blob = new Blob([uint8Array], { type: 'image/jpeg' }); 
-                                imageSource = URL.createObjectURL(blob);
-                            } else if (typeof value === 'string') {
-                                imageSource = value;
-                            }
-
-                            if (imageSource) {
-                                const img = document.createElement('img');
-                                img.src = imageSource;
-                                img.alt = 'Imagen';
-                                img.style.maxWidth = '500px';
-                                img.style.maxHeight = '400px';
-                                img.style.objectFit = 'contain';
-                                img.className = 'img-fluid cursor-pointer';
-                                img.onerror = () => {
-                                    console.error('Error al cargar la imagen');
-                                    td.textContent = 'No tiene imagen';
-                                };
-                                img.onload = () => {
-                                    if (Array.isArray(value)) {
-                                        URL.revokeObjectURL(imageSource);
-                                    }
-                                };
-                                img.onclick = () => createImageModal(imageSource);
-
-                                td.appendChild(img); 
-                            } else {
-                                td.textContent = 'Formato de imagen no válido';
-                            }
-                        } catch (error) {
-                            console.error('Error al procesar imagen:', error);
-                            td.textContent = 'Error al procesar imagen';
-                        }
-                    } else {
-                        td.textContent = 'Sin imagen'; 
-                    }
-                } else {
-                    
-                    td.textContent = value ?? '';
-                }
-
-                tr.appendChild(td); 
-            });
-
-            tableBody.appendChild(tr); 
+        tr.appendChild(td);
         });
-    } catch (error) {
+        tableBody.appendChild(tr);
+        });
+        } catch (error) {
         console.error('Error al renderizar tabla:', error);
         tableBody.innerHTML = `
             <tr>
@@ -506,271 +511,256 @@ function renderTableRows(data) {
                     </div>
                 </td>
             </tr>`;
-    }
-}
+        }
+        }
 
-function resetTableElements(elements) {
-    if (!elements) {
+        function resetTableElements(elements) {
+        if (!elements) {
         console.error('No se proporcionaron elementos para resetear');
         return;
-    }
+        }
 
-    if (elements.tableHead) {
+        if (elements.tableHead) {
         elements.tableHead.innerHTML = '';
-    }
+        }
 
-    if (elements.tableBody) {
+        if (elements.tableBody) {
         elements.tableBody.innerHTML = '';
-    }
+        }
 
-    if (elements.pagination) {
+        if (elements.pagination) {
         elements.pagination.innerHTML = '';
-    }
-}
+        }
+        }
 
 
-document.getElementById('quickSearchInput').addEventListener('input', function() {
-    const searchTerm = this.value.trim();
-    const searchColumn = document.getElementById('searchColumnSelect').value;
-    const exactMatch = document.getElementById('exactMatchCheckbox').checked;
-
-    if (!searchTerm) {
+        document.getElementById('quickSearchInput').addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        const searchColumn = document.getElementById('searchColumnSelect').value;
+        const exactMatch = document.getElementById('exactMatchCheckbox').checked;
+        if (!searchTerm) {
         renderTableRows(globalTableData);
         return;
-    }
+        }
 
-    const filteredData = globalTableData.filter(row => {
+        const filteredData = globalTableData.filter(row => {
         if (searchColumn) {
-            const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
-            return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+        const columnValue = row[searchColumn] !== null ? row[searchColumn].toString() : '';
+        return exactMatch ? columnValue === searchTerm : columnValue.toLowerCase().includes(searchTerm.toLowerCase());
         }
 
         return Object.values(row).some(value => value !== null && (exactMatch ? value.toString() === searchTerm : value.toString().toLowerCase().includes(searchTerm.toLowerCase())));
-    });
-
-    renderTableRows(filteredData);
-});
-
-function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
-    const paginationDiv = document.getElementById('pagination');
-    paginationDiv.innerHTML = '';
-
-    if (currentPage > 1) {
+        });
+        renderTableRows(filteredData);
+        });
+        function generarPaginacion(totalPages, currentPage, selectedValue, registrosPorPagina) {
+        const paginationDiv = document.getElementById('pagination');
+        paginationDiv.innerHTML = '';
+        if (currentPage > 1) {
         const prevButton = crearBotonPaginacion('Anterior', () => {
-            cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
+        cargarDatos(selectedValue, currentPage - 1, registrosPorPagina);
         }, false, 'bg-danger', 'text-white');
         paginationDiv.appendChild(prevButton);
-    }
+        }
 
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    if (startPage > 1) {
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        if (startPage > 1) {
         const firstPageButton = crearBotonPaginacion('1', () => {
-            cargarDatos(selectedValue, 1, registrosPorPagina);
+        cargarDatos(selectedValue, 1, registrosPorPagina);
         }, false, 'bg-primary', 'text-white');
         paginationDiv.appendChild(firstPageButton);
-
         if (startPage > 2) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
+        const ellipsis = document.createElement('span');
+        ellipsis.textContent = '...';
+        paginationDiv.appendChild(ellipsis);
         }
-    }
+        }
 
-    for (let i = startPage; i <= endPage; i++) {
+        for (let i = startPage; i <= endPage; i++) {
         const pageButton = crearBotonPaginacion(i.toString(), () => {
-            cargarDatos(selectedValue, i, registrosPorPagina);
+        cargarDatos(selectedValue, i, registrosPorPagina);
         }, i === currentPage, 'bg-primary', 'text-white');
-
         paginationDiv.appendChild(pageButton);
-    }
+        }
 
-    if (endPage < totalPages) {
+        if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            paginationDiv.appendChild(ellipsis);
+        const ellipsis = document.createElement('span');
+        ellipsis.textContent = '...';
+        paginationDiv.appendChild(ellipsis);
         }
 
         const lastPageButton = crearBotonPaginacion(totalPages.toString(), () => {
-            cargarDatos(selectedValue, totalPages, registrosPorPagina);
+        cargarDatos(selectedValue, totalPages, registrosPorPagina);
         }, false, 'bg-primary', 'text-white');
-
         paginationDiv.appendChild(lastPageButton);
-    }
+        }
 
-    if (currentPage < totalPages) {
+        if (currentPage < totalPages) {
         const nextButton = crearBotonPaginacion('Siguiente', () => {
-            cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
+        cargarDatos(selectedValue, currentPage + 1, registrosPorPagina);
         }, false, 'bg-danger', 'text-white');
         paginationDiv.appendChild(nextButton);
-    }
-}
+        }
+        }
 
-function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
-    const button = document.createElement('button');
-    button.textContent = texto;
-    button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
-
-    if (esActual) {
+        function crearBotonPaginacion(texto, clickHandler, esActual = false, bgClass = 'bg-light', textClass = 'text-dark') {
+        const button = document.createElement('button');
+        button.textContent = texto;
+        button.classList.add('btn', 'mx-1', bgClass, textClass, 'btn-outline-secondary');
+        if (esActual) {
         button.disabled = true;
         button.classList.add('active');
-    }
+        }
 
-    button.addEventListener('click', clickHandler);
-    return button;
-}
+        button.addEventListener('click', clickHandler);
+        return button;
+        }
 
-function descargarReporte() {
-    const selectElement = document.getElementById('seleccion');
-    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
-
-    if (selectedOptions.length === 0 || selectedOptions.includes('Selecciona:')) {
+        function descargarReporte() {
+        const selectElement = document.getElementById('seleccion');
+        const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+        if (selectedOptions.length === 0 || selectedOptions.includes('Selecciona:')) {
         alert('Por favor, seleccione al menos un tipo de reporte antes de descargar.');
         return;
-    }
+        }
 
-    const validOptions = ["1", "2", "3", "4", "5", "6", "7"]; // Lista de opciones válidas
-    const selectedValidOptions = selectedOptions.filter(option => validOptions.includes(option));
-
-    if (selectedValidOptions.length === 0) {
+        const validOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]; // Lista de opciones válidas
+        const selectedValidOptions = selectedOptions.filter(option => validOptions.includes(option));
+        if (selectedValidOptions.length === 0) {
         alert('Selección inválida. Por favor, elija un tipo de reporte válido.');
         return;
-    }
+        }
 
-    const botonDescargar = document.getElementById('descargarSp');
-    botonDescargar.disabled = true;
-    botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
-
-    const nombreReporte = {
-        "1": "Reporte_de_Instituciones_Acreditadas",
-        "2": "Reporte_de_Instituciones_Acreditadas_Básico"
-    };
-
-    const reportNames = selectedValidOptions.map(value => nombreReporte[value] || `Reporte_${value}`).join("_");
-
-    const params = new URLSearchParams();
-    params.append('formato', 'excel');
-    params.append('procedimientos', selectedValidOptions.join(',')); 
-    params.append('nombreReporte', reportNames);
-
-    console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
-
-    fetch('InstitucionesAcred?' + params.toString(), {
+        const botonDescargar = document.getElementById('descargarSp');
+        botonDescargar.disabled = true;
+        botonDescargar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...';
+        const nombreReporte = {
+            "1": "Reporte_de_Instituciones_Acreditadas",
+            "2": "Reporte_de_Instituciones_Acreditadas_Básico",
+            "3": "Reporte_de_Acreditaciones_EC_OC",
+            "4": "Reporte_de_Acreditaciones_CE_EI",
+            "5": "Reporte_de_Solicitud_de_Certificados",
+            "6": "Reporte_de_Reposiciones_de_Certificados",
+            "7": "Reporte_RENEC",
+            "8": "Reporte_de_Sectores_Productivos",
+            "9": "Reporte_CGC_Comites"
+        };
+        
+        const reportNames = selectedValidOptions.map(value => nombreReporte[value] || `Reporte_${value}`).join("_");
+        const params = new URLSearchParams();
+        params.append('formato', 'excel');
+        params.append('procedimientos', selectedValidOptions.join(','));
+        params.append('nombreReporte', reportNames);
+        console.log('Iniciando descarga con parámetros:', Object.fromEntries(params));
+        fetch('InstitucionesAcred?' + params.toString(), {
         method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-            'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Cache-Control': 'no-cache'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
+                credentials: 'same-origin',
+                headers: {
+                'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'Cache-Control': 'no-cache'
+                }
+        })
+                .then(response => {
+                if (!response.ok) {
+                return response.text().then(text => {
                 throw new Error(text || `Error del servidor: ${response.status}`);
-            });
-        }
+                });
+                }
 
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-            return response.text().then(text => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                return response.text().then(text => {
                 throw new Error('El servidor no devolvió un archivo Excel válido.');
-            });
-        }
+                });
+                }
 
-        const disposition = response.headers.get('content-disposition');
-        let fileName;
-
-        if (disposition && disposition.includes('filename=')) {
-            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-            const matches = filenameRegex.exec(disposition);
-            if (matches != null && matches[1]) {
+                const disposition = response.headers.get('content-disposition');
+                let fileName;
+                if (disposition && disposition.includes('filename=')) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) {
                 fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
-            }
-        }
+                }
+                }
 
-        if (!fileName) {
-            const fechaActual = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
-            fileName = `${reportNames}_${fechaActual}.xlsx`;
-        }
+                if (!fileName) {
+                const fechaActual = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
+                fileName = `${reportNames}_${fechaActual}.xlsx`;
+                }
 
-        return response.blob().then(blob => {
-            return { blob, fileName };
-        });
-    })
-    .then(data => {
-        const { blob, fileName } = data;
+                return response.blob().then(blob => {
+                return { blob, fileName };
+                });
+                })
+                .then(data => {
+                const { blob, fileName } = data;
+                if (blob.size === 0) {
+                throw new Error('El archivo generado está vacío.');
+                }
 
-        if (blob.size === 0) {
-            throw new Error('El archivo generado está vacío.');
-        }
-
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, fileName);
-        } else {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-
-            setTimeout(() => {
+                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveOrOpenBlob(blob, fileName);
+                } else {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
-            }, 0);
+                }, 0);
+                }
+                })
+                .catch(error => {
+                console.error('Error detallado:', error);
+                alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
+                })
+                .finally(() => {
+                botonDescargar.disabled = false;
+                botonDescargar.innerHTML = 'Descargar Información';
+                });
         }
-    })
-    .catch(error => {
-        console.error('Error detallado:', error);
-        alert(`Error al descargar el reporte: ${error.message}\nPor favor, revise la consola para más detalles.`);
-    })
-    .finally(() => {
-        botonDescargar.disabled = false;
-        botonDescargar.innerHTML = 'Descargar Información';
-    });
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
-
-    document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchButton').addEventListener('click', realizarBusqueda);
+        document.getElementById('quickSearchInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            realizarBusqueda();
+        realizarBusqueda();
         }
-    });
-    document.getElementById('seleccion').addEventListener('change', function() {
+        });
+        document.getElementById('seleccion').addEventListener('change', function() {
         const selectedValue = this.value;
         currentSelectedReport = selectedValue;
         cargarDatos(selectedValue, 1, 30);
-    });
+        });
+        document.getElementById('descargarSp').addEventListener('click', descargarReporte);
+        });
+        const initialSelectedValue = document.getElementById('seleccion').value;
+        if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
+        currentSelectedReport = initialSelectedValue;
+        cargarDatos(initialSelectedValue, 1, 30);
+        }
 
-    document.getElementById('descargarSp').addEventListener('click', descargarReporte);
-});
-
-const initialSelectedValue = document.getElementById('seleccion').value;
-if (initialSelectedValue && initialSelectedValue !== 'Selecciona:') {
-    currentSelectedReport = initialSelectedValue;
-    cargarDatos(initialSelectedValue, 1, 30);
-}
-
-function actualizarHora() {
+        function actualizarHora() {
         const fechaActual = new Date();
         const opciones = {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true,
-            timeZone: 'America/Mexico_City'
+        hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+                timeZone: 'America/Mexico_City'
         };
-
         const horaFormateada = new Intl.DateTimeFormat('es-MX', opciones).format(fechaActual);
-        document.getElementById('hora-actual').innerText = ' ' + horaFormateada;  
-    }
+        document.getElementById('hora-actual').innerText = ' ' + horaFormateada;
+        }
 
-    setInterval(actualizarHora, 1000);
-    actualizarHora();
+        setInterval(actualizarHora, 1000);
+        actualizarHora();
     </script>
 </body>
 </html>
