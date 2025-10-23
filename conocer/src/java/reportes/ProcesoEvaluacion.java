@@ -59,7 +59,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 /**
  *
  * @conocer
- * @juan fernandez
+ * @User.Acreditacion01
  */
 @WebServlet(name = "ProcesoEvaluacion", urlPatterns = {"/ProcesoEvaluacion"})
 public class ProcesoEvaluacion extends HttpServlet {
